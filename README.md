@@ -29,7 +29,7 @@ npm install
 npm run dev
 ```
 
-Prerequisites: Node.js and VS Code (with the `code` command available in your PATH).
+Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code (with the `code` command available in your PATH).
 
 - **macOS**: open VS Code → `Cmd+Shift+P` → "Shell Command: Install 'code' command in PATH"
 - **Windows / Linux**: the installer adds `code` to PATH automatically
