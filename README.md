@@ -33,6 +33,10 @@ Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code (with the `code` command 
 
 - **macOS**: open VS Code → `Cmd+Shift+P` → "Shell Command: Install 'code' command in PATH"
 - **Windows / Linux**: the installer adds `code` to PATH automatically
+- **WSL2**: Electron needs a few system libs not included in the default WSL2 install. Run once before `npm run dev`:
+  ```bash
+  sudo apt-get install -y libnspr4 libnss3 libasound2t64 --fix-missing
+  ```
 
 ---
 
