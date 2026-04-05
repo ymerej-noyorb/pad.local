@@ -61,6 +61,17 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 ---
 
+## Research before implementing
+
+Before writing any custom implementation, always check in this order:
+1. The official documentation of the relevant library (Excalidraw, Electron, xterm.js, etc.)
+2. The exported API of the installed package (`node_modules`) — grep exports, read types
+3. A web search for existing solutions or prior art
+
+Only implement custom code if nothing suitable already exists. Avoid reinventing what a dependency already provides.
+
+---
+
 ## Code conventions
 
 - Always use semicolons at the end of statements (enforced by Prettier).
@@ -68,6 +79,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 - All colors are defined in `src/renderer/src/theme.ts` (Catppuccin Mocha tokens). Never hardcode color values inline — always import from `theme.ts`.
 - No magic numbers inline — extract numeric values into named constants (`SCREAMING_SNAKE_CASE`).
 - Constants used in a single file are declared at the top of that file. Only create a shared external file when a constant is used across multiple files.
+- Code must be KISS and readable. Prefer explicit names over abbreviations: `element` not `el`, `index` not `i`, `error` not `err`, etc.
 
 ---
 
