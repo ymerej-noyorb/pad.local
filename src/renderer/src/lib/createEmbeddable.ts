@@ -36,19 +36,41 @@ export type EmbeddableElement = {
 const DEFAULT_NODE_WIDTH = 800;
 const DEFAULT_NODE_HEIGHT = 500;
 const NODE_STROKE_WIDTH = 2;
+const CASCADE_STEP = 30;
+const SAME_ORIGIN_THRESHOLD = 2;
 
 type Viewport = { scrollX: number; scrollY: number; zoom: { value: number } };
+type Box = { x: number; y: number; width: number; height: number; isDeleted: boolean };
+
+function sameOrigin(ax: number, ay: number, bx: number, by: number): boolean {
+  return Math.abs(ax - bx) < SAME_ORIGIN_THRESHOLD && Math.abs(ay - by) < SAME_ORIGIN_THRESHOLD;
+}
+
+function findFreePosition(
+  x: number,
+  y: number,
+  existing: readonly Box[],
+): { x: number; y: number } {
+  const active = existing.filter((element) => !element.isDeleted);
+  let offset = 0;
+  while (active.some((element) => sameOrigin(x + offset, y + offset, element.x, element.y))) {
+    offset += CASCADE_STEP;
+  }
+  return { x: x + offset, y: y + offset };
+}
 
 export function createEmbeddableElement(
   link: EmbeddableLink,
   viewport: Viewport,
+  existing: readonly Box[] = [],
   size = { width: DEFAULT_NODE_WIDTH, height: DEFAULT_NODE_HEIGHT }
 ): EmbeddableElement {
   const { scrollX, scrollY, zoom } = viewport;
   const { width, height } = size;
 
-  const x = (window.innerWidth / 2 - scrollX) / zoom.value - width / 2;
-  const y = (window.innerHeight / 2 - scrollY) / zoom.value - height / 2;
+  const centerX = (window.innerWidth / 2 - scrollX) / zoom.value - width / 2;
+  const centerY = (window.innerHeight / 2 - scrollY) / zoom.value - height / 2;
+  const { x, y } = findFreePosition(centerX, centerY, existing);
 
   return {
     id: crypto.randomUUID(),
