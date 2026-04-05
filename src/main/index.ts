@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
@@ -49,8 +50,16 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  const sceneFile = join(app.getPath('userData'), 'scene.json')
+
+  ipcMain.handle('scene:load', () => {
+    if (existsSync(sceneFile)) return readFileSync(sceneFile, 'utf-8')
+    return null
+  })
+
+  ipcMain.handle('scene:save', (_event, json: string) => {
+    writeFileSync(sceneFile, json, 'utf-8')
+  })
 
   createWindow()
 
