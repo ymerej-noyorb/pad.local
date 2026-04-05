@@ -16,8 +16,6 @@ const TEXT = {
 const NODE_FONT_SIZE = 14;
 const NODE_BORDER_RADIUS = 4;
 
-const GRID = { gridModeEnabled: true, gridSize: 20 } as const;
-
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
   clearCanvas: false,
@@ -65,14 +63,8 @@ export default function App(): React.JSX.Element {
     <div style={{ position: "fixed", inset: 0 }}>
       <Excalidraw
         excalidrawAPI={setExcalidrawAPI}
-        initialData={
-          initialData
-            ? {
-                elements: initialData.elements,
-                appState: { ...initialData.appState, ...GRID }
-              }
-            : { appState: GRID }
-        }
+        initialData={initialData ?? undefined}
+        gridModeEnabled
         theme="dark"
         renderEmbeddable={renderEmbeddable}
         validateEmbeddable={(link) => link === "!editor" || link === "!terminal"}
