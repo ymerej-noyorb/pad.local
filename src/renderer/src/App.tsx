@@ -70,9 +70,9 @@ export default function App(): React.JSX.Element {
         validateEmbeddable={(link) => link === "!editor" || link === "!terminal"}
         onChange={handleChange}
         onScrollChange={handleScrollChange}
+        renderTopRightUI={() => excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null}
         UIOptions={{ canvasActions: CANVAS_ACTIONS }}
       />
-      {excalidrawAPI && <Toolbar excalidrawAPI={excalidrawAPI} />}
     </div>
   );
 }
