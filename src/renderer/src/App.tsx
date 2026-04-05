@@ -19,9 +19,7 @@ const NODE_BORDER_RADIUS = 4;
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
   clearCanvas: false,
-  export: false,
   loadScene: false,
-  saveAsImage: false,
   saveToActiveFile: false,
   toggleTheme: false
 } as const;
