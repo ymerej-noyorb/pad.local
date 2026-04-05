@@ -42,8 +42,8 @@ const SAME_ORIGIN_THRESHOLD = 2;
 type Viewport = { scrollX: number; scrollY: number; zoom: { value: number } };
 type Box = { x: number; y: number; width: number; height: number; isDeleted: boolean };
 
-function sameOrigin(ax: number, ay: number, bx: number, by: number): boolean {
-  return Math.abs(ax - bx) < SAME_ORIGIN_THRESHOLD && Math.abs(ay - by) < SAME_ORIGIN_THRESHOLD;
+function sameOrigin(candidateX: number, candidateY: number, existingX: number, existingY: number): boolean {
+  return Math.abs(candidateX - existingX) < SAME_ORIGIN_THRESHOLD && Math.abs(candidateY - existingY) < SAME_ORIGIN_THRESHOLD;
 }
 
 function findFreePosition(

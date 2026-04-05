@@ -7,8 +7,8 @@ function sceneFilePath(): string {
 }
 
 export function loadScene(): string | null {
-  const file = sceneFilePath();
-  if (existsSync(file)) return readFileSync(file, "utf-8");
+  const filePath = sceneFilePath();
+  if (existsSync(filePath)) return readFileSync(filePath, "utf-8");
   return null;
 }
 

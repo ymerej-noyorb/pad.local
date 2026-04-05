@@ -6,8 +6,8 @@ import { registerIpcHandlers } from "./ipc";
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
 
-  app.on("browser-window-created", (_, window) => {
-    optimizer.watchWindowShortcuts(window);
+  app.on("browser-window-created", (_event, browserWindow) => {
+    optimizer.watchWindowShortcuts(browserWindow);
   });
 
   registerIpcHandlers();
