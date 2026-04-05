@@ -35,23 +35,23 @@ src/main/  (Node.js — Electron main process)
 
 - `renderEmbeddable` + `validateEmbeddable`
 - Lock mechanism: `onScrollChange` → `pointer-events: none` on embeddables during pan (debounce 350ms)
-- Initial Excalidraw config: `theme: dark`, `gridMode: true`, `gridSize: 20`, `gridStep: 5`
-- Hidden native UI: `toolbar`, `zoomControls`, `undoRedo`, `helpButton`, `mainMenu`
+- Initial Excalidraw config: `theme: dark`, `gridModeEnabled: true`
+- Native UI kept (toolbar, zoom, undo/redo, help, main menu) — disabled canvas actions: `changeViewBackgroundColor`, `clearCanvas`, `loadScene`, `saveToActiveFile`, `toggleTheme`
 - New nodes placed at viewport center, with overlap avoidance
 
 ---
 
-## Step 1 — Excalidraw + renderEmbeddable skeleton
+## Step 1 — Excalidraw + renderEmbeddable skeleton ✅
 
-- [ ] Install `@excalidraw/excalidraw`
-- [ ] `renderer/App.tsx`: fullscreen Excalidraw with initial config (dark, grid)
-- [ ] `renderEmbeddable`: `!editor` → placeholder, `!terminal` → placeholder
-- [ ] `onScrollChange` → lock/unlock `pointer-events` (debounce 350ms)
-- [ ] `Toolbar.tsx`: 2 buttons that create a node at viewport center
-- [ ] Scene persistence → local JSON via Node.js `fs` (IPC main ↔ renderer)
-- [ ] Load scene on startup
+- [x] Install `@excalidraw/excalidraw`
+- [x] `renderer/App.tsx`: fullscreen Excalidraw with initial config (dark, grid)
+- [x] `renderEmbeddable`: `!editor` → placeholder, `!terminal` → placeholder
+- [x] `onScrollChange` → lock/unlock `pointer-events` (debounce 350ms)
+- [x] `Toolbar.tsx`: 2 buttons that create a node at viewport center
+- [x] Scene persistence → local JSON via Node.js `fs` (IPC main ↔ renderer)
+- [x] Load scene on startup
 
-**Files:** `src/renderer/App.tsx`, `src/renderer/components/Toolbar.tsx`, `src/renderer/lib/lockEmbeddables.ts`, `src/main/index.ts`
+**Files:** `src/renderer/src/App.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/lib/lockEmbeddables.ts`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/hooks/useScene.ts`, `src/main/scene.ts`, `src/main/ipc.ts`
 
 ---
 
