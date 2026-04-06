@@ -6,7 +6,7 @@ import "@excalidraw/excalidraw/index.css";
 import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
-import { colors } from "./theme";
+import { colorsByTheme } from "./theme";
 
 const TEXT = {
   editorPlaceholder: "Editor — coming in Step 2",
@@ -19,19 +19,17 @@ const NODE_BORDER_RADIUS = 4;
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
   clearCanvas: false,
+  export: false,
   loadScene: false,
-  saveToActiveFile: false,
-  toggleTheme: false
+  saveToActiveFile: false
 } as const;
 
-const embeddableStyle: React.CSSProperties = {
+const EMBEDDABLE_LAYOUT: React.CSSProperties = {
   width: "100%",
   height: "100%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: colors.base,
-  color: colors.text,
   fontSize: NODE_FONT_SIZE,
   fontFamily: "monospace",
   borderRadius: NODE_BORDER_RADIUS,
@@ -46,9 +44,16 @@ export default function App(): React.JSX.Element {
   const handleScrollChange = useMemo(() => createScrollLock(setScrollLocked), []);
 
   const renderEmbeddable: React.ComponentProps<typeof Excalidraw>["renderEmbeddable"] = (
-    element
+    element,
+    appState
   ) => {
-    const style = { ...embeddableStyle, pointerEvents: scrollLocked ? "none" : "auto" } as const;
+    const themeColors = colorsByTheme[appState.theme === "light" ? "light" : "dark"];
+    const style: React.CSSProperties = {
+      ...EMBEDDABLE_LAYOUT,
+      background: themeColors.base,
+      color: themeColors.text,
+      pointerEvents: scrollLocked ? "none" : "auto"
+    };
 
     if (element.link === "!editor") return <div style={style}>{TEXT.editorPlaceholder}</div>;
     if (element.link === "!terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
@@ -63,7 +68,6 @@ export default function App(): React.JSX.Element {
         excalidrawAPI={setExcalidrawAPI}
         initialData={initialData ?? undefined}
         gridModeEnabled
-        theme="dark"
         renderEmbeddable={renderEmbeddable}
         validateEmbeddable={(link) => link === "!editor" || link === "!terminal"}
         onChange={handleChange}

@@ -3,7 +3,7 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 type SavedScene = {
   elements: Parameters<ExcalidrawImperativeAPI["updateScene"]>[0]["elements"];
-  appState: { scrollX: number; scrollY: number };
+  appState: { scrollX: number; scrollY: number; theme?: "light" | "dark" };
 };
 
 const SAVE_DEBOUNCE_MS = 500;
@@ -40,7 +40,7 @@ export function useScene(): {
       window.api.saveScene(
         JSON.stringify({
           elements,
-          appState: { scrollX: appState.scrollX, scrollY: appState.scrollY }
+          appState: { scrollX: appState.scrollX, scrollY: appState.scrollY, theme: appState.theme }
         })
       );
     }, SAVE_DEBOUNCE_MS);
