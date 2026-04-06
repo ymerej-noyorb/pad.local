@@ -55,6 +55,12 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
+## Known limitations
+
+- **Export image + embedded panels** — Excalidraw exports via `<canvas>` (PNG) or SVG. Browsers block drawing iframe content onto a canvas (tainted canvas security restriction), even same-origin. The Editor and Terminal panels will appear as empty frames in exports. Annotations, shapes, and layout are captured correctly.
+
+---
+
 ## Step 2 — Editor (OpenVSCode Server iframe)
 
 - [ ] On startup: spawn OpenVSCode Server on port 8080 via its Node.js API

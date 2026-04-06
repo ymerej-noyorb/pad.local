@@ -86,6 +86,12 @@ Everything runs locally. Nothing leaves your machine.
 
 ---
 
+## Known limitations
+
+- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — browsers block capturing iframe content onto a canvas for security reasons.
+
+---
+
 ## Inspired by
 
 [pad.ws](https://github.com/coderamp-labs/pad.ws) — great concept, now abandoned (last commit Aug 2025, site down). pad.local is the "just run it" version.
