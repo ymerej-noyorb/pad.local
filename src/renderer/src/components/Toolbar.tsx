@@ -9,9 +9,8 @@ interface Props {
 
 function addNode(excalidrawAPI: ExcalidrawImperativeAPI, link: EmbeddableLink): void {
   const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
-  const existing = excalidrawAPI.getSceneElements();
-  const newElement = createEmbeddableElement(link, { scrollX, scrollY, zoom }, existing);
-  excalidrawAPI.updateScene({ elements: [...existing, newElement] });
+  const newElement = createEmbeddableElement(link, scrollX, scrollY, zoom.value);
+  excalidrawAPI.updateScene({ elements: [...excalidrawAPI.getSceneElements(), newElement] });
 }
 
 const ICON_PX = 16;
