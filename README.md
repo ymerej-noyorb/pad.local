@@ -13,7 +13,7 @@ No cloud. No auth. No database. No monthly bill.
 | Panel          | Tech                                                        |
 | -------------- | ----------------------------------------------------------- |
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                 |
-| 💻 Code editor | OpenVSCode Server — your extensions, your settings |
+| 💻 Code editor | VS Code (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                         |
 
 The editor and terminal live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
@@ -29,12 +29,9 @@ npm install
 npm run dev
 ```
 
-Prerequisites: Node.js v24 LTS (v24.14.1+).
+Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code installed on your machine.
 
-- **WSL2**: Electron needs a few system libs not included in the default WSL2 install. Run once before `npm run dev`:
-  ```bash
-  sudo apt-get install -y libnspr4 libnss3 libasound2t64 --fix-missing
-  ```
+Supported platforms: macOS, Windows, Linux. **WSL is not supported.**
 
 ---
 
@@ -54,7 +51,7 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 - **[React](https://react.dev/) + TypeScript** — UI
 - **[electron-vite](https://electron-vite.org/)** — Build tooling
 - **[Excalidraw](https://github.com/excalidraw/excalidraw)** — Fullscreen canvas
-- **[OpenVSCode Server](https://github.com/gitpod-io/openvscode-server)** — Embeddable VS Code server (Gitpod fork)
+- **[VS Code](https://code.visualstudio.com/)** — Editor, served via `code serve-web`
 - **[xterm.js](https://xtermjs.org/) + [node-pty](https://github.com/microsoft/node-pty)** — Terminal
 
 ---
@@ -63,7 +60,7 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 
 When you launch pad.local, Electron:
 
-1. Starts an OpenVSCode Server instance on port 8080 (bundled — no external install needed)
+1. Spawns `code serve-web` on port 8080 (requires VS Code installed)
 2. Opens a PTY for the terminal via `node-pty`
 3. Loads Excalidraw fullscreen — add Editor and Terminal nodes anywhere on the canvas
 
@@ -82,13 +79,14 @@ Everything runs locally. Nothing leaves your machine.
 
 - **Local first** — works offline, always
 - **Zero infra** — no server, no database, no auth
-- **Clone and run** — Node.js is the only prerequisite
+- **Clone and run** — Node.js + VS Code are the only prerequisites
 
 ---
 
 ## Known limitations
 
 - **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — browsers block capturing iframe content onto a canvas for security reasons.
+- **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 
 ---
 

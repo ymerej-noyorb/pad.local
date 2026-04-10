@@ -17,7 +17,7 @@ src/renderer/  (React + TypeScript)
     └── Toolbar ("Add Editor" / "Add Terminal" buttons)
 
 src/main/  (Node.js — Electron main process)
-├── spawn OpenVSCode Server on port 8080
+├── spawn `code serve-web` on port 8080
 ├── node-pty → PTY shell
 └── IPC handlers (terminal stdin/stdout ↔ renderer)
 ```
@@ -58,16 +58,19 @@ src/main/  (Node.js — Electron main process)
 ## Known limitations
 
 - **Export image + embedded panels** — Excalidraw exports via `<canvas>` (PNG) or SVG. Browsers block drawing iframe content onto a canvas (tainted canvas security restriction), even same-origin. The Editor and Terminal panels will appear as empty frames in exports. Annotations, shapes, and layout are captured correctly.
+- **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`. macOS, Windows, and Linux (native) only.
 
 ---
 
-## Step 2 — Editor (code-server iframe)
+## Step 2 — Editor (VS Code serve-web iframe)
 
-- [ ] `npm install code-server`
-- [ ] On startup: spawn code-server on port 8080 via `child_process.spawn`, with `--extensions-dir ~/.vscode/extensions` to reuse the dev's existing extensions
+- [ ] On startup: spawn `code serve-web --port 8080 --without-connection-token --accept-server-license-terms` via `child_process.spawn`
+- [ ] Detect the `code` binary per platform (macOS, Windows, Linux)
 - [ ] Kill process on app close (`app.on('before-quit')`)
 - [ ] `Editor.tsx`: `<iframe src="http://localhost:8080">` with loading state
 - [ ] Wired to `!editor` in `renderEmbeddable`
+
+**Prerequisite:** VS Code installed on the machine (macOS, Windows, Linux — WSL unsupported).
 
 **Files:** `src/renderer/src/components/Editor.tsx`, `src/main/editor.ts`, `src/main/index.ts`
 
@@ -87,7 +90,7 @@ src/main/  (Node.js — Electron main process)
 
 ## Step 4 — Agnostic node system (any IDE, any shell)
 
-Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user can configure which editor and which shell to use. The architecture stays the same — only the spawn target changes.
+Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The user can configure which editor and which shell to use. The architecture stays the same — only the spawn target changes.
 
 ### 4.1 — User configuration
 
@@ -95,12 +98,12 @@ Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user 
 - [ ] Config shape:
   ```json
   {
-    "editor": { "type": "openvscode-server", "port": 8080 },
+    "editor": { "type": "vscode-serve-web", "port": 8080 },
     "terminal": { "shell": "/bin/zsh" }
   }
   ```
 - [ ] IPC handlers: renderer can read and write config
-- [ ] Defaults: OpenVSCode Server + system shell (`process.env.SHELL` or `cmd.exe` on Windows)
+- [ ] Defaults: VS Code `serve-web` + system shell (`process.env.SHELL` or `cmd.exe` on Windows)
 - [ ] Port conflict handling: if the configured port is already in use, auto-select the next available port and persist it to config (`EADDRINUSE` → retry on `port + 1`)
 - [ ] `Settings.tsx`: settings panel accessible from the Excalidraw main menu
   - Dropdown to select the editor (list of supported types)
@@ -109,7 +112,7 @@ Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user 
 
 ### 4.2 — Extensible spawn abstraction
 
-- [ ] `src/main/editor.ts`: `startEditor(config)` — spawns the configured editor server (OpenVSCode Server, or any URL-based alternative) and returns the URL to embed
+- [ ] `src/main/editor.ts`: `startEditor(config)` — spawns the configured editor server and returns the URL to embed
 - [ ] `src/main/pty.ts`: `spawnShell(config)` — uses `config.terminal.shell` instead of hardcoded shell
 - [ ] Editor node in canvas embeds the URL returned by `startEditor` — not a hardcoded `localhost:8080`
 
@@ -126,7 +129,7 @@ Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user 
 
 ## Verification
 
-1. `npm install && npm run dev` works with Node.js as the only prerequisite
+1. `npm install && npm run dev` works with Node.js + VS Code as the only prerequisites (macOS, Windows, Linux)
 2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
 3. Panning the canvas → embeddables no longer capture mouse events
 4. "Add Editor" → node in the canvas → code-server loaded with their extensions
