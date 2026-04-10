@@ -5,6 +5,8 @@ export type EmbeddableLink = "!editor" | "!terminal";
 const NODE_WIDTH = 800;
 const NODE_HEIGHT = 500;
 const NODE_STROKE_WIDTH = 2;
+const NODE_OPACITY = 100;
+const RANDOM_INT_MAX = 2 ** 31;
 
 export function createEmbeddableElement(link: EmbeddableLink, scrollX: number, scrollY: number, zoom: number) {
   const x = (window.innerWidth / 2 - scrollX) / zoom - NODE_WIDTH / 2;
@@ -24,13 +26,13 @@ export function createEmbeddableElement(link: EmbeddableLink, scrollX: number, s
     strokeWidth: NODE_STROKE_WIDTH,
     strokeStyle: "solid" as const,
     roughness: 0,
-    opacity: 100,
+    opacity: NODE_OPACITY,
     groupIds: [],
     frameId: null,
     roundness: null,
-    seed: Math.floor(Math.random() * 2 ** 31),
+    seed: Math.floor(Math.random() * RANDOM_INT_MAX),
     version: 1,
-    versionNonce: Math.floor(Math.random() * 2 ** 31),
+    versionNonce: Math.floor(Math.random() * RANDOM_INT_MAX),
     isDeleted: false as const,
     boundElements: null,
     updated: Date.now(),
