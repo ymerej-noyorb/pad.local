@@ -15,25 +15,25 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 ## Core panels
 
-| Panel       | Implementation                                                                         |
-| ----------- | -------------------------------------------------------------------------------------- |
-| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes           |
-| Code editor | OpenVSCode Server on localhost:8080, embedded as an Excalidraw node                    |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node    |
+| Panel       | Implementation                                                                     |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes       |
+| Code editor | OpenVSCode Server on localhost:8080, embedded as an Excalidraw node                |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node |
 
 ---
 
 ## Tech stack
 
-| Layer         | Choice                        | Reason                                                          |
-| ------------- | ----------------------------- | --------------------------------------------------------------- |
+| Layer         | Choice                        | Reason                                                            |
+| ------------- | ----------------------------- | ----------------------------------------------------------------- |
 | Desktop shell | Electron                      | Node.js only — `npm install && npm run dev`, zero extra toolchain |
-| Backend       | Node.js (Electron main)       | Handles PTY (`node-pty`) and process spawning (`child_process`) |
-| Frontend      | React + TypeScript            | Familiar, component-based                                       |
-| Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                |
-| Editor        | OpenVSCode Server (Gitpod)    | Full VS Code experience, stable embeddable API, bundled with app |
-| Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws        |
-| Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                     |
+| Backend       | Node.js (Electron main)       | Handles PTY (`node-pty`) and process spawning (`child_process`)   |
+| Frontend      | React + TypeScript            | Familiar, component-based                                         |
+| Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
+| Editor        | OpenVSCode Server (Gitpod)    | Full VS Code experience, stable embeddable API, bundled with app  |
+| Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws          |
+| Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
 ---
 
@@ -58,17 +58,6 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)
 - During canvas pan/scroll, embedded iframes have `pointer-events: none` to avoid capture
 - Excalidraw scene (elements + positions) is auto-saved to a local JSON file on change
-
----
-
-## Research before implementing
-
-Before writing any custom implementation, always check in this order:
-1. The official documentation of the relevant library (Excalidraw, Electron, xterm.js, etc.)
-2. The exported API of the installed package (`node_modules`) — grep exports, read types
-3. A web search for existing solutions or prior art
-
-Only implement custom code if nothing suitable already exists. Avoid reinventing what a dependency already provides.
 
 ---
 
