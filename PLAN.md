@@ -17,7 +17,7 @@ src/renderer/  (React + TypeScript)
     └── Toolbar ("Add Editor" / "Add Terminal" buttons)
 
 src/main/  (Node.js — Electron main process)
-├── spawn `code serve-web --port 8080 --without-connection-token`
+├── spawn OpenVSCode Server on port 8080
 ├── node-pty → PTY shell
 └── IPC handlers (terminal stdin/stdout ↔ renderer)
 ```
@@ -26,7 +26,7 @@ src/main/  (Node.js — Electron main process)
 
 | | pad.ws | pad.local |
 |---|---|---|
-| Editor | Monaco (no extensions) | `code serve-web` (user's VS Code, extensions included) |
+| Editor | Monaco (no extensions) | OpenVSCode Server (bundled, extensions included) |
 | Terminal | iframe → remote workspace | xterm.js + node-pty local |
 | Persistence | Cloud | Local JSON (Node.js fs) |
 | Embeddable types | 7 | 2 (`!editor`, `!terminal`) |
@@ -35,29 +35,35 @@ src/main/  (Node.js — Electron main process)
 
 - `renderEmbeddable` + `validateEmbeddable`
 - Lock mechanism: `onScrollChange` → `pointer-events: none` on embeddables during pan (debounce 350ms)
-- Initial Excalidraw config: `theme: dark`, `gridMode: true`, `gridSize: 20`, `gridStep: 5`
-- Hidden native UI: `toolbar`, `zoomControls`, `undoRedo`, `helpButton`, `mainMenu`
+- Initial Excalidraw config: `theme: dark`, `gridModeEnabled: true`
+- Native UI kept (toolbar, zoom, undo/redo, help, main menu) — disabled canvas actions: `changeViewBackgroundColor`, `clearCanvas`, `loadScene`, `saveToActiveFile`
 - New nodes placed at viewport center, with overlap avoidance
 
 ---
 
-## Step 1 — Excalidraw + renderEmbeddable skeleton
+## Step 1 — Excalidraw + renderEmbeddable skeleton ✅
 
-- [ ] Install `@excalidraw/excalidraw`
-- [ ] `renderer/App.tsx`: fullscreen Excalidraw with initial config (dark, grid)
-- [ ] `renderEmbeddable`: `!editor` → placeholder, `!terminal` → placeholder
-- [ ] `onScrollChange` → lock/unlock `pointer-events` (debounce 350ms)
-- [ ] `Toolbar.tsx`: 2 buttons that create a node at viewport center
-- [ ] Scene persistence → local JSON via Node.js `fs` (IPC main ↔ renderer)
-- [ ] Load scene on startup
+- [x] Install `@excalidraw/excalidraw`
+- [x] `renderer/App.tsx`: fullscreen Excalidraw with initial config (dark, grid)
+- [x] `renderEmbeddable`: `!editor` → placeholder, `!terminal` → placeholder
+- [x] `onScrollChange` → lock/unlock `pointer-events` (debounce 350ms)
+- [x] `Toolbar.tsx`: 2 buttons that create a node at viewport center
+- [x] Scene persistence → local JSON via Node.js `fs` (IPC main ↔ renderer)
+- [x] Load scene on startup
 
-**Files:** `src/renderer/App.tsx`, `src/renderer/components/Toolbar.tsx`, `src/renderer/lib/lockEmbeddables.ts`, `src/main/index.ts`
+**Files:** `src/renderer/src/App.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/lib/lockEmbeddables.ts`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/hooks/useScene.ts`, `src/main/scene.ts`, `src/main/ipc.ts`
 
 ---
 
-## Step 2 — Editor (`code serve-web` iframe)
+## Known limitations
 
-- [ ] On startup: `child_process.spawn('code', ['serve-web', '--port', '8080', '--without-connection-token'])`
+- **Export image + embedded panels** — Excalidraw exports via `<canvas>` (PNG) or SVG. Browsers block drawing iframe content onto a canvas (tainted canvas security restriction), even same-origin. The Editor and Terminal panels will appear as empty frames in exports. Annotations, shapes, and layout are captured correctly.
+
+---
+
+## Step 2 — Editor (OpenVSCode Server iframe)
+
+- [ ] On startup: spawn OpenVSCode Server on port 8080 via its Node.js API
 - [ ] Kill process on app close (`app.on('before-quit')`)
 - [ ] `Editor.tsx`: `<iframe src="http://localhost:8080">` with loading state
 - [ ] Wired to `!editor` in `renderEmbeddable`
@@ -78,11 +84,52 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
+## Step 4 — Agnostic node system (any IDE, any shell)
+
+Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user can configure which editor and which shell to use. The architecture stays the same — only the spawn target changes.
+
+### 4.1 — User configuration
+
+- [ ] `src/main/config.ts`: read/write a local JSON config file (`~/.pad.local/config.json`)
+- [ ] Config shape:
+  ```json
+  {
+    "editor": { "type": "openvscode-server", "port": 8080 },
+    "terminal": { "shell": "/bin/zsh" }
+  }
+  ```
+- [ ] IPC handlers: renderer can read and write config
+- [ ] Defaults: OpenVSCode Server + system shell (`process.env.SHELL` or `cmd.exe` on Windows)
+- [ ] Port conflict handling: if the configured port is already in use, auto-select the next available port and persist it to config (`EADDRINUSE` → retry on `port + 1`)
+- [ ] `Settings.tsx`: settings panel accessible from the Excalidraw main menu
+  - Dropdown to select the editor (list of supported types)
+  - Dropdown to select the shell (detected shells on the system + manual input)
+  - Changes apply on next node spawn (no restart required)
+
+### 4.2 — Extensible spawn abstraction
+
+- [ ] `src/main/editor.ts`: `startEditor(config)` — spawns the configured editor server (OpenVSCode Server, or any URL-based alternative) and returns the URL to embed
+- [ ] `src/main/pty.ts`: `spawnShell(config)` — uses `config.terminal.shell` instead of hardcoded shell
+- [ ] Editor node in canvas embeds the URL returned by `startEditor` — not a hardcoded `localhost:8080`
+
+### 4.3 — Extensible node types
+
+- [ ] Replace hardcoded `!editor` / `!terminal` strings with a node type registry
+- [ ] Registry maps a node type key → `{ label, icon, defaultSize, component }`
+- [ ] `Toolbar.tsx` reads the registry to render buttons dynamically
+- [ ] `renderEmbeddable` resolves node type from registry instead of a switch/if chain
+
+**Files:** `src/main/config.ts`, `src/main/editor.ts`, `src/main/pty.ts`, `src/renderer/src/lib/nodeRegistry.ts`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/App.tsx`
+
+---
+
 ## Verification
 
 1. `npm install && npm run dev` works with Node.js as the only prerequisite
 2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
 3. Panning the canvas → embeddables no longer capture mouse events
-4. "Add Editor" → node in the canvas → user's VS Code loaded with their extensions
+4. "Add Editor" → node in the canvas → OpenVSCode Server loaded with their extensions
 5. "Add Terminal" → node in the canvas → functional shell terminal
 6. Multiple terminals can coexist in the canvas
+7. Changing `config.json` shell → terminal uses the new shell on next spawn
+8. Adding a new entry to the node registry → new button appears in toolbar automatically
