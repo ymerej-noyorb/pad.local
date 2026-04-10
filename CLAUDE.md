@@ -18,7 +18,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Panel       | Implementation                                                                     |
 | ----------- | ---------------------------------------------------------------------------------- |
 | Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes       |
-| Code editor | OpenVSCode Server on localhost:8080, embedded as an Excalidraw node                |
+| Code editor | code-server on localhost:8080, embedded as an Excalidraw node                      |
 | Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node |
 
 ---
@@ -31,7 +31,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Backend       | Node.js (Electron main)       | Handles PTY (`node-pty`) and process spawning (`child_process`)   |
 | Frontend      | React + TypeScript            | Familiar, component-based                                         |
 | Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
-| Editor        | OpenVSCode Server (Gitpod)    | Full VS Code experience, stable embeddable API, bundled with app  |
+| Editor        | code-server (Coder)           | Full VS Code experience, npm installable, reuses `~/.vscode/extensions` |
 | Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws          |
 | Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
@@ -43,7 +43,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 - ❌ Database (PostgreSQL or anything else) — JSON files for persistence
 - ❌ Cloud / remote server — zero infra cost is a hard requirement
 - ❌ Multi-tenant — one instance per developer, for that developer only
-- ❌ code-server — requires a separate installation; OpenVSCode Server is bundled as an npm dependency
+- ❌ OpenVSCode Server — no npm package, requires downloading a compiled binary; code-server covers the same need via npm
 - ❌ Monaco Editor — pad.ws used this; no extension support, not suitable for a daily driver
 - ❌ allotment — replaced by Excalidraw's native embeddable system
 - ❌ "Open in VS Code" button — breaks the single-window experience, defeats the purpose
@@ -52,7 +52,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 ## Key behaviors
 
-- On app launch: Electron main starts an OpenVSCode Server instance on port 8080 and opens a PTY via `node-pty`
+- On app launch: Electron main starts a code-server instance on port 8080 and opens a PTY via `node-pty`
 - On app close: Electron kills both processes cleanly
 - The user can add Editor and Terminal nodes anywhere on the Excalidraw canvas via a toolbar
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)

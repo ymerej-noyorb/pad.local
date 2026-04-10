@@ -26,7 +26,7 @@ src/main/  (Node.js — Electron main process)
 
 | | pad.ws | pad.local |
 |---|---|---|
-| Editor | Monaco (no extensions) | OpenVSCode Server (bundled, extensions included) |
+| Editor | Monaco (no extensions) | code-server (npm, reuses `~/.vscode/extensions`) |
 | Terminal | iframe → remote workspace | xterm.js + node-pty local |
 | Persistence | Cloud | Local JSON (Node.js fs) |
 | Embeddable types | 7 | 2 (`!editor`, `!terminal`) |
@@ -61,14 +61,15 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
-## Step 2 — Editor (OpenVSCode Server iframe)
+## Step 2 — Editor (code-server iframe)
 
-- [ ] On startup: spawn OpenVSCode Server on port 8080 via its Node.js API
+- [ ] `npm install code-server`
+- [ ] On startup: spawn code-server on port 8080 via `child_process.spawn`, with `--extensions-dir ~/.vscode/extensions` to reuse the dev's existing extensions
 - [ ] Kill process on app close (`app.on('before-quit')`)
 - [ ] `Editor.tsx`: `<iframe src="http://localhost:8080">` with loading state
 - [ ] Wired to `!editor` in `renderEmbeddable`
 
-**Files:** `src/renderer/components/Editor.tsx`, `src/main/index.ts`
+**Files:** `src/renderer/src/components/Editor.tsx`, `src/main/editor.ts`, `src/main/index.ts`
 
 ---
 
@@ -128,7 +129,7 @@ Goal: nodes are no longer hardcoded to OpenVSCode Server and node-pty. The user 
 1. `npm install && npm run dev` works with Node.js as the only prerequisite
 2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
 3. Panning the canvas → embeddables no longer capture mouse events
-4. "Add Editor" → node in the canvas → OpenVSCode Server loaded with their extensions
+4. "Add Editor" → node in the canvas → code-server loaded with their extensions
 5. "Add Terminal" → node in the canvas → functional shell terminal
 6. Multiple terminals can coexist in the canvas
 7. Changing `config.json` shell → terminal uses the new shell on next spawn
