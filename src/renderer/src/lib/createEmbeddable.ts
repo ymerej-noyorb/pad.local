@@ -1,16 +1,52 @@
 import { colors } from "../theme";
+import type { EmbeddableLink } from "../types/embeddable";
+import type { SceneElement } from "../types/scene";
 
-export type EmbeddableLink = "!editor" | "!terminal";
 
 const NODE_WIDTH = 800;
 const NODE_HEIGHT = 500;
 const NODE_STROKE_WIDTH = 2;
 const NODE_OPACITY = 100;
 const RANDOM_INT_MAX = 2 ** 31;
+const OVERLAP_OFFSET = 40;
+const MAX_OVERLAP_ATTEMPTS = 10;
 
-export function createEmbeddableElement(link: EmbeddableLink, scrollX: number, scrollY: number, zoom: number) {
-  const x = (window.innerWidth / 2 - scrollX) / zoom - NODE_WIDTH / 2;
-  const y = (window.innerHeight / 2 - scrollY) / zoom - NODE_HEIGHT / 2;
+function findNonOverlappingPosition(
+  baseX: number,
+  baseY: number,
+  existingElements: readonly SceneElement[]
+): { x: number; y: number } {
+  let x = baseX;
+  let y = baseY;
+
+  for (let attempt = 0; attempt < MAX_OVERLAP_ATTEMPTS; attempt++) {
+    const hasOverlap = existingElements.some(
+      (element) =>
+        !element.isDeleted &&
+        x < element.x + element.width &&
+        x + NODE_WIDTH > element.x &&
+        y < element.y + element.height &&
+        y + NODE_HEIGHT > element.y
+    );
+
+    if (!hasOverlap) return { x, y };
+    x += OVERLAP_OFFSET;
+    y += OVERLAP_OFFSET;
+  }
+
+  return { x, y };
+}
+
+export function createEmbeddableElement(
+  link: EmbeddableLink,
+  scrollX: number,
+  scrollY: number,
+  zoom: number,
+  existingElements: readonly SceneElement[]
+) {
+  const baseX = (window.innerWidth / 2 - scrollX) / zoom - NODE_WIDTH / 2;
+  const baseY = (window.innerHeight / 2 - scrollY) / zoom - NODE_HEIGHT / 2;
+  const { x, y } = findNonOverlappingPosition(baseX, baseY, existingElements);
 
   return {
     id: crypto.randomUUID(),

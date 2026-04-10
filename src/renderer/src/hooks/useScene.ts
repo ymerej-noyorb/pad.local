@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-
-type SavedScene = {
-  elements: Parameters<ExcalidrawImperativeAPI["updateScene"]>[0]["elements"];
-  appState: { scrollX: number; scrollY: number; theme?: "light" | "dark" };
-};
+import type { SavedScene } from "../types/scene";
 
 const SAVE_DEBOUNCE_MS = 500;
+
+const DEFAULT_SCENE: SavedScene = {
+  elements: [],
+  appState: { scrollX: 0, scrollY: 0, theme: "dark" }
+};
 
 export function useScene(): {
   initialData: SavedScene | null;
@@ -25,8 +25,10 @@ export function useScene(): {
         try {
           setInitialData(JSON.parse(json));
         } catch {
-          /* corrupt file — start fresh */
+          setInitialData(DEFAULT_SCENE);
         }
+      } else {
+        setInitialData(DEFAULT_SCENE);
       }
       setReady(true);
     });

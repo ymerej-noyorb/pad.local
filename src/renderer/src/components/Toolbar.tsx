@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Code2, Terminal } from "lucide-react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-import { createEmbeddableElement, type EmbeddableLink } from "../lib/createEmbeddable";
+import { createEmbeddableElement } from "../lib/createEmbeddable";
+import type { EmbeddableLink } from "../types/embeddable";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
@@ -9,8 +10,9 @@ interface Props {
 
 function addNode(excalidrawAPI: ExcalidrawImperativeAPI, link: EmbeddableLink): void {
   const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
-  const newElement = createEmbeddableElement(link, scrollX, scrollY, zoom.value);
-  excalidrawAPI.updateScene({ elements: [...excalidrawAPI.getSceneElements(), newElement] });
+  const existingElements = excalidrawAPI.getSceneElements();
+  const newElement = createEmbeddableElement(link, scrollX, scrollY, zoom.value, existingElements);
+  excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
 }
 
 const ICON_PX = 16;

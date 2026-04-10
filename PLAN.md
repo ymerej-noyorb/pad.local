@@ -36,7 +36,7 @@ src/main/  (Node.js — Electron main process)
 - `renderEmbeddable` + `validateEmbeddable`
 - Lock mechanism: `onScrollChange` → `pointer-events: none` on embeddables during pan (debounce 350ms)
 - Initial Excalidraw config: `theme: dark`, `gridModeEnabled: true`
-- Native UI kept (toolbar, zoom, undo/redo, help, main menu) — disabled canvas actions: `changeViewBackgroundColor`, `clearCanvas`, `loadScene`, `saveToActiveFile`, `toggleTheme`
+- Native UI kept (toolbar, zoom, undo/redo, help, main menu) — disabled canvas actions: `changeViewBackgroundColor`, `clearCanvas`, `loadScene`, `saveToActiveFile`
 - New nodes placed at viewport center, with overlap avoidance
 
 ---
