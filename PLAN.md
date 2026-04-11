@@ -26,7 +26,7 @@ src/main/  (Node.js — Electron main process)
 
 | | pad.ws | pad.local |
 |---|---|---|
-| Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `~/.vscode-server/`) |
+| Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
 | Terminal | iframe → remote workspace | xterm.js + node-pty local |
 | Persistence | Cloud | Local JSON (Node.js fs) |
 | Embeddable types | 7 | 2 (`!editor`, `!terminal`) |
@@ -78,7 +78,7 @@ src/main/  (Node.js — Electron main process)
 - `allowVSCodeEmbedding()` in `window.ts` — strips `X-Frame-Options` and `Content-Security-Policy` headers that block embedding
 - Shadow-root iframe fix in `Editor.tsx` — Electron's webview creates an internal `<iframe>` with no height; patched via `shadowRoot.querySelector('iframe').style.height = '100%'` after `dom-ready`
 
-**Files:** `src/main/editor.ts`, `src/main/index.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/index.html`, `src/renderer/src/env.d.ts`, `src/renderer/src/App.tsx`, `src/renderer/src/components/Editor.tsx`
+**Files:** `src/main/constants.ts`, `src/main/editor.ts`, `src/main/editorState.ts`, `src/main/index.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/index.html`, `src/renderer/src/env.d.ts`, `src/renderer/src/App.tsx`, `src/renderer/src/components/Editor.tsx`
 
 ---
 

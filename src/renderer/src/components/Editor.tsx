@@ -95,7 +95,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
       webview.removeEventListener("dom-ready", handleDomReady);
       webview.removeEventListener("did-navigate", handleDidNavigate);
     };
-  }, [serverReady]); // re-run when serverReady flips so webview is in the DOM
+  }, [serverReady, editorUrl]); // re-run when either flips so webview is guaranteed in the DOM
 
   const containerStyle: React.CSSProperties = {
     width: "100%",

@@ -5,8 +5,7 @@ import { join } from "path";
 import { homedir } from "os";
 import http from "http";
 import { BrowserWindow } from "electron";
-
-const VSCODE_PORT = 8080;
+import { VSCODE_PORT } from "./constants";
 const POLL_INTERVAL_MS = 500;
 
 const MACOS_BINARY_CANDIDATES = [

@@ -2,10 +2,11 @@ import { BrowserWindow, shell, session } from "electron";
 import { join } from "path";
 import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
+import { VSCODE_PORT } from "./constants";
 
 const WINDOW_WIDTH = 900;
 const WINDOW_HEIGHT = 670;
-const VSCODE_URL_PATTERN = "http://localhost:8080/*";
+const VSCODE_URL_PATTERN = `http://localhost:${VSCODE_PORT}/*`;
 
 // VS Code serve-web uses the request's Accept-Language header to decide whether
 // to inject an external locale NLS script (e.g. vscode-unpkg.net/nls/.../fr/).
