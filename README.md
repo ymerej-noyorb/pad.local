@@ -61,8 +61,7 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 When you launch pad.local, Electron:
 
 1. Spawns `code serve-web` on port 8080 (requires VS Code installed)
-2. Opens a PTY for the terminal via `node-pty`
-3. Loads Excalidraw fullscreen — add Editor and Terminal nodes anywhere on the canvas
+2. Loads Excalidraw fullscreen — add Editor and Terminal nodes anywhere on the canvas
 
 Everything runs locally. Nothing leaves your machine.
 
@@ -85,7 +84,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Known limitations
 
-- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — browsers block capturing iframe content onto a canvas for security reasons.
+- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — they run in separate renderer processes (Electron `<webview>`) and cannot be composited into a canvas export.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 
 ---

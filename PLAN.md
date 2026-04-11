@@ -8,7 +8,7 @@ Excalidraw as the main canvas. The editor and terminal are **Excalidraw nodes** 
 src/renderer/  (React + TypeScript)
 └── <Excalidraw
       renderEmbeddable={(element) => {
-        "!editor"   → <Editor />   (iframe → localhost:8080)
+        "!editor"   → <Editor />   (webview → localhost:8080)
         "!terminal" → <Terminal /> (xterm.js ↔ IPC ↔ main)
       }}
       onScrollChange={lockEmbeddables}
@@ -26,7 +26,7 @@ src/main/  (Node.js — Electron main process)
 
 | | pad.ws | pad.local |
 |---|---|---|
-| Editor | Monaco (no extensions) | code-server (npm, reuses `~/.vscode/extensions`) |
+| Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `~/.vscode-server/`) |
 | Terminal | iframe → remote workspace | xterm.js + node-pty local |
 | Persistence | Cloud | Local JSON (Node.js fs) |
 | Embeddable types | 7 | 2 (`!editor`, `!terminal`) |
@@ -62,17 +62,23 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
-## Step 2 — Editor (VS Code serve-web iframe)
+## Step 2 — Editor (VS Code serve-web) ✅
 
-- [ ] On startup: spawn `code serve-web --port 8080 --without-connection-token --accept-server-license-terms` via `child_process.spawn`
-- [ ] Detect the `code` binary per platform (macOS, Windows, Linux)
-- [ ] Kill process on app close (`app.on('before-quit')`)
-- [ ] `Editor.tsx`: `<iframe src="http://localhost:8080">` with loading state
-- [ ] Wired to `!editor` in `renderEmbeddable`
+- [x] On startup: spawn `code serve-web --port 8080 --without-connection-token --accept-server-license-terms` via `child_process.spawn`
+- [x] Detect the `code` binary per platform (macOS, Windows, Linux)
+- [x] Kill process on app close (`app.on('before-quit')`)
+- [x] `Editor.tsx`: `<webview src="http://localhost:8080">` with loading state
+- [x] Wired to `!editor` in `renderEmbeddable`
 
 **Prerequisite:** VS Code installed on the machine (macOS, Windows, Linux — WSL unsupported).
 
-**Files:** `src/renderer/src/components/Editor.tsx`, `src/main/editor.ts`, `src/main/index.ts`
+**Notes:**
+- `<webview>` (not `<iframe>`) — VS Code registers service workers that require an isolated renderer process
+- `forceEnglishLocale()` in `window.ts` — prevents VS Code from loading a broken French NLS script from an external CDN
+- `allowVSCodeEmbedding()` in `window.ts` — strips `X-Frame-Options` and `Content-Security-Policy` headers that block embedding
+- Shadow-root iframe fix in `Editor.tsx` — Electron's webview creates an internal `<iframe>` with no height; patched via `shadowRoot.querySelector('iframe').style.height = '100%'` after `dom-ready`
+
+**Files:** `src/main/editor.ts`, `src/main/index.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/index.html`, `src/renderer/src/env.d.ts`, `src/renderer/src/App.tsx`, `src/renderer/src/components/Editor.tsx`
 
 ---
 
@@ -132,7 +138,7 @@ Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The use
 1. `npm install && npm run dev` works with Node.js + VS Code as the only prerequisites (macOS, Windows, Linux)
 2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
 3. Panning the canvas → embeddables no longer capture mouse events
-4. "Add Editor" → node in the canvas → code-server loaded with their extensions
+4. "Add Editor" → node in the canvas → VS Code loaded with their extensions
 5. "Add Terminal" → node in the canvas → functional shell terminal
 6. Multiple terminals can coexist in the canvas
 7. Changing `config.json` shell → terminal uses the new shell on next spawn
