@@ -8,6 +8,8 @@ declare global {
       loadScene: () => Promise<string | null>;
       checkEditorReady: () => Promise<boolean>;
       onEditorReady: (callback: () => void) => void;
+      checkEditorError: () => Promise<boolean>;
+      onEditorError: (callback: () => void) => void;
     };
   }
 }

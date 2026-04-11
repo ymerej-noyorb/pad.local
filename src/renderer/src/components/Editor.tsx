@@ -3,10 +3,13 @@ import { colorsByTheme } from "../theme";
 
 const TEXT = {
   loading: "Loading editor…",
+  errorTitle: "VS Code not found",
+  errorBody: "Install VS Code and restart the app.",
 } as const;
 
 const EDITOR_URL = "http://localhost:8080";
 const LOADING_FONT_SIZE = 14;
+const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
 const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
 
@@ -18,10 +21,22 @@ interface EditorProps {
 export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.Element {
   const [serverReady, setServerReady] = useState(false);
   const [webviewLoaded, setWebviewLoaded] = useState(false);
+  const [editorError, setEditorError] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
 
   useEffect(() => {
+    window.api.checkEditorError().then((hasError) => {
+      if (hasError) {
+        setEditorError(true);
+        return;
+      }
+      window.api.onEditorError(() => setEditorError(true));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (editorError) return;
     window.api.checkEditorReady().then((isReady) => {
       if (isReady) {
         setServerReady(true);
@@ -29,7 +44,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
         window.api.onEditorReady(() => setServerReady(true));
       }
     });
-  }, []);
+  }, [editorError]);
 
   // Attach dom-ready listener once the webview is in the DOM.
   useEffect(() => {
@@ -106,6 +121,34 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     display: "block",
     border: "none",
   };
+
+  const errorStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    fontFamily: "monospace",
+    background: themeColors.base,
+    userSelect: "none",
+    pointerEvents: "none",
+  };
+
+  if (editorError) {
+    return (
+      <div style={containerStyle}>
+        <div style={errorStyle}>
+          <span style={{ fontSize: ERROR_TITLE_FONT_SIZE, color: themeColors.red }}>{TEXT.errorTitle}</span>
+          <span style={{ fontSize: LOADING_FONT_SIZE, color: themeColors.text }}>{TEXT.errorBody}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={containerStyle}>

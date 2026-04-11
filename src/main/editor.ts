@@ -35,29 +35,45 @@ function buildVSCodeArgs(port: number): string[] {
   return args;
 }
 
-function findCodeBinary(): string {
+function findCodeBinary(): string | null {
   if (process.platform === "win32") {
     const localAppData = process.env.LOCALAPPDATA;
     if (localAppData) {
       const windowsDefault = join(localAppData, "Programs", "Microsoft VS Code", "bin", "code.cmd");
       if (existsSync(windowsDefault)) return windowsDefault;
     }
-    return "code.cmd";
+    try {
+      execSync("where code.cmd", { stdio: "ignore" });
+      return "code.cmd";
+    } catch (_) {
+      return null;
+    }
   }
 
   if (process.platform === "darwin") {
     for (const candidate of MACOS_BINARY_CANDIDATES) {
       if (existsSync(candidate)) return candidate;
     }
-    return "code";
+    try {
+      execSync("which code", { stdio: "ignore" });
+      return "code";
+    } catch (_) {
+      return null;
+    }
   }
 
   // Linux
-  return "code";
+  try {
+    execSync("which code", { stdio: "ignore" });
+    return "code";
+  } catch (_) {
+    return null;
+  }
 }
 
 let editorProcess: ChildProcess | null = null;
 let editorReady = false;
+let editorError = false;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 function stopPoll(): void {
@@ -124,13 +140,22 @@ export function startEditor(): void {
   killPortIfInUse(VSCODE_PORT);
 
   const binary = findCodeBinary();
+  if (!binary) {
+    editorError = true;
+    return;
+  }
+
   const args = buildVSCodeArgs(VSCODE_PORT);
   editorProcess = spawnEditor(binary, args);
 
   editorProcess.on("error", (error) => {
     console.error("[editor] Failed to start VS Code serve-web:", error.message);
     editorProcess = null;
+    editorError = true;
     stopPoll();
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("editor:error");
+    });
   });
 
   editorProcess.on("exit", () => {
@@ -139,6 +164,10 @@ export function startEditor(): void {
   });
 
   startPoll();
+}
+
+export function getEditorError(): boolean {
+  return editorError;
 }
 
 export function stopEditor(): void {

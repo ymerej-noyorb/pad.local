@@ -6,6 +6,8 @@ const api = {
   loadScene: (): Promise<string | null> => ipcRenderer.invoke("scene:load"),
   checkEditorReady: (): Promise<boolean> => ipcRenderer.invoke("editor:ready?"),
   onEditorReady: (callback: () => void): void => { ipcRenderer.once("editor:ready", callback); },
+  checkEditorError: (): Promise<boolean> => ipcRenderer.invoke("editor:error?"),
+  onEditorError: (callback: () => void): void => { ipcRenderer.once("editor:error", callback); },
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);
