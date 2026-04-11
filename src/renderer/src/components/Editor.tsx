@@ -8,7 +8,7 @@ const TEXT = {
 const EDITOR_URL = "http://localhost:8080";
 const LOADING_FONT_SIZE = 14;
 const LOADING_BORDER_RADIUS = 4;
-const LOADING_TRANSITION = "opacity 0.3s";
+const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
 
 interface EditorProps {
   theme: "dark" | "light";
@@ -37,8 +37,6 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     if (!webview) return;
 
     const handleDomReady = (): void => {
-      setWebviewLoaded(true);
-
       // The Electron webview shadow-root contains an <iframe> with no explicit height,
       // which prevents VS Code from filling the webview viewport. We patch it here.
       const innerIframe = webview.shadowRoot?.querySelector("iframe");
@@ -46,8 +44,23 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
         innerIframe.style.height = "100%";
       }
 
-      // Trigger VS Code to re-measure its layout after the iframe is resized.
-      webview.executeJavaScript("window.dispatchEvent(new Event('resize'))").catch(() => undefined);
+      // Wait for VS Code's workbench to finish initialising before revealing the editor.
+      // VS Code sets document.title once the workbench is fully rendered (~500 ms after
+      // dom-ready). Revealing only then prevents any flash of unstyled content.
+      webview.executeJavaScript(`
+        new Promise((resolve) => {
+          const check = () => {
+            if (document.title.length > 0) { resolve(); return; }
+            setTimeout(check, 50);
+          };
+          check();
+        })
+      `).then(() => {
+        setWebviewLoaded(true);
+        webview.executeJavaScript("window.dispatchEvent(new Event('resize'))").catch(() => undefined);
+      }).catch(() => {
+        setWebviewLoaded(true);
+      });
     };
 
     webview.addEventListener("dom-ready", handleDomReady);
@@ -78,7 +91,9 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     color: themeColors.text,
     userSelect: "none",
     opacity: webviewLoaded ? 0 : 1,
-    transition: LOADING_TRANSITION,
+    // Only fade-out (opaque → transparent). Reappearance is instant so VS Code
+    // is never visible during the transition back.
+    transition: webviewLoaded ? LOADING_FADE_OUT_TRANSITION : "none",
     pointerEvents: "none",
   };
 
@@ -94,7 +109,6 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
 
   return (
     <div style={containerStyle}>
-      <div style={loadingStyle}>{TEXT.loading}</div>
       {serverReady && (
         <webview
           ref={webviewRef}
@@ -102,6 +116,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
           style={webviewStyle}
         />
       )}
+      <div style={loadingStyle}>{TEXT.loading}</div>
     </div>
   );
 }
