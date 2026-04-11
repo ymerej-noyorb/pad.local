@@ -8,6 +8,8 @@ const api = {
   onEditorReady: (callback: () => void): void => { ipcRenderer.once("editor:ready", callback); },
   checkEditorError: (): Promise<boolean> => ipcRenderer.invoke("editor:error?"),
   onEditorError: (callback: () => void): void => { ipcRenderer.once("editor:error", callback); },
+  loadEditorUrl: (): Promise<string | null> => ipcRenderer.invoke("editor:url:load"),
+  saveEditorUrl: (url: string): Promise<void> => ipcRenderer.invoke("editor:url:save", url),
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);

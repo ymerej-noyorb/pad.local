@@ -7,7 +7,7 @@ const TEXT = {
   errorBody: "Install VS Code and restart the app.",
 } as const;
 
-const EDITOR_URL = "http://localhost:8080";
+const EDITOR_BASE_URL = "http://localhost:8080";
 const LOADING_FONT_SIZE = 14;
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
@@ -22,6 +22,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
   const [serverReady, setServerReady] = useState(false);
   const [webviewLoaded, setWebviewLoaded] = useState(false);
   const [editorError, setEditorError] = useState(false);
+  const [editorUrl, setEditorUrl] = useState<string | null>(null);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
 
@@ -32,6 +33,9 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
         return;
       }
       window.api.onEditorError(() => setEditorError(true));
+    });
+    window.api.loadEditorUrl().then((url) => {
+      setEditorUrl(url ?? EDITOR_BASE_URL);
     });
   }, []);
 
@@ -78,8 +82,19 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
       });
     };
 
+    const handleDidNavigate = (event: { url: string }): void => {
+      const { url } = event;
+      if (url.startsWith(EDITOR_BASE_URL) && (url.includes("?folder=") || url.includes("?workspace="))) {
+        window.api.saveEditorUrl(url).catch(() => undefined);
+      }
+    };
+
     webview.addEventListener("dom-ready", handleDomReady);
-    return () => { webview.removeEventListener("dom-ready", handleDomReady); };
+    webview.addEventListener("did-navigate", handleDidNavigate);
+    return () => {
+      webview.removeEventListener("dom-ready", handleDomReady);
+      webview.removeEventListener("did-navigate", handleDidNavigate);
+    };
   }, [serverReady]); // re-run when serverReady flips so webview is in the DOM
 
   const containerStyle: React.CSSProperties = {
@@ -152,10 +167,10 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
 
   return (
     <div style={containerStyle}>
-      {serverReady && (
+      {serverReady && editorUrl !== null && (
         <webview
           ref={webviewRef}
-          src={EDITOR_URL}
+          src={editorUrl}
           style={webviewStyle}
         />
       )}

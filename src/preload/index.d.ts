@@ -10,6 +10,8 @@ declare global {
       onEditorReady: (callback: () => void) => void;
       checkEditorError: () => Promise<boolean>;
       onEditorError: (callback: () => void) => void;
+      loadEditorUrl: () => Promise<string | null>;
+      saveEditorUrl: (url: string) => Promise<void>;
     };
   }
 }
