@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { colorsByTheme } from "../theme";
+import Spinner from "./Spinner";
 
 const TEXT = {
   loading: "Loading editor…",
@@ -113,8 +114,10 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     width: "100%",
     height: "100%",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     fontSize: LOADING_FONT_SIZE,
     fontFamily: "monospace",
     background: themeColors.base,
@@ -174,7 +177,10 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
           style={webviewStyle}
         />
       )}
-      <div style={loadingStyle}>{TEXT.loading}</div>
+      <div style={loadingStyle}>
+        <Spinner color={themeColors.overlay0} />
+        <span>{TEXT.loading}</span>
+      </div>
     </div>
   );
 }

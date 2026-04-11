@@ -50,6 +50,7 @@ export function createWindow(): void {
     height: WINDOW_HEIGHT,
     show: false,
     autoHideMenuBar: true,
+    backgroundColor: "#1e1e2e", // Catppuccin Mocha: base — avoids white flash before renderer loads
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),

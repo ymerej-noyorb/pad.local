@@ -4,10 +4,11 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
 
 import Editor from "./components/Editor";
+import Spinner from "./components/Spinner";
 import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
-import { colorsByTheme } from "./theme";
+import { colors, colorsByTheme } from "./theme";
 
 const TEXT = {
   terminalPlaceholder: "Terminal — coming in Step 3",
@@ -67,7 +68,13 @@ export default function App(): React.JSX.Element {
     return null;
   };
 
-  if (!ready) return <></>;
+  if (!ready) {
+    return (
+      <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: colors.base }}>
+        <Spinner size={28} color={colors.overlay0} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0 }}>
