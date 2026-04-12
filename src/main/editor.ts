@@ -1,6 +1,6 @@
 import { spawn, execSync } from "child_process";
 import type { ChildProcess } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import http from "http";
@@ -13,6 +13,34 @@ const MACOS_BINARY_CANDIDATES = [
   "/usr/local/bin/code",       // Intel — installed via VS Code command palette
   "/opt/homebrew/bin/code",    // Apple Silicon — Homebrew
 ];
+
+function findDesktopSettingsPath(): string | null {
+  if (process.platform === "win32") {
+    const appData = process.env.APPDATA;
+    return appData ? join(appData, "Code", "User", "settings.json") : null;
+  }
+  if (process.platform === "darwin") {
+    return join(homedir(), "Library", "Application Support", "Code", "User", "settings.json");
+  }
+  // Linux
+  return join(homedir(), ".config", "Code", "User", "settings.json");
+}
+
+// Copies the Desktop VS Code settings.json to the Machine-level settings path that
+// serve-web reads on startup. Machine settings have lower priority than user settings
+// (stored in IndexedDB), so any override made inside the web UI is preserved.
+function syncDesktopSettings(): void {
+  try {
+    const desktopSettingsPath = findDesktopSettingsPath();
+    if (!desktopSettingsPath || !existsSync(desktopSettingsPath)) return;
+
+    const machineSettingsDir = join(homedir(), ".vscode", "data", "Machine");
+    mkdirSync(machineSettingsDir, { recursive: true });
+    writeFileSync(join(machineSettingsDir, "settings.json"), readFileSync(desktopSettingsPath));
+  } catch (_) {
+    // Non-critical — serve-web will fall back to its own defaults.
+  }
+}
 
 function buildVSCodeArgs(port: number): string[] {
   const args = [
@@ -136,6 +164,7 @@ function killPortIfInUse(port: number): void {
 export function startEditor(): void {
   if (editorProcess) return;
 
+  syncDesktopSettings();
   killPortIfInUse(VSCODE_PORT);
 
   const binary = findCodeBinary();
