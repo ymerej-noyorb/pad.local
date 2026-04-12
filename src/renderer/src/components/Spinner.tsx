@@ -7,7 +7,10 @@ interface SpinnerProps {
   color: string;
 }
 
-export default function Spinner({ size = SPINNER_DEFAULT_SIZE, color }: SpinnerProps): React.JSX.Element {
+export default function Spinner({
+  size = SPINNER_DEFAULT_SIZE,
+  color
+}: SpinnerProps): React.JSX.Element {
   const radius = (size - SPINNER_STROKE_WIDTH * 2) / 2;
   const circumference = 2 * Math.PI * radius;
   const center = size / 2;
