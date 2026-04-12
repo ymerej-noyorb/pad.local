@@ -8,8 +8,8 @@ Excalidraw as the main canvas. The editor and terminal are **Excalidraw nodes** 
 src/renderer/  (React + TypeScript)
 └── <Excalidraw
       renderEmbeddable={(element) => {
-        "!editor"   → <Editor />   (webview → localhost:8080)
-        "!terminal" → <Terminal /> (xterm.js ↔ IPC ↔ main)
+        "Editor"   → <Editor />   (webview → localhost:8080)
+        "Terminal" → <Terminal /> (xterm.js ↔ IPC ↔ main)
       }}
       onScrollChange={lockEmbeddables}
       validateEmbeddable={true}
@@ -29,7 +29,7 @@ src/main/  (Node.js — Electron main process)
 | Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
 | Terminal | iframe → remote workspace | xterm.js + node-pty local |
 | Persistence | Cloud | Local JSON (Node.js fs) |
-| Embeddable types | 7 | 2 (`!editor`, `!terminal`) |
+| Embeddable types | 7 | 2 (`Editor`, `Terminal`) |
 
 ### What we take from pad.ws
 
@@ -45,7 +45,7 @@ src/main/  (Node.js — Electron main process)
 
 - [x] Install `@excalidraw/excalidraw`
 - [x] `renderer/App.tsx`: fullscreen Excalidraw with initial config (dark, grid)
-- [x] `renderEmbeddable`: `!editor` → placeholder, `!terminal` → placeholder
+- [x] `renderEmbeddable`: `Editor` → placeholder, `Terminal` → placeholder
 - [x] `onScrollChange` → lock/unlock `pointer-events` (debounce 350ms)
 - [x] `Toolbar.tsx`: 2 buttons that create a node at viewport center
 - [x] Scene persistence → local JSON via Node.js `fs` (IPC main ↔ renderer)
@@ -68,7 +68,7 @@ src/main/  (Node.js — Electron main process)
 - [x] Detect the `code` binary per platform (macOS, Windows, Linux)
 - [x] Kill process on app close (`app.on('before-quit')`)
 - [x] `Editor.tsx`: `<webview src="http://localhost:8080">` with loading state
-- [x] Wired to `!editor` in `renderEmbeddable`
+- [x] Wired to `Editor` in `renderEmbeddable`
 
 **Prerequisite:** VS Code installed on the machine (macOS, Windows, Linux — WSL unsupported).
 
@@ -88,7 +88,7 @@ src/main/  (Node.js — Electron main process)
 - [ ] `Terminal.tsx`: xterm.js with adaptive resize
 - [ ] Main: spawn PTY via `node-pty`, bidirectional IPC (stdin ↔ PTY ↔ renderer)
 - [ ] Multiple instances via UUID per node (stored in `element.customData`)
-- [ ] Wired to `!terminal` in `renderEmbeddable`
+- [ ] Wired to `Terminal` in `renderEmbeddable`
 
 **Files:** `src/renderer/components/Terminal.tsx`, `src/main/pty.ts`
 
@@ -124,7 +124,7 @@ Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The use
 
 ### 4.3 — Extensible node types
 
-- [ ] Replace hardcoded `!editor` / `!terminal` strings with a node type registry
+- [ ] Replace hardcoded `Editor` / `Terminal` strings with a node type registry
 - [ ] Registry maps a node type key → `{ label, icon, defaultSize, component }`
 - [ ] `Toolbar.tsx` reads the registry to render buttons dynamically
 - [ ] `renderEmbeddable` resolves node type from registry instead of a switch/if chain

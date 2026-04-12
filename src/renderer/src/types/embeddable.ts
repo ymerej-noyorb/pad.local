@@ -1,1 +1,1 @@
-export type EmbeddableLink = "!editor" | "!terminal";
+export type EmbeddableType = "editor" | "terminal";

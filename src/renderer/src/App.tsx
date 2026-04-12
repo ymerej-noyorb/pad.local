@@ -56,7 +56,9 @@ export default function App(): React.JSX.Element {
       pointerEvents: scrollLocked ? "none" : "auto"
     };
 
-    if (element.link === "!editor") {
+    // Route by customData.type — stable even if the user renames the link label.
+    const type = element.customData?.type;
+    if (type === "editor") {
       return (
         <Editor
           theme={appState.theme === "light" ? "light" : "dark"}
@@ -64,7 +66,7 @@ export default function App(): React.JSX.Element {
         />
       );
     }
-    if (element.link === "!terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
+    if (type === "terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
     return null;
   };
 
@@ -83,7 +85,7 @@ export default function App(): React.JSX.Element {
         initialData={initialData ?? undefined}
         gridModeEnabled
         renderEmbeddable={renderEmbeddable}
-        validateEmbeddable={(link) => link === "!editor" || link === "!terminal"}
+        validateEmbeddable={(link) => link === "editor" || link === "terminal"}
         onChange={handleChange}
         onScrollChange={handleScrollChange}
         renderTopRightUI={() => excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null}

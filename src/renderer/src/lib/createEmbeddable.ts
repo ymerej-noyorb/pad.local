@@ -1,5 +1,5 @@
 import { colors } from "../theme";
-import type { EmbeddableLink } from "../types/embeddable";
+import type { EmbeddableType } from "../types/embeddable";
 import type { SceneElement } from "../types/scene";
 
 
@@ -38,7 +38,7 @@ function findNonOverlappingPosition(
 }
 
 export function createEmbeddableElement(
-  link: EmbeddableLink,
+  type: EmbeddableType,
   scrollX: number,
   scrollY: number,
   zoom: number,
@@ -72,10 +72,10 @@ export function createEmbeddableElement(
     isDeleted: false as const,
     boundElements: null,
     updated: Date.now(),
-    link,
+    link: type,
     locked: false,
     scale: [1, 1] as [number, number],
-    customData: { link },
+    customData: { type },
     index: null,
   };
 }

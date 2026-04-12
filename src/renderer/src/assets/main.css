@@ -30,3 +30,10 @@ body {
   animation: pad-spin 0.8s linear infinite;
   display: block;
 }
+
+/* This app has no use for Excalidraw's element hyperlink popup.
+   Embeddable nodes use customData.type for routing, not their link label.
+   Hiding this prevents the badge from appearing and the link from being clickable. */
+.excalidraw-hyperlinkContainer {
+  display: none !important;
+}

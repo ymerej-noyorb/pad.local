@@ -65,7 +65,9 @@ export function createWindow(): void {
   });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url);
+    if (/^https?:\/\//.test(details.url)) {
+      shell.openExternal(details.url);
+    }
     return { action: "deny" };
   });
 
