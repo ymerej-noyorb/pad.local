@@ -12,6 +12,9 @@ const EDITOR_BASE_URL = "http://localhost:8080";
 const LOADING_FONT_SIZE = 14;
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
+const LOADING_GAP = 12;
+const ERROR_GAP = 8;
+const LOADING_FONT_FAMILY = "monospace";
 const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
 
 interface EditorProps {
@@ -117,9 +120,9 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: 12,
+    gap: LOADING_GAP,
     fontSize: LOADING_FONT_SIZE,
-    fontFamily: "monospace",
+    fontFamily: LOADING_FONT_FAMILY,
     background: themeColors.base,
     color: themeColors.text,
     userSelect: "none",
@@ -150,8 +153,8 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    fontFamily: "monospace",
+    gap: ERROR_GAP,
+    fontFamily: LOADING_FONT_FAMILY,
     background: themeColors.base,
     userSelect: "none",
     pointerEvents: "none",

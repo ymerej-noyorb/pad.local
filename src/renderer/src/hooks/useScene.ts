@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import type { Excalidraw } from "@excalidraw/excalidraw";
 import type { SavedScene } from "../types/scene";
+
+type ExcalidrawChangeHandler = NonNullable<React.ComponentProps<typeof Excalidraw>["onChange"]>;
 
 const SAVE_DEBOUNCE_MS = 500;
 
@@ -11,9 +14,7 @@ const DEFAULT_SCENE: SavedScene = {
 export function useScene(): {
   initialData: SavedScene | null;
   ready: boolean;
-  handleChange: React.ComponentProps<
-    typeof import("@excalidraw/excalidraw").Excalidraw
-  >["onChange"];
+  handleChange: ExcalidrawChangeHandler;
 } {
   const [initialData, setInitialData] = useState<SavedScene | null>(null);
   const [ready, setReady] = useState(false);
@@ -34,9 +35,7 @@ export function useScene(): {
     });
   }, []);
 
-  const handleChange: React.ComponentProps<
-    typeof import("@excalidraw/excalidraw").Excalidraw
-  >["onChange"] = (elements, appState) => {
+  const handleChange: ExcalidrawChangeHandler = (elements, appState) => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       window.api.saveScene(

@@ -6,6 +6,7 @@ import { homedir } from "os";
 import http from "http";
 import { BrowserWindow } from "electron";
 import { VSCODE_PORT } from "./constants";
+
 const POLL_INTERVAL_MS = 500;
 
 const MACOS_BINARY_CANDIDATES = [

@@ -2,7 +2,6 @@ import { colors } from "../theme";
 import type { EmbeddableType } from "../types/embeddable";
 import type { SceneElement } from "../types/scene";
 
-
 const NODE_WIDTH = 800;
 const NODE_HEIGHT = 500;
 const NODE_STROKE_WIDTH = 2;
