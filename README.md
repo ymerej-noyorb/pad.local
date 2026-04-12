@@ -13,7 +13,7 @@ No cloud. No auth. No database. No monthly bill.
 | Panel          | Tech                                                        |
 | -------------- | ----------------------------------------------------------- |
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                 |
-| 💻 Code editor | VS Code (`serve-web`) — your extensions, your settings |
+| 💻 Code editor | VS Code, Cursor, or Windsurf (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                         |
 
 The editor and terminal live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
@@ -86,6 +86,7 @@ Everything runs locally. Nothing leaves your machine.
 
 - **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — they run in separate renderer processes (Electron `<webview>`) and cannot be composited into a canvas export.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
+- **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, and Windsurf support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
 
 ---
 

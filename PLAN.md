@@ -112,9 +112,22 @@ Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The use
 - [ ] Defaults: VS Code `serve-web` + system shell (`process.env.SHELL` or `cmd.exe` on Windows)
 - [ ] Port conflict handling: if the configured port is already in use, auto-select the next available port and persist it to config (`EADDRINUSE` → retry on `port + 1`)
 - [ ] `Settings.tsx`: settings panel accessible from the Excalidraw main menu
-  - Dropdown to select the editor (list of supported types)
+  - Dropdown to select the editor (list of supported types — see below)
   - Dropdown to select the shell (detected shells on the system + manual input)
   - Changes apply on next node spawn (no restart required)
+
+**Supported editor types for the dropdown:**
+
+| Type | Binary | Notes |
+|------|--------|-------|
+| `vscode` | `code` / `code.cmd` | Default |
+| `cursor` | `cursor` | VS Code fork — inherits `serve-web` |
+| `windsurf` | `windsurf` | VS Code fork — inherits `serve-web` |
+
+All three use identical `serve-web` args. Only binary detection differs.
+Detection: check known install paths per platform, then fall back to `which`/`where`.
+
+**Out of scope:** JetBrains IDEs (no `serve-web` equivalent), Zed (no web UI), window streaming solutions (too heavy). Terminal-based editors (Neovim, Vim, Helix…) work as-is via the Terminal panel.
 
 ### 4.2 — Extensible spawn abstraction
 
