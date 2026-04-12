@@ -36,6 +36,8 @@ function findNonOverlappingPosition(
   return { x, y };
 }
 
+// Return type is the Excalidraw internal embeddable element shape — not exported from the public API.
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createEmbeddableElement(
   type: EmbeddableType,
   scrollX: number,
@@ -75,6 +77,6 @@ export function createEmbeddableElement(
     locked: false,
     scale: [1, 1] as [number, number],
     customData: { type },
-    index: null,
+    index: null
   };
 }

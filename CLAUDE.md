@@ -20,7 +20,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Panel       | Implementation                                                                     |
 | ----------- | ---------------------------------------------------------------------------------- |
 | Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes       |
-| Code editor | VS Code (`code serve-web`) on localhost:8080, embedded as an Excalidraw node        |
+| Code editor | VS Code (`code serve-web`) on localhost:8080, embedded as an Excalidraw node       |
 | Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node |
 
 ---
@@ -33,7 +33,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Backend       | Node.js (Electron main)       | Handles PTY (`node-pty`) and process spawning (`child_process`)   |
 | Frontend      | React + TypeScript            | Familiar, component-based                                         |
 | Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
-| Editor        | VS Code `serve-web`           | Full VS Code experience, no extra install if VS Code is present          |
+| Editor        | VS Code `serve-web`           | Full VS Code experience, no extra install if VS Code is present   |
 | Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws          |
 | Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
@@ -62,11 +62,13 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This requires the IDE to expose a local HTTP server serving a full web UI — a capability specific to VS Code and its forks.
 
 **Supported (or trivially supportable):**
+
 - VS Code — the default, uses `code serve-web`
 - Cursor — VS Code fork, inherits `serve-web`; only binary detection differs
 - Windsurf — VS Code fork, same as Cursor
 
 **Not supported:**
+
 - Terminal-based editors (Neovim, Vim, Helix, Emacs…) — already usable via the Terminal panel; no dedicated Editor node needed
 - JetBrains IDEs, Zed, and any other desktop IDE without a `serve-web` equivalent — see "ruled out" above
 

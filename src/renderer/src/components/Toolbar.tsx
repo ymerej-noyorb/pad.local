@@ -22,13 +22,13 @@ const ISLAND_PADDING = "0.25rem";
 
 const TEXT = {
   addEditor: "Add Editor",
-  addTerminal: "Add Terminal",
+  addTerminal: "Add Terminal"
 } as const;
 
 function ToolButton({
   icon,
   title,
-  onClick,
+  onClick
 }: {
   icon: React.ReactNode;
   title: string;
@@ -53,7 +53,7 @@ function ToolButton({
         background: hovered ? "var(--button-hover-bg)" : "transparent",
         color: "var(--icon-fill-color, #e3e3e8)",
         cursor: "pointer",
-        padding: 0,
+        padding: 0
       }}
     >
       {icon}
@@ -70,7 +70,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         background: "var(--island-bg-color)",
         borderRadius: "var(--border-radius-lg, 0.5rem)",
         boxShadow: "var(--shadow-island)",
-        padding: ISLAND_PADDING,
+        padding: ISLAND_PADDING
       }}
     >
       <ToolButton

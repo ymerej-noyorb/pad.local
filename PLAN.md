@@ -24,12 +24,12 @@ src/main/  (Node.js — Electron main process)
 
 ### Differences from pad.ws
 
-| | pad.ws | pad.local |
-|---|---|---|
-| Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
-| Terminal | iframe → remote workspace | xterm.js + node-pty local |
-| Persistence | Cloud | Local JSON (Node.js fs) |
-| Embeddable types | 7 | 2 (`Editor`, `Terminal`) |
+|                  | pad.ws                    | pad.local                                                          |
+| ---------------- | ------------------------- | ------------------------------------------------------------------ |
+| Editor           | Monaco (no extensions)    | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
+| Terminal         | iframe → remote workspace | xterm.js + node-pty local                                          |
+| Persistence      | Cloud                     | Local JSON (Node.js fs)                                            |
+| Embeddable types | 7                         | 2 (`Editor`, `Terminal`)                                           |
 
 ### What we take from pad.ws
 
@@ -73,6 +73,7 @@ src/main/  (Node.js — Electron main process)
 **Prerequisite:** VS Code installed on the machine (macOS, Windows, Linux — WSL unsupported).
 
 **Notes:**
+
 - `<webview>` (not `<iframe>`) — VS Code registers service workers that require an isolated renderer process
 - `forceEnglishLocale()` in `window.ts` — prevents VS Code from loading a broken French NLS script from an external CDN
 - `allowVSCodeEmbedding()` in `window.ts` — strips `X-Frame-Options` and `Content-Security-Policy` headers that block embedding
@@ -118,11 +119,11 @@ Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The use
 
 **Supported editor types for the dropdown:**
 
-| Type | Binary | Notes |
-|------|--------|-------|
-| `vscode` | `code` / `code.cmd` | Default |
-| `cursor` | `cursor` | VS Code fork — inherits `serve-web` |
-| `windsurf` | `windsurf` | VS Code fork — inherits `serve-web` |
+| Type       | Binary              | Notes                               |
+| ---------- | ------------------- | ----------------------------------- |
+| `vscode`   | `code` / `code.cmd` | Default                             |
+| `cursor`   | `cursor`            | VS Code fork — inherits `serve-web` |
+| `windsurf` | `windsurf`          | VS Code fork — inherits `serve-web` |
 
 All three use identical `serve-web` args. Only binary detection differs.
 Detection: check known install paths per platform, then fall back to `which`/`where`.

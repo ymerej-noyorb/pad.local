@@ -11,7 +11,7 @@ import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors, colorsByTheme } from "./theme";
 
 const TEXT = {
-  terminalPlaceholder: "Terminal — coming in Step 3",
+  terminalPlaceholder: "Terminal — coming in Step 3"
 } as const;
 
 const NODE_FONT_SIZE = 14;
@@ -60,10 +60,7 @@ export default function App(): React.JSX.Element {
     const type = element.customData?.type;
     if (type === "editor") {
       return (
-        <Editor
-          theme={appState.theme === "light" ? "light" : "dark"}
-          scrollLocked={scrollLocked}
-        />
+        <Editor theme={appState.theme === "light" ? "light" : "dark"} scrollLocked={scrollLocked} />
       );
     }
     if (type === "terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
@@ -72,7 +69,16 @@ export default function App(): React.JSX.Element {
 
   if (!ready) {
     return (
-      <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: colors.base }}>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: colors.base
+        }}
+      >
         <Spinner size={28} color={colors.overlay0} />
       </div>
     );
@@ -88,7 +94,7 @@ export default function App(): React.JSX.Element {
         validateEmbeddable={(link) => link === "editor" || link === "terminal"}
         onChange={handleChange}
         onScrollChange={handleScrollChange}
-        renderTopRightUI={() => excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null}
+        renderTopRightUI={() => (excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null)}
         UIOptions={{ canvasActions: CANVAS_ACTIONS }}
       />
     </div>

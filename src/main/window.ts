@@ -55,7 +55,7 @@ export function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,
-      webviewTag: true,
+      webviewTag: true
     }
   });
 
@@ -76,5 +76,4 @@ export function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
-
 }
