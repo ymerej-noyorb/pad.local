@@ -3,14 +3,15 @@ import { Excalidraw } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
 
+import Editor from "./components/Editor";
+import Spinner from "./components/Spinner";
 import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
-import { colorsByTheme } from "./theme";
+import { colors, colorsByTheme } from "./theme";
 
 const TEXT = {
-  editorPlaceholder: "Editor — coming in Step 2",
-  terminalPlaceholder: "Terminal — coming in Step 3"
+  terminalPlaceholder: "Terminal — coming in Step 3",
 } as const;
 
 const NODE_FONT_SIZE = 14;
@@ -55,12 +56,27 @@ export default function App(): React.JSX.Element {
       pointerEvents: scrollLocked ? "none" : "auto"
     };
 
-    if (element.link === "!editor") return <div style={style}>{TEXT.editorPlaceholder}</div>;
-    if (element.link === "!terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
+    // Route by customData.type — stable even if the user renames the link label.
+    const type = element.customData?.type;
+    if (type === "editor") {
+      return (
+        <Editor
+          theme={appState.theme === "light" ? "light" : "dark"}
+          scrollLocked={scrollLocked}
+        />
+      );
+    }
+    if (type === "terminal") return <div style={style}>{TEXT.terminalPlaceholder}</div>;
     return null;
   };
 
-  if (!ready) return <></>;
+  if (!ready) {
+    return (
+      <div style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: colors.base }}>
+        <Spinner size={28} color={colors.overlay0} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0 }}>
@@ -69,7 +85,7 @@ export default function App(): React.JSX.Element {
         initialData={initialData ?? undefined}
         gridModeEnabled
         renderEmbeddable={renderEmbeddable}
-        validateEmbeddable={(link) => link === "!editor" || link === "!terminal"}
+        validateEmbeddable={(link) => link === "editor" || link === "terminal"}
         onChange={handleChange}
         onScrollChange={handleScrollChange}
         renderTopRightUI={() => excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null}

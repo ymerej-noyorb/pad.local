@@ -2,16 +2,16 @@ import { useState } from "react";
 import { Code2, Terminal } from "lucide-react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
-import type { EmbeddableLink } from "../types/embeddable";
+import type { EmbeddableType } from "../types/embeddable";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
 }
 
-function addNode(excalidrawAPI: ExcalidrawImperativeAPI, link: EmbeddableLink): void {
+function addNode(excalidrawAPI: ExcalidrawImperativeAPI, type: EmbeddableType): void {
   const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
   const existingElements = excalidrawAPI.getSceneElements();
-  const newElement = createEmbeddableElement(link, scrollX, scrollY, zoom.value, existingElements);
+  const newElement = createEmbeddableElement(type, scrollX, scrollY, zoom.value, existingElements);
   excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
 }
 
@@ -76,12 +76,12 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
       <ToolButton
         icon={<Code2 size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
         title={TEXT.addEditor}
-        onClick={() => addNode(excalidrawAPI, "!editor")}
+        onClick={() => addNode(excalidrawAPI, "editor")}
       />
       <ToolButton
         icon={<Terminal size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
         title={TEXT.addTerminal}
-        onClick={() => addNode(excalidrawAPI, "!terminal")}
+        onClick={() => addNode(excalidrawAPI, "terminal")}
       />
     </div>
   );

@@ -11,6 +11,8 @@ It runs entirely on the developer's machine — no server, no auth, no database,
 
 The goal: any developer clones it, `npm install && npm run dev`, done.
 
+**Prerequisites:** VS Code must be installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
+
 ---
 
 ## Core panels
@@ -18,7 +20,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Panel       | Implementation                                                                     |
 | ----------- | ---------------------------------------------------------------------------------- |
 | Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes       |
-| Code editor | OpenVSCode Server on localhost:8080, embedded as an Excalidraw node                |
+| Code editor | VS Code (`code serve-web`) on localhost:8080, embedded as an Excalidraw node        |
 | Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node |
 
 ---
@@ -31,7 +33,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Backend       | Node.js (Electron main)       | Handles PTY (`node-pty`) and process spawning (`child_process`)   |
 | Frontend      | React + TypeScript            | Familiar, component-based                                         |
 | Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
-| Editor        | OpenVSCode Server (Gitpod)    | Full VS Code experience, stable embeddable API, bundled with app  |
+| Editor        | VS Code `serve-web`           | Full VS Code experience, no extra install if VS Code is present          |
 | Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws          |
 | Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
@@ -43,16 +45,36 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 - ❌ Database (PostgreSQL or anything else) — JSON files for persistence
 - ❌ Cloud / remote server — zero infra cost is a hard requirement
 - ❌ Multi-tenant — one instance per developer, for that developer only
-- ❌ code-server — requires a separate installation; OpenVSCode Server is bundled as an npm dependency
+- ❌ OpenVSCode Server — no npm package, requires downloading a compiled binary
+- ❌ code-server (Coder) — requires native build tools (`make`, `g++`) to compile argon2; not "Node.js only"
+- ❌ WSL — VS Code CLI in WSL is a remote wrapper, does not expose `serve-web`; unsupported platform
 - ❌ Monaco Editor — pad.ws used this; no extension support, not suitable for a daily driver
 - ❌ allotment — replaced by Excalidraw's native embeddable system
 - ❌ "Open in VS Code" button — breaks the single-window experience, defeats the purpose
+- ❌ JetBrains IDEs (IntelliJ, WebStorm, PyCharm…) — Projector (their web-streaming solution) was deprecated in 2023; JetBrains Gateway is heavy and remote-dev oriented; no lightweight local `serve-web` equivalent exists
+- ❌ Zed — no web UI, no HTTP server mode; cannot be embedded in an iframe
+- ❌ Window streaming (Xpra, VNC-over-WebSocket) — the only generic approach for embedding any desktop IDE, but adds significant complexity, latency, and native dependencies; contradicts the "npm install && done" principle
+
+---
+
+## IDE support scope
+
+The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This requires the IDE to expose a local HTTP server serving a full web UI — a capability specific to VS Code and its forks.
+
+**Supported (or trivially supportable):**
+- VS Code — the default, uses `code serve-web`
+- Cursor — VS Code fork, inherits `serve-web`; only binary detection differs
+- Windsurf — VS Code fork, same as Cursor
+
+**Not supported:**
+- Terminal-based editors (Neovim, Vim, Helix, Emacs…) — already usable via the Terminal panel; no dedicated Editor node needed
+- JetBrains IDEs, Zed, and any other desktop IDE without a `serve-web` equivalent — see "ruled out" above
 
 ---
 
 ## Key behaviors
 
-- On app launch: Electron main starts an OpenVSCode Server instance on port 8080 and opens a PTY via `node-pty`
+- On app launch: Electron main spawns `code serve-web` on port 8080 and opens a PTY via `node-pty`
 - On app close: Electron kills both processes cleanly
 - The user can add Editor and Terminal nodes anywhere on the Excalidraw canvas via a toolbar
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)
