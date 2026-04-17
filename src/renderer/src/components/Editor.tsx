@@ -5,7 +5,7 @@ import Spinner from "./Spinner";
 const TEXT = {
   loading: "Loading editor…",
   errorTitle: "VS Code not found",
-  errorBody: "Install VS Code and restart the app.",
+  errorBody: "Install VS Code and restart the app."
 } as const;
 
 const EDITOR_BASE_URL = "http://localhost:8080";
@@ -70,7 +70,9 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
       // Wait for VS Code's workbench to finish initialising before revealing the editor.
       // VS Code sets document.title once the workbench is fully rendered (~500 ms after
       // dom-ready). Revealing only then prevents any flash of unstyled content.
-      webview.executeJavaScript(`
+      webview
+        .executeJavaScript(
+          `
         new Promise((resolve) => {
           const check = () => {
             if (document.title.length > 0) { resolve(); return; }
@@ -78,17 +80,25 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
           };
           check();
         })
-      `).then(() => {
-        setWebviewLoaded(true);
-        webview.executeJavaScript("window.dispatchEvent(new Event('resize'))").catch(() => undefined);
-      }).catch(() => {
-        setWebviewLoaded(true);
-      });
+      `
+        )
+        .then(() => {
+          setWebviewLoaded(true);
+          webview
+            .executeJavaScript("window.dispatchEvent(new Event('resize'))")
+            .catch(() => undefined);
+        })
+        .catch(() => {
+          setWebviewLoaded(true);
+        });
     };
 
     const handleDidNavigate = (event: { url: string }): void => {
       const { url } = event;
-      if (url.startsWith(EDITOR_BASE_URL) && (url.includes("?folder=") || url.includes("?workspace="))) {
+      if (
+        url.startsWith(EDITOR_BASE_URL) &&
+        (url.includes("?folder=") || url.includes("?workspace="))
+      ) {
         window.api.saveEditorUrl(url).catch(() => undefined);
       }
     };
@@ -107,7 +117,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     position: "relative",
     borderRadius: LOADING_BORDER_RADIUS,
     overflow: "hidden",
-    pointerEvents: scrollLocked ? "none" : "auto",
+    pointerEvents: scrollLocked ? "none" : "auto"
   };
 
   const loadingStyle: React.CSSProperties = {
@@ -130,7 +140,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     // Only fade-out (opaque → transparent). Reappearance is instant so VS Code
     // is never visible during the transition back.
     transition: webviewLoaded ? LOADING_FADE_OUT_TRANSITION : "none",
-    pointerEvents: "none",
+    pointerEvents: "none"
   };
 
   const webviewStyle: React.CSSProperties = {
@@ -140,7 +150,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     width: "100%",
     height: "100%",
     display: "block",
-    border: "none",
+    border: "none"
   };
 
   const errorStyle: React.CSSProperties = {
@@ -157,15 +167,19 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
     fontFamily: LOADING_FONT_FAMILY,
     background: themeColors.base,
     userSelect: "none",
-    pointerEvents: "none",
+    pointerEvents: "none"
   };
 
   if (editorError) {
     return (
       <div style={containerStyle}>
         <div style={errorStyle}>
-          <span style={{ fontSize: ERROR_TITLE_FONT_SIZE, color: themeColors.red }}>{TEXT.errorTitle}</span>
-          <span style={{ fontSize: LOADING_FONT_SIZE, color: themeColors.text }}>{TEXT.errorBody}</span>
+          <span style={{ fontSize: ERROR_TITLE_FONT_SIZE, color: themeColors.red }}>
+            {TEXT.errorTitle}
+          </span>
+          <span style={{ fontSize: LOADING_FONT_SIZE, color: themeColors.text }}>
+            {TEXT.errorBody}
+          </span>
         </div>
       </div>
     );
@@ -174,11 +188,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
   return (
     <div style={containerStyle}>
       {serverReady && editorUrl !== null && (
-        <webview
-          ref={webviewRef}
-          src={editorUrl}
-          style={webviewStyle}
-        />
+        <webview ref={webviewRef} src={editorUrl} style={webviewStyle} />
       )}
       <div style={loadingStyle}>
         <Spinner color={themeColors.overlay0} />
