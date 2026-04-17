@@ -1,4 +1,5 @@
 import { colors } from "../theme";
+import type { ExcalidrawEmbeddableElement } from "@excalidraw/excalidraw/element/types";
 import type { EmbeddableType } from "../types/embeddable";
 import type { SceneElement } from "../types/scene";
 
@@ -44,7 +45,7 @@ export function createEmbeddableElement(
   scrollY: number,
   zoom: number,
   existingElements: readonly SceneElement[]
-) {
+): ExcalidrawEmbeddableElement {
   const baseX = (window.innerWidth / 2 - scrollX) / zoom - NODE_WIDTH / 2;
   const baseY = (window.innerHeight / 2 - scrollY) / zoom - NODE_HEIGHT / 2;
   const { x, y } = findNonOverlappingPosition(baseX, baseY, existingElements);
@@ -75,7 +76,6 @@ export function createEmbeddableElement(
     updated: Date.now(),
     link: type,
     locked: false,
-    scale: [1, 1] as [number, number],
     customData: { type },
     index: null
   };

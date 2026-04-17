@@ -83,15 +83,21 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
-## Step 3 — Terminal (xterm.js + node-pty)
+## Step 3 — Terminal (xterm.js + node-pty) ✅
 
-- [ ] Install `@xterm/xterm`, `@xterm/addon-fit`, `node-pty`
-- [ ] `Terminal.tsx`: xterm.js with adaptive resize
-- [ ] Main: spawn PTY via `node-pty`, bidirectional IPC (stdin ↔ PTY ↔ renderer)
-- [ ] Multiple instances via UUID per node (stored in `element.customData`)
-- [ ] Wired to `Terminal` in `renderEmbeddable`
+- [x] Install `@xterm/xterm`, `@xterm/addon-fit`, `node-pty`
+- [x] `Terminal.tsx`: xterm.js with adaptive resize
+- [x] Main: spawn PTY via `node-pty`, bidirectional IPC (stdin ↔ PTY ↔ renderer)
+- [x] Multiple instances via UUID per node (`element.id` used directly as session key)
+- [x] Wired to `Terminal` in `renderEmbeddable`
 
-**Files:** `src/renderer/components/Terminal.tsx`, `src/main/pty.ts`
+**Notes:**
+
+- PTY session lifecycle is tied to the Excalidraw element, not the React component. The component connects to an existing session on remount (React StrictMode) without re-spawning. `killAllTerminals()` cleans up on app close.
+- On Windows, killing a PTY via ConPTY propagates a `STATUS_CONTROL_C_EXIT` signal to any PTY spawned shortly after in the same console group. Decoupling the PTY lifecycle from the component unmount avoids this race.
+- Terminal color theme: Catppuccin Mocha, defined in `src/renderer/src/theme.ts` as `terminalTheme`.
+
+**Files:** `src/renderer/src/components/Terminal.tsx`, `src/main/pty.ts`, `src/main/ipc.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/theme.ts`
 
 ---
 
