@@ -1,13 +1,23 @@
 import { spawn } from "node-pty";
 import type { IPty } from "node-pty";
 import { BrowserWindow } from "electron";
+import { existsSync } from "fs";
+import { join } from "path";
 
 const DEFAULT_COLS = 80;
 const DEFAULT_ROWS = 24;
 
+const POWERSHELL_CANDIDATES = [
+  join(process.env.PROGRAMFILES ?? "C:\\Program Files", "PowerShell", "7", "pwsh.exe"),
+  join(process.env.SYSTEMROOT ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
+];
+
 function defaultShell(): string {
-  if (process.platform === "win32") return process.env.COMSPEC ?? "cmd.exe";
-  return process.env.SHELL ?? "/bin/bash";
+  if (process.platform !== "win32") return process.env.SHELL ?? "/bin/bash";
+  for (const candidate of POWERSHELL_CANDIDATES) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return process.env.COMSPEC ?? "cmd.exe";
 }
 
 const sessions = new Map<string, IPty>();
