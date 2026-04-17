@@ -3,6 +3,7 @@ import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { createWindow } from "./window";
 import { registerIpcHandlers } from "./ipc";
 import { startEditor, stopEditor } from "./editor";
+import { killAllTerminals } from "./pty";
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
@@ -22,6 +23,7 @@ app.whenReady().then(() => {
 
 app.on("before-quit", () => {
   stopEditor();
+  killAllTerminals();
 });
 
 app.on("window-all-closed", () => {

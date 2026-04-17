@@ -24,12 +24,12 @@ src/main/  (Node.js — Electron main process)
 
 ### Differences from pad.ws
 
-| | pad.ws | pad.local |
-|---|---|---|
-| Editor | Monaco (no extensions) | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
-| Terminal | iframe → remote workspace | xterm.js + node-pty local |
-| Persistence | Cloud | Local JSON (Node.js fs) |
-| Embeddable types | 7 | 2 (`Editor`, `Terminal`) |
+|                  | pad.ws                    | pad.local                                                          |
+| ---------------- | ------------------------- | ------------------------------------------------------------------ |
+| Editor           | Monaco (no extensions)    | VS Code `serve-web` (built-in, uses `--server-data-dir ~/.vscode`) |
+| Terminal         | iframe → remote workspace | xterm.js + node-pty local                                          |
+| Persistence      | Cloud                     | Local JSON (Node.js fs)                                            |
+| Embeddable types | 7                         | 2 (`Editor`, `Terminal`)                                           |
 
 ### What we take from pad.ws
 
@@ -73,6 +73,7 @@ src/main/  (Node.js — Electron main process)
 **Prerequisite:** VS Code installed on the machine (macOS, Windows, Linux — WSL unsupported).
 
 **Notes:**
+
 - `<webview>` (not `<iframe>`) — VS Code registers service workers that require an isolated renderer process
 - `forceEnglishLocale()` in `window.ts` — prevents VS Code from loading a broken French NLS script from an external CDN
 - `allowVSCodeEmbedding()` in `window.ts` — strips `X-Frame-Options` and `Content-Security-Policy` headers that block embedding
@@ -82,15 +83,21 @@ src/main/  (Node.js — Electron main process)
 
 ---
 
-## Step 3 — Terminal (xterm.js + node-pty)
+## Step 3 — Terminal (xterm.js + node-pty) ✅
 
-- [ ] Install `@xterm/xterm`, `@xterm/addon-fit`, `node-pty`
-- [ ] `Terminal.tsx`: xterm.js with adaptive resize
-- [ ] Main: spawn PTY via `node-pty`, bidirectional IPC (stdin ↔ PTY ↔ renderer)
-- [ ] Multiple instances via UUID per node (stored in `element.customData`)
-- [ ] Wired to `Terminal` in `renderEmbeddable`
+- [x] Install `@xterm/xterm`, `@xterm/addon-fit`, `node-pty`
+- [x] `Terminal.tsx`: xterm.js with adaptive resize
+- [x] Main: spawn PTY via `node-pty`, bidirectional IPC (stdin ↔ PTY ↔ renderer)
+- [x] Multiple instances via UUID per node (`element.id` used directly as session key)
+- [x] Wired to `Terminal` in `renderEmbeddable`
 
-**Files:** `src/renderer/components/Terminal.tsx`, `src/main/pty.ts`
+**Notes:**
+
+- PTY session lifecycle is tied to the Excalidraw element, not the React component. The component connects to an existing session on remount (React StrictMode) without re-spawning. `killAllTerminals()` cleans up on app close.
+- On Windows, killing a PTY via ConPTY propagates a `STATUS_CONTROL_C_EXIT` signal to any PTY spawned shortly after in the same console group. Decoupling the PTY lifecycle from the component unmount avoids this race.
+- Terminal color theme: Catppuccin Mocha, defined in `src/renderer/src/theme.ts` as `terminalTheme`.
+
+**Files:** `src/renderer/src/components/Terminal.tsx`, `src/main/pty.ts`, `src/main/ipc.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/theme.ts`
 
 ---
 
@@ -118,11 +125,11 @@ Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The use
 
 **Supported editor types for the dropdown:**
 
-| Type | Binary | Notes |
-|------|--------|-------|
-| `vscode` | `code` / `code.cmd` | Default |
-| `cursor` | `cursor` | VS Code fork — inherits `serve-web` |
-| `windsurf` | `windsurf` | VS Code fork — inherits `serve-web` |
+| Type       | Binary              | Notes                               |
+| ---------- | ------------------- | ----------------------------------- |
+| `vscode`   | `code` / `code.cmd` | Default                             |
+| `cursor`   | `cursor`            | VS Code fork — inherits `serve-web` |
+| `windsurf` | `windsurf`          | VS Code fork — inherits `serve-web` |
 
 All three use identical `serve-web` args. Only binary detection differs.
 Detection: check known install paths per platform, then fall back to `which`/`where`.
