@@ -9,7 +9,13 @@ const DEFAULT_ROWS = 24;
 
 const POWERSHELL_CANDIDATES = [
   join(process.env.PROGRAMFILES ?? "C:\\Program Files", "PowerShell", "7", "pwsh.exe"),
-  join(process.env.SYSTEMROOT ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
+  join(
+    process.env.SYSTEMROOT ?? "C:\\Windows",
+    "System32",
+    "WindowsPowerShell",
+    "v1.0",
+    "powershell.exe"
+  )
 ];
 
 function defaultShell(): string {
