@@ -157,7 +157,7 @@ function killPortIfInUse(port: number): void {
         try {
           execSync(`taskkill /PID ${pid} /F`, { stdio: "ignore" });
         } catch {
-          // ignore — process may have already exited
+          // taskkill failed — process already gone, nothing to do
         }
       });
     } else {
