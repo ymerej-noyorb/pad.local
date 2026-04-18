@@ -152,4 +152,53 @@ All four use identical `serve-web` args. Only binary detection and settings dir 
 - [x] `src/renderer/src/components/Terminal.tsx`: `shell` prop passed to `terminalSpawn`
 - [x] `src/renderer/src/App.tsx`: reads `element.customData.editorType` / `element.customData.shell` and passes to respective components
 
-**Files:** `src/shared/types.ts`, `src/main/constants.ts`, `src/main/editor.ts`, `src/main/editorDetect.ts`, `src/main/editorState.ts`, `src/main/pty.ts`, `src/main/shellDetect.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/main/index.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/components/Picker.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/components/Editor.tsx`, `src/renderer/src/components/Terminal.tsx`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/App.tsx`
+**Files:** `src/shared/types.ts`, `src/main/constants.ts`, `src/main/editor/index.ts`, `src/main/editor/detect.ts`, `src/main/editor/state.ts`, `src/main/terminal/index.ts`, `src/main/terminal/detect.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/main/index.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/components/Picker.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/components/Editor.tsx`, `src/renderer/src/components/Terminal.tsx`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/App.tsx`
+
+---
+
+## Step 5 — AI panel (any provider, OAuth in-webview)
+
+Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. The session persists across restarts via Electron's default webview session store.
+
+### Supported providers
+
+| Provider   | URL                             | Notes                          |
+| ---------- | ------------------------------- | ------------------------------ |
+| Claude     | `https://claude.ai`             |                                |
+| ChatGPT    | `https://chatgpt.com`           |                                |
+| Gemini     | `https://gemini.google.com`     |                                |
+| Grok       | `https://grok.com`              |                                |
+| Perplexity | `https://perplexity.ai`         |                                |
+| Mistral    | `https://chat.mistral.ai`       |                                |
+| Copilot    | `https://copilot.microsoft.com` |                                |
+| DeepSeek   | `https://chat.deepseek.com`     |                                |
+| Meta AI    | `https://www.meta.ai`           |                                |
+| Phind      | `https://phind.com`             | Dev-focused (code search + AI) |
+
+Detection is not needed — the list is static. All providers are always offered; the user's session (logged in or not) is their own business.
+
+### Architecture
+
+No main process changes except extending the CSP/header strip in `window.ts` to cover AI provider domains. Everything else lives in the renderer.
+
+```
+src/main/window.ts                        ← extend allowlist to AI provider origins
+src/shared/types.ts                       ← add AiProvider type + AiProviderInfo interface
+src/renderer/src/lib/aiProviders.ts       ← static list: { id, label, url }
+src/renderer/src/components/AiPanel.tsx   ← <webview src={url}> with loading overlay
+src/renderer/src/components/Toolbar.tsx   ← add "Add AI" button + Picker wired to aiProviders
+src/renderer/src/App.tsx                  ← handle "ai" embeddable type in renderEmbeddable
+```
+
+### Key behaviours
+
+- `AiPanel.tsx` mirrors `Editor.tsx` loading pattern (loading overlay until `dom-ready`), without the server-ready polling — webviews are ready as soon as the page loads
+- `scrollLocked` prop forwarded from `App.tsx` → `pointer-events: none` during canvas pan (same as Editor and Terminal)
+- No IPC handlers needed — the webview manages its own network requests and cookies
+- CSP strip in `window.ts`: extend `onHeadersReceived` to remove `x-frame-options` and `content-security-policy` for all AI provider origins
+
+### What we explicitly do NOT do
+
+- ❌ API key management — users authenticate through the provider's own web UI
+- ❌ Custom AI integration / streaming — out of scope, use the provider's interface as-is
+- ❌ Provider detection — list is static and always shown in full
