@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "fs";
 import { join, basename } from "path";
-import type { ShellInfo } from "../shared/types";
+import type { ShellInfo } from "../../shared/types";
 
 const WINDOWS_SHELL_CANDIDATES: Array<{ path: string; label: string }> = [
   {

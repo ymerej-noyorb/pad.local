@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
 import { loadScene, saveScene } from "./scene";
 import { startEditor, getEditorReady, getEditorError, getEditorPort } from "./editor";
-import { loadEditorUrl, saveEditorUrl } from "./editorState";
-import { detectEditors } from "./editorDetect";
-import { detectShells } from "./shellDetect";
-import { spawnTerminal, writeTerminal, resizeTerminal } from "./pty";
+import { loadEditorUrl, saveEditorUrl } from "./editor/state";
+import { detectEditors } from "./editor/detect";
+import { detectShells } from "./terminal/detect";
+import { spawnTerminal, writeTerminal, resizeTerminal } from "./terminal";
 import type { EditorType } from "../shared/types";
 
 export function registerIpcHandlers(): void {

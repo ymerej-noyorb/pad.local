@@ -5,9 +5,9 @@ import { join } from "path";
 import { homedir } from "os";
 import http from "http";
 import { BrowserWindow } from "electron";
-import { EDITOR_PORTS } from "./constants";
-import { getEditorBinary } from "./editorDetect";
-import type { EditorType } from "../shared/types";
+import { EDITOR_PORTS } from "../constants";
+import { getEditorBinary } from "./detect";
+import type { EditorType } from "../../shared/types";
 
 const POLL_INTERVAL_MS = 500;
 

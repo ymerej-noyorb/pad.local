@@ -3,7 +3,7 @@ import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { createWindow } from "./window";
 import { registerIpcHandlers } from "./ipc";
 import { stopAllEditors } from "./editor";
-import { killAllTerminals } from "./pty";
+import { killAllTerminals } from "./terminal";
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");

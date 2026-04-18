@@ -2,7 +2,7 @@ import { app } from "electron";
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { writeFile } from "fs/promises";
-import type { EditorType } from "../shared/types";
+import type { EditorType } from "../../shared/types";
 
 function editorUrlFilePath(): string {
   return join(app.getPath("userData"), "editor-urls.json");
