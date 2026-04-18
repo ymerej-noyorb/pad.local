@@ -15,8 +15,9 @@ No cloud. No auth. No database. No monthly bill.
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                           |
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                   |
+| 🤖 AI          | Claude, ChatGPT, Gemini, Grok, Perplexity, Mistral, Copilot, DeepSeek, Meta AI, Phind |
 
-The editor and terminal live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
+The editor, terminal, and AI panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 
 ---
 
@@ -62,8 +63,9 @@ When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 
 - **Add Editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
 - **Add Terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
+- **Add AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
 
-Each Editor node runs an independent server on its own port. Multiple editors and terminals of different types can coexist on the same canvas.
+Each Editor node runs an independent server on its own port. Multiple editors, terminals, and AI panels of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
 
 Everything runs locally. Nothing leaves your machine.
 
@@ -86,7 +88,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Known limitations
 
-- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor and Terminal panels will appear as empty frames — they run in separate renderer processes (Electron `<webview>`) and cannot be composited into a canvas export.
+- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor, Terminal, and AI panels will appear as empty frames — they run in separate renderer processes (Electron `<webview>`) and cannot be composited into a canvas export.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
 

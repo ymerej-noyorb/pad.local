@@ -158,7 +158,7 @@ All four use identical `serve-web` args. Only binary detection and settings dir 
 
 ## Step 5 — AI panel (any provider, OAuth in-webview)
 
-Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. The session persists across restarts via Electron's default webview session store.
+Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. Sessions persist across restarts via Electron's `partition="persist:ai-<providerId>"` — one isolated cookie store per provider.
 
 ### Supported providers
 
@@ -190,10 +190,24 @@ src/renderer/src/components/Toolbar.tsx   ← add "Add AI" button + Picker wired
 src/renderer/src/App.tsx                  ← handle "ai" embeddable type in renderEmbeddable
 ```
 
+### Session persistence
+
+Inspired by [ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron), which uses Electron's `session.fromPartition()` to isolate cookies per provider and persist them across restarts.
+
+We adopt the same pattern: each `<webview>` gets a dedicated partition (`persist:ai-<providerId>`), so the user stays logged in per provider independently of other webviews.
+
+```ts
+// AiPanel.tsx
+<webview src={url} partition={`persist:ai-${providerId}`} />
+```
+
+This replaces the "Electron's default webview session store" approach — explicit partitions give us per-provider isolation for free, with no extra code in the main process.
+
 ### Key behaviours
 
 - `AiPanel.tsx` mirrors `Editor.tsx` loading pattern (loading overlay until `dom-ready`), without the server-ready polling — webviews are ready as soon as the page loads
 - `scrollLocked` prop forwarded from `App.tsx` → `pointer-events: none` during canvas pan (same as Editor and Terminal)
+- Each webview uses `partition="persist:ai-<providerId>"` — cookies and sessions are isolated per provider and survive app restarts
 - No IPC handlers needed — the webview manages its own network requests and cookies
 - CSP strip in `window.ts`: extend `onHeadersReceived` to remove `x-frame-options` and `content-security-policy` for all AI provider origins
 
