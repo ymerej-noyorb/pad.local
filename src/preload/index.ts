@@ -10,13 +10,21 @@ const api = {
   startEditor: (type: EditorType): Promise<void> => ipcRenderer.invoke("editor:start", type),
   checkEditorReady: (type: EditorType): Promise<boolean> =>
     ipcRenderer.invoke("editor:ready?", type),
-  onEditorReady: (callback: (type: EditorType) => void): void => {
-    ipcRenderer.on("editor:ready", (_event, type: EditorType) => callback(type));
+  onEditorReady: (callback: (type: EditorType) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, type: EditorType): void => callback(type);
+    ipcRenderer.on("editor:ready", handler);
+    return () => {
+      ipcRenderer.removeListener("editor:ready", handler);
+    };
   },
   checkEditorError: (type: EditorType): Promise<boolean> =>
     ipcRenderer.invoke("editor:error?", type),
-  onEditorError: (callback: (type: EditorType) => void): void => {
-    ipcRenderer.on("editor:error", (_event, type: EditorType) => callback(type));
+  onEditorError: (callback: (type: EditorType) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, type: EditorType): void => callback(type);
+    ipcRenderer.on("editor:error", handler);
+    return () => {
+      ipcRenderer.removeListener("editor:error", handler);
+    };
   },
   getEditorPort: (type: EditorType): Promise<number> => ipcRenderer.invoke("editor:port", type),
   loadEditorUrl: (type: EditorType): Promise<string | null> =>

@@ -10,11 +10,11 @@ No cloud. No auth. No database. No monthly bill.
 
 ## What's inside
 
-| Panel          | Tech                                                                        |
-| -------------- | --------------------------------------------------------------------------- |
-| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                 |
+| Panel          | Tech                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- |
+| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                           |
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
-| 🖥️ Terminal    | xterm.js + node-pty                                                         |
+| 🖥️ Terminal    | xterm.js + node-pty                                                                   |
 
 The editor and terminal live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 

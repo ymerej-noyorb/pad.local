@@ -15,7 +15,6 @@ interface EditorSession {
   process: ChildProcess;
   port: number;
   ready: boolean;
-  error: boolean;
   pollTimer: ReturnType<typeof setInterval> | null;
 }
 
@@ -85,27 +84,33 @@ function buildServeWebArgs(type: EditorType, port: number): string[] {
 }
 
 function killPortIfInUse(port: number): void {
-  try {
-    if (process.platform === "win32") {
-      const output = execSync(`netstat -ano | findstr :${port}`, { encoding: "utf8" });
-      const pids = new Set(
-        output
-          .split("\n")
-          .map((line) => line.trim().split(/\s+/).pop())
-          .filter((pid): pid is string => !!pid && /^\d+$/.test(pid))
-      );
-      pids.forEach((pid) => {
-        try {
-          execSync(`taskkill /PID ${pid} /F`, { stdio: "ignore" });
-        } catch {
-          // Process already gone.
-        }
-      });
-    } else {
-      execSync(`lsof -ti:${port} | xargs kill -9`, { stdio: "ignore" });
+  if (process.platform === "win32") {
+    let output: string;
+    try {
+      // netstat output is piped into findstr; findstr exits with code 1 (no match) if port is free.
+      output = execSync(`netstat -ano | findstr :${port}`, { encoding: "utf8" });
+    } catch {
+      return;
     }
-  } catch {
-    // No process on the port.
+    const pids = new Set(
+      output
+        .split("\n")
+        .map((line) => line.trim().split(/\s+/).pop())
+        .filter((pid): pid is string => !!pid && /^\d+$/.test(pid))
+    );
+    pids.forEach((pid) => {
+      try {
+        execSync(`taskkill /PID ${pid} /F`, { stdio: "ignore" });
+      } catch {
+        // Process already gone.
+      }
+    });
+  } else {
+    try {
+      execSync(`lsof -ti:${port} | xargs kill -9`, { stdio: "ignore" });
+    } catch {
+      // No process on the port.
+    }
   }
 }
 
@@ -154,7 +159,7 @@ export function startEditor(type: EditorType): void {
   const args = buildServeWebArgs(type, port);
   const process = spawnProcess(binary, args);
 
-  const session: EditorSession = { process, port, ready: false, error: false, pollTimer: null };
+  const session: EditorSession = { process, port, ready: false, pollTimer: null };
   sessions.set(type, session);
 
   process.on("error", (error) => {
@@ -187,8 +192,8 @@ export function getEditorReady(type: EditorType): boolean {
   return sessions.get(type)?.ready ?? false;
 }
 
-export function getEditorError(type: EditorType): boolean {
-  return sessions.get(type)?.error ?? false;
+export function getEditorError(): boolean {
+  return false;
 }
 
 export function getEditorPort(type: EditorType): number {

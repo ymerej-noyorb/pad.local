@@ -10,13 +10,22 @@ const sessions = new Map<string, IPty>();
 export function spawnTerminal(id: string, shell: string, cols: number, rows: number): void {
   if (sessions.has(id)) return;
 
-  const pty = spawn(shell, [], {
-    name: "xterm-color",
-    cols: cols || DEFAULT_COLS,
-    rows: rows || DEFAULT_ROWS,
-    cwd: process.env.HOME ?? process.env.USERPROFILE ?? process.cwd(),
-    env: process.env as Record<string, string>
-  });
+  let pty: IPty;
+  try {
+    pty = spawn(shell, [], {
+      name: "xterm-color",
+      cols: cols || DEFAULT_COLS,
+      rows: rows || DEFAULT_ROWS,
+      cwd: process.env.HOME ?? process.env.USERPROFILE ?? process.cwd(),
+      env: process.env as Record<string, string>
+    });
+  } catch (error) {
+    console.error(
+      `[terminal:${id}] Failed to spawn shell "${shell}":`,
+      error instanceof Error ? error.message : String(error)
+    );
+    return;
+  }
 
   pty.onData((data) => {
     BrowserWindow.getAllWindows().forEach((window) => {

@@ -37,13 +37,18 @@ export default function Picker({
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent): void {
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(target) &&
+        !anchorRef.current?.contains(target)
+      ) {
         onClose();
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+  }, [onClose, anchorRef]);
 
   if (!position) return null;
 

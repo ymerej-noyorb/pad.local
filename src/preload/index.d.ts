@@ -11,9 +11,9 @@ declare global {
       detectEditors: () => Promise<EditorInfo[]>;
       startEditor: (type: EditorType) => Promise<void>;
       checkEditorReady: (type: EditorType) => Promise<boolean>;
-      onEditorReady: (callback: (type: EditorType) => void) => void;
+      onEditorReady: (callback: (type: EditorType) => void) => () => void;
       checkEditorError: (type: EditorType) => Promise<boolean>;
-      onEditorError: (callback: (type: EditorType) => void) => void;
+      onEditorError: (callback: (type: EditorType) => void) => () => void;
       getEditorPort: (type: EditorType) => Promise<number>;
       loadEditorUrl: (type: EditorType) => Promise<string | null>;
       saveEditorUrl: (type: EditorType, url: string) => Promise<void>;

@@ -120,12 +120,12 @@ Approach chosen: **per-spawn picker** (not a global config/settings panel). Clic
 
 **Supported editor types:**
 
-| Type        | Binary                  | Port | Notes                               |
-| ----------- | ----------------------- | ---- | ----------------------------------- |
-| `vscode`    | `code` / `code.cmd`     | 8080 | Default                             |
-| `cursor`    | `cursor`                | 8081 | VS Code fork — inherits `serve-web` |
-| `windsurf`  | `windsurf`              | 8082 | VS Code fork — inherits `serve-web` |
-| `vscodium`  | `codium` / `vscodium`   | 8083 | VS Code fork — inherits `serve-web` |
+| Type       | Binary                | Port | Notes                               |
+| ---------- | --------------------- | ---- | ----------------------------------- |
+| `vscode`   | `code` / `code.cmd`   | 8080 | Default                             |
+| `cursor`   | `cursor`              | 8081 | VS Code fork — inherits `serve-web` |
+| `windsurf` | `windsurf`            | 8082 | VS Code fork — inherits `serve-web` |
+| `vscodium` | `codium` / `vscodium` | 8083 | VS Code fork — inherits `serve-web` |
 
 All four use identical `serve-web` args. Only binary detection and settings dir differ.
 

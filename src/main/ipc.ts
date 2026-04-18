@@ -14,7 +14,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle("editor:detect", () => detectEditors());
   ipcMain.handle("editor:start", (_event, type: EditorType) => startEditor(type));
   ipcMain.handle("editor:ready?", (_event, type: EditorType) => getEditorReady(type));
-  ipcMain.handle("editor:error?", (_event, type: EditorType) => getEditorError(type));
+  ipcMain.handle("editor:error?", () => getEditorError());
   ipcMain.handle("editor:port", (_event, type: EditorType) => getEditorPort(type));
   ipcMain.handle("editor:url:load", (_event, type: EditorType) => loadEditorUrl(type));
   ipcMain.handle("editor:url:save", (_event, type: EditorType, url: string) =>

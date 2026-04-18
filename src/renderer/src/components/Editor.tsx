@@ -3,13 +3,6 @@ import { colorsByTheme } from "../theme";
 import Spinner from "./Spinner";
 import type { EditorType } from "../../../shared/types";
 
-const EDITOR_LABELS: Record<EditorType, string> = {
-  vscode: "VS Code",
-  cursor: "Cursor",
-  windsurf: "Windsurf",
-  vscodium: "VSCodium"
-};
-
 const LOADING_FONT_SIZE = 14;
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
@@ -19,6 +12,12 @@ const LOADING_FONT_FAMILY = "monospace";
 const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
 
 const TEXT = {
+  labels: {
+    vscode: "VS Code",
+    cursor: "Cursor",
+    windsurf: "Windsurf",
+    vscodium: "VSCodium"
+  } satisfies Record<EditorType, string>,
   loading: "Loading editor…",
   errorNotFound: (label: string) => `${label} not found`,
   errorInstall: (label: string) => `Install ${label} and restart the app.`
@@ -41,19 +40,25 @@ export default function Editor({
   const [editorUrl, setEditorUrl] = useState<string | null>(null);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
-  const label = EDITOR_LABELS[editorType];
+  const label = TEXT.labels[editorType];
 
   useEffect(() => {
     window.api.startEditor(editorType);
 
+    const unsubscribeError = window.api.onEditorError((type) => {
+      if (type === editorType) setEditorError(true);
+    });
+
+    const unsubscribeReady = window.api.onEditorReady((type) => {
+      if (type === editorType) setServerReady(true);
+    });
+
     window.api.checkEditorError(editorType).then((hasError) => {
-      if (hasError) {
-        setEditorError(true);
-        return;
-      }
-      window.api.onEditorError((type) => {
-        if (type === editorType) setEditorError(true);
-      });
+      if (hasError) setEditorError(true);
+    });
+
+    window.api.checkEditorReady(editorType).then((isReady) => {
+      if (isReady) setServerReady(true);
     });
 
     window.api.getEditorPort(editorType).then((port) => {
@@ -61,20 +66,12 @@ export default function Editor({
         setEditorUrl(savedUrl ?? `http://localhost:${port}`);
       });
     });
-  }, [editorType]);
 
-  useEffect(() => {
-    if (editorError) return;
-    window.api.checkEditorReady(editorType).then((isReady) => {
-      if (isReady) {
-        setServerReady(true);
-      } else {
-        window.api.onEditorReady((type) => {
-          if (type === editorType) setServerReady(true);
-        });
-      }
-    });
-  }, [editorError, editorType]);
+    return () => {
+      unsubscribeError();
+      unsubscribeReady();
+    };
+  }, [editorType]);
 
   // Attach dom-ready listener once the webview is in the DOM.
   useEffect(() => {

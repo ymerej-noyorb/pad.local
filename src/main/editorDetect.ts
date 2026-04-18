@@ -9,7 +9,7 @@ interface EditorDefinition {
   winCandidates: string[];
   winCommand: string;
   macCandidates: string[];
-  linuxCommand: string;
+  unixFallbackCommand: string;
 }
 
 const EDITOR_DEFINITIONS: EditorDefinition[] = [
@@ -25,7 +25,7 @@ const EDITOR_DEFINITIONS: EditorDefinition[] = [
       "/usr/local/bin/code",
       "/opt/homebrew/bin/code"
     ],
-    linuxCommand: "code"
+    unixFallbackCommand: "code"
   },
   {
     type: "cursor",
@@ -56,7 +56,7 @@ const EDITOR_DEFINITIONS: EditorDefinition[] = [
       "/Applications/Cursor.app/Contents/Resources/app/bin/cursor",
       "/usr/local/bin/cursor"
     ],
-    linuxCommand: "cursor"
+    unixFallbackCommand: "cursor"
   },
   {
     type: "windsurf",
@@ -69,7 +69,7 @@ const EDITOR_DEFINITIONS: EditorDefinition[] = [
       "/Applications/Windsurf.app/Contents/Resources/app/bin/windsurf",
       "/usr/local/bin/windsurf"
     ],
-    linuxCommand: "windsurf"
+    unixFallbackCommand: "windsurf"
   },
   {
     type: "vscodium",
@@ -83,7 +83,7 @@ const EDITOR_DEFINITIONS: EditorDefinition[] = [
       "/usr/local/bin/codium",
       "/opt/homebrew/bin/codium"
     ],
-    linuxCommand: "codium"
+    unixFallbackCommand: "codium"
   }
 ];
 
@@ -104,8 +104,8 @@ function findBinaryMac(definition: EditorDefinition): string | null {
     if (existsSync(candidate)) return candidate;
   }
   try {
-    execSync(`which ${definition.linuxCommand}`, { stdio: "ignore" });
-    return definition.linuxCommand;
+    execSync(`which ${definition.unixFallbackCommand}`, { stdio: "ignore" });
+    return definition.unixFallbackCommand;
   } catch {
     return null;
   }
@@ -113,8 +113,8 @@ function findBinaryMac(definition: EditorDefinition): string | null {
 
 function findBinaryLinux(definition: EditorDefinition): string | null {
   try {
-    execSync(`which ${definition.linuxCommand}`, { stdio: "ignore" });
-    return definition.linuxCommand;
+    execSync(`which ${definition.unixFallbackCommand}`, { stdio: "ignore" });
+    return definition.unixFallbackCommand;
   } catch {
     return null;
   }
