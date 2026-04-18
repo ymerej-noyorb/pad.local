@@ -153,16 +153,3 @@ All four use identical `serve-web` args. Only binary detection and settings dir 
 - [x] `src/renderer/src/App.tsx`: reads `element.customData.editorType` / `element.customData.shell` and passes to respective components
 
 **Files:** `src/shared/types.ts`, `src/main/constants.ts`, `src/main/editor.ts`, `src/main/editorDetect.ts`, `src/main/editorState.ts`, `src/main/pty.ts`, `src/main/shellDetect.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/main/index.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/components/Picker.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/components/Editor.tsx`, `src/renderer/src/components/Terminal.tsx`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/App.tsx`
-
----
-
-## Verification
-
-1. `npm install && npm run dev` works with Node.js + VS Code as the only prerequisites (macOS, Windows, Linux)
-2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
-3. Panning the canvas → embeddables no longer capture mouse events
-4. "Add Editor" → picker lists detected VS Code forks → node in the canvas → editor loaded with their extensions
-5. "Add Terminal" → picker lists detected shells → node in the canvas → functional shell terminal
-6. Multiple editors of different types can coexist in the canvas (each on its own port)
-7. Multiple terminals with different shells can coexist in the canvas
-8. Editor server starts on first use (not at app launch)
