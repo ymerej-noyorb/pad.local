@@ -88,7 +88,6 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Known limitations
 
-- **Export image** — The "Export image" feature captures annotations, shapes, and canvas layout correctly. However, the Editor, Terminal, and AI panels will appear as empty frames — they run in separate renderer processes (Electron `<webview>`) and cannot be composited into a canvas export.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
 

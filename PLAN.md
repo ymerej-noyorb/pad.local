@@ -57,7 +57,6 @@ src/main/  (Node.js — Electron main process)
 
 ## Known limitations
 
-- **Export image + embedded panels** — Excalidraw exports via `<canvas>` (PNG) or SVG. Browsers block drawing iframe content onto a canvas (tainted canvas security restriction), even same-origin. The Editor and Terminal panels will appear as empty frames in exports. Annotations, shapes, and layout are captured correctly.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`. macOS, Windows, and Linux (native) only.
 
 ---

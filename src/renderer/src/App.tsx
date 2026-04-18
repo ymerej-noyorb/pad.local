@@ -20,7 +20,8 @@ const CANVAS_ACTIONS = {
   clearCanvas: false,
   export: false,
   loadScene: false,
-  saveToActiveFile: false
+  saveToActiveFile: false,
+  saveAsImage: false
 } as const;
 
 export default function App(): React.JSX.Element {
