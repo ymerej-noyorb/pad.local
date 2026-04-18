@@ -1,21 +1,41 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import type { EditorType, EditorInfo, ShellInfo } from "../shared/types";
 
 const api = {
   saveScene: (json: string): Promise<void> => ipcRenderer.invoke("scene:save", json),
   loadScene: (): Promise<string | null> => ipcRenderer.invoke("scene:load"),
-  checkEditorReady: (): Promise<boolean> => ipcRenderer.invoke("editor:ready?"),
-  onEditorReady: (callback: () => void): void => {
-    ipcRenderer.once("editor:ready", callback);
+
+  detectEditors: (): Promise<EditorInfo[]> => ipcRenderer.invoke("editor:detect"),
+  startEditor: (type: EditorType): Promise<void> => ipcRenderer.invoke("editor:start", type),
+  checkEditorReady: (type: EditorType): Promise<boolean> =>
+    ipcRenderer.invoke("editor:ready?", type),
+  onEditorReady: (callback: (type: EditorType) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, type: EditorType): void => callback(type);
+    ipcRenderer.on("editor:ready", handler);
+    return () => {
+      ipcRenderer.removeListener("editor:ready", handler);
+    };
   },
-  checkEditorError: (): Promise<boolean> => ipcRenderer.invoke("editor:error?"),
-  onEditorError: (callback: () => void): void => {
-    ipcRenderer.once("editor:error", callback);
+  checkEditorError: (type: EditorType): Promise<boolean> =>
+    ipcRenderer.invoke("editor:error?", type),
+  onEditorError: (callback: (type: EditorType) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, type: EditorType): void => callback(type);
+    ipcRenderer.on("editor:error", handler);
+    return () => {
+      ipcRenderer.removeListener("editor:error", handler);
+    };
   },
-  loadEditorUrl: (): Promise<string | null> => ipcRenderer.invoke("editor:url:load"),
-  saveEditorUrl: (url: string): Promise<void> => ipcRenderer.invoke("editor:url:save", url),
-  terminalSpawn: (id: string, cols: number, rows: number): Promise<void> =>
-    ipcRenderer.invoke("terminal:spawn", id, cols, rows),
+  getEditorPort: (type: EditorType): Promise<number> => ipcRenderer.invoke("editor:port", type),
+  loadEditorUrl: (type: EditorType): Promise<string | null> =>
+    ipcRenderer.invoke("editor:url:load", type),
+  saveEditorUrl: (type: EditorType, url: string): Promise<void> =>
+    ipcRenderer.invoke("editor:url:save", type, url),
+
+  detectShells: (): Promise<ShellInfo[]> => ipcRenderer.invoke("shell:detect"),
+
+  terminalSpawn: (id: string, shell: string, cols: number, rows: number): Promise<void> =>
+    ipcRenderer.invoke("terminal:spawn", id, shell, cols, rows),
   terminalWrite: (id: string, data: string): Promise<void> =>
     ipcRenderer.invoke("terminal:write", id, data),
   terminalResize: (id: string, cols: number, rows: number): Promise<void> =>

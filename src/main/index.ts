@@ -2,8 +2,8 @@ import { app, BrowserWindow } from "electron";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import { createWindow } from "./window";
 import { registerIpcHandlers } from "./ipc";
-import { startEditor, stopEditor } from "./editor";
-import { killAllTerminals } from "./pty";
+import { stopAllEditors } from "./editor";
+import { killAllTerminals } from "./terminal";
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
@@ -13,7 +13,6 @@ app.whenReady().then(() => {
   });
 
   registerIpcHandlers();
-  startEditor();
   createWindow();
 
   app.on("activate", () => {
@@ -22,7 +21,7 @@ app.whenReady().then(() => {
 });
 
 app.on("before-quit", () => {
-  stopEditor();
+  stopAllEditors();
   killAllTerminals();
 });
 

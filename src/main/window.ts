@@ -2,11 +2,14 @@ import { BrowserWindow, shell, session } from "electron";
 import { join } from "path";
 import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
-import { VSCODE_PORT } from "./constants";
+import { EDITOR_PORTS } from "./constants";
 
 const WINDOW_WIDTH = 900;
 const WINDOW_HEIGHT = 670;
-const VSCODE_URL_PATTERN = `http://localhost:${VSCODE_PORT}/*`;
+
+// Covers all editor ports (8080–8083) so VS Code fork headers are patched regardless of which
+// editors the user launches.
+const EDITOR_URL_PATTERNS = Object.values(EDITOR_PORTS).map((port) => `http://localhost:${port}/*`);
 
 // VS Code serve-web uses the request's Accept-Language header to decide whether
 // to inject an external locale NLS script (e.g. vscode-unpkg.net/nls/.../fr/).
@@ -15,7 +18,7 @@ const VSCODE_URL_PATTERN = `http://localhost:${VSCODE_PORT}/*`;
 // built-in local NLS file, which always matches the expected count.
 function forceEnglishLocale(): void {
   session.defaultSession.webRequest.onBeforeSendHeaders(
-    { urls: [VSCODE_URL_PATTERN] },
+    { urls: EDITOR_URL_PATTERNS },
     (details, callback) => {
       const requestHeaders = { ...details.requestHeaders };
       requestHeaders["Accept-Language"] = "en-US,en;q=0.9";
@@ -29,7 +32,7 @@ function forceEnglishLocale(): void {
 // webview in our renderer can display VS Code.
 function allowVSCodeEmbedding(): void {
   session.defaultSession.webRequest.onHeadersReceived(
-    { urls: [VSCODE_URL_PATTERN] },
+    { urls: EDITOR_URL_PATTERNS },
     (details, callback) => {
       const responseHeaders = { ...details.responseHeaders };
       delete responseHeaders["x-frame-options"];

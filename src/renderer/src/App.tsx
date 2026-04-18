@@ -10,6 +10,10 @@ import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors } from "./theme";
+import type { EditorType } from "../../shared/types";
+
+const EMBEDDABLE_TYPE_EDITOR = "editor";
+const EMBEDDABLE_TYPE_TERMINAL = "terminal";
 
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
@@ -30,14 +34,19 @@ export default function App(): React.JSX.Element {
     element,
     appState
   ) => {
-    // Route by customData.type — stable even if the user renames the link label.
     const type = element.customData?.type;
-    if (type === "editor") {
-      return (
-        <Editor theme={appState.theme === "light" ? "light" : "dark"} scrollLocked={scrollLocked} />
-      );
+    const theme = appState.theme === "light" ? "light" : "dark";
+
+    if (type === EMBEDDABLE_TYPE_EDITOR) {
+      const editorType = (element.customData?.editorType ?? "vscode") as EditorType;
+      return <Editor editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
     }
-    if (type === "terminal") return <Terminal id={element.id} scrollLocked={scrollLocked} />;
+
+    if (type === EMBEDDABLE_TYPE_TERMINAL) {
+      const shell = (element.customData?.shell ?? "") as string;
+      return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
+    }
+
     return null;
   };
 
@@ -65,7 +74,9 @@ export default function App(): React.JSX.Element {
         initialData={initialData ?? undefined}
         gridModeEnabled
         renderEmbeddable={renderEmbeddable}
-        validateEmbeddable={(link) => link === "editor" || link === "terminal"}
+        validateEmbeddable={(link) =>
+          link === EMBEDDABLE_TYPE_EDITOR || link === EMBEDDABLE_TYPE_TERMINAL
+        }
         onChange={handleChange}
         onScrollChange={handleScrollChange}
         renderTopRightUI={() => (excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null)}
