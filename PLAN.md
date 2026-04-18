@@ -95,61 +95,64 @@ src/main/  (Node.js — Electron main process)
 
 - PTY session lifecycle is tied to the Excalidraw element, not the React component. The component connects to an existing session on remount (React StrictMode) without re-spawning. `killAllTerminals()` cleans up on app close.
 - On Windows, killing a PTY via ConPTY propagates a `STATUS_CONTROL_C_EXIT` signal to any PTY spawned shortly after in the same console group. Decoupling the PTY lifecycle from the component unmount avoids this race.
-- Terminal color theme: Catppuccin Mocha, defined in `src/renderer/src/theme.ts` as `terminalTheme`.
+- Terminal color theme: native (no override). Each shell renders with its own default palette — intentional, preserves per-shell aesthetic.
 
 **Files:** `src/renderer/src/components/Terminal.tsx`, `src/main/pty.ts`, `src/main/ipc.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/theme.ts`
 
 ---
 
-## Step 4 — Agnostic node system (any IDE, any shell)
+## Step 4 — Agnostic node system (any IDE, any shell) ✅
 
-Goal: nodes are no longer hardcoded to VS Code `serve-web` and node-pty. The user can configure which editor and which shell to use. The architecture stays the same — only the spawn target changes.
+Goal: Editor and Terminal nodes are no longer hardcoded to a single VS Code instance and a fixed shell. Each spawn is independent — the user picks the editor type and shell at the moment they add a node to the canvas.
 
-### 4.1 — User configuration
+Approach chosen: **per-spawn picker** (not a global config/settings panel). Clicking "Add Editor" or "Add Terminal" opens a popover listing detected options on the current machine.
 
-- [ ] `src/main/config.ts`: read/write a local JSON config file (`~/.pad.local/config.json`)
-- [ ] Config shape:
-  ```json
-  {
-    "editor": { "type": "vscode-serve-web", "port": 8080 },
-    "terminal": { "shell": "/bin/zsh" }
-  }
-  ```
-- [ ] IPC handlers: renderer can read and write config
-- [ ] Defaults: VS Code `serve-web` + system shell (`process.env.SHELL` or `cmd.exe` on Windows)
-- [ ] Port conflict handling: if the configured port is already in use, auto-select the next available port and persist it to config (`EADDRINUSE` → retry on `port + 1`)
-- [ ] `Settings.tsx`: settings panel accessible from the Excalidraw main menu
-  - Dropdown to select the editor (list of supported types — see below)
-  - Dropdown to select the shell (detected shells on the system + manual input)
-  - Changes apply on next node spawn (no restart required)
+### What was implemented
 
-**Supported editor types for the dropdown:**
+**Editor side:**
 
-| Type       | Binary              | Notes                               |
-| ---------- | ------------------- | ----------------------------------- |
-| `vscode`   | `code` / `code.cmd` | Default                             |
-| `cursor`   | `cursor`            | VS Code fork — inherits `serve-web` |
-| `windsurf` | `windsurf`          | VS Code fork — inherits `serve-web` |
+- [x] `src/shared/types.ts`: shared `EditorType`, `EditorInfo`, `ShellInfo` types
+- [x] `src/main/editorDetect.ts`: detects installed VS Code forks via known binary paths + `where`/`which` fallback
+- [x] `src/main/editor.ts`: singleton → `Map<EditorType, EditorSession>`; each session has its own port and `serve-web` process, spawned on first use
+- [x] `src/main/editorState.ts`: `editor-url.txt` → `editor-urls.json` keyed by `EditorType`
+- [x] `src/main/constants.ts`: `VSCODE_PORT` → `EDITOR_BASE_PORT` + `EDITOR_PORTS` record
+- [x] `src/main/window.ts`: URL allow-list covers all 4 editor ports
 
-All three use identical `serve-web` args. Only binary detection differs.
-Detection: check known install paths per platform, then fall back to `which`/`where`.
+**Supported editor types:**
 
-**Out of scope:** JetBrains IDEs (no `serve-web` equivalent), Zed (no web UI), window streaming solutions (too heavy). Terminal-based editors (Neovim, Vim, Helix…) work as-is via the Terminal panel.
+| Type        | Binary                  | Port | Notes                               |
+| ----------- | ----------------------- | ---- | ----------------------------------- |
+| `vscode`    | `code` / `code.cmd`     | 8080 | Default                             |
+| `cursor`    | `cursor`                | 8081 | VS Code fork — inherits `serve-web` |
+| `windsurf`  | `windsurf`              | 8082 | VS Code fork — inherits `serve-web` |
+| `vscodium`  | `codium` / `vscodium`   | 8083 | VS Code fork — inherits `serve-web` |
 
-### 4.2 — Extensible spawn abstraction
+All four use identical `serve-web` args. Only binary detection and settings dir differ.
 
-- [ ] `src/main/editor.ts`: `startEditor(config)` — spawns the configured editor server and returns the URL to embed
-- [ ] `src/main/pty.ts`: `spawnShell(config)` — uses `config.terminal.shell` instead of hardcoded shell
-- [ ] Editor node in canvas embeds the URL returned by `startEditor` — not a hardcoded `localhost:8080`
+**Terminal side:**
 
-### 4.3 — Extensible node types
+- [x] `src/main/shellDetect.ts`: Unix reads `/etc/shells`; Windows checks known paths for PowerShell 7, Windows PowerShell, cmd.exe, Git Bash
+- [x] `src/main/pty.ts`: removed hardcoded default shell; shell is always provided by the caller
 
-- [ ] Replace hardcoded `Editor` / `Terminal` strings with a node type registry
-- [ ] Registry maps a node type key → `{ label, icon, defaultSize, component }`
-- [ ] `Toolbar.tsx` reads the registry to render buttons dynamically
-- [ ] `renderEmbeddable` resolves node type from registry instead of a switch/if chain
+**IPC:**
 
-**Files:** `src/main/config.ts`, `src/main/editor.ts`, `src/main/pty.ts`, `src/renderer/src/lib/nodeRegistry.ts`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/App.tsx`
+- [x] `editor:detect` — returns detected editors list
+- [x] `editor:start` — starts an editor server on demand (type param)
+- [x] `editor:ready?` / `editor:error?` / `editor:port` — per-type status queries
+- [x] `editor:url:load` / `editor:url:save` — persisted URL per type
+- [x] `shell:detect` — returns detected shells list
+- [x] `terminal:spawn` now takes `shell` as second param
+
+**Renderer:**
+
+- [x] `src/renderer/src/components/Picker.tsx`: generic popover anchored to button right edge; uses Excalidraw CSS variables (`--island-bg-color`, `--shadow-island`, `--button-hover-bg`, `--text-primary-color`, `--ui-font`)
+- [x] `src/renderer/src/components/Toolbar.tsx`: detects editors/shells on mount, shows `Picker` on button click; passes `{editorType}` or `{shell}` into `customData` via `createEmbeddableElement`
+- [x] `src/renderer/src/lib/createEmbeddable.ts`: `typeData: Record<string, string>` param spread into `customData`
+- [x] `src/renderer/src/components/Editor.tsx`: `editorType` prop; calls `startEditor(editorType)` on mount; dynamic error messages per editor
+- [x] `src/renderer/src/components/Terminal.tsx`: `shell` prop passed to `terminalSpawn`
+- [x] `src/renderer/src/App.tsx`: reads `element.customData.editorType` / `element.customData.shell` and passes to respective components
+
+**Files:** `src/shared/types.ts`, `src/main/constants.ts`, `src/main/editor.ts`, `src/main/editorDetect.ts`, `src/main/editorState.ts`, `src/main/pty.ts`, `src/main/shellDetect.ts`, `src/main/ipc.ts`, `src/main/window.ts`, `src/main/index.ts`, `src/preload/index.ts`, `src/preload/index.d.ts`, `src/renderer/src/components/Picker.tsx`, `src/renderer/src/components/Toolbar.tsx`, `src/renderer/src/components/Editor.tsx`, `src/renderer/src/components/Terminal.tsx`, `src/renderer/src/lib/createEmbeddable.ts`, `src/renderer/src/App.tsx`
 
 ---
 
@@ -158,8 +161,8 @@ Detection: check known install paths per platform, then fall back to `which`/`wh
 1. `npm install && npm run dev` works with Node.js + VS Code as the only prerequisites (macOS, Windows, Linux)
 2. Excalidraw fullscreen (dark, grid), scene persisted across restarts
 3. Panning the canvas → embeddables no longer capture mouse events
-4. "Add Editor" → node in the canvas → VS Code loaded with their extensions
-5. "Add Terminal" → node in the canvas → functional shell terminal
-6. Multiple terminals can coexist in the canvas
-7. Changing `config.json` shell → terminal uses the new shell on next spawn
-8. Adding a new entry to the node registry → new button appears in toolbar automatically
+4. "Add Editor" → picker lists detected VS Code forks → node in the canvas → editor loaded with their extensions
+5. "Add Terminal" → picker lists detected shells → node in the canvas → functional shell terminal
+6. Multiple editors of different types can coexist in the canvas (each on its own port)
+7. Multiple terminals with different shells can coexist in the canvas
+8. Editor server starts on first use (not at app launch)

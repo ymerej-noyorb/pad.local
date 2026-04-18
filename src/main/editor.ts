@@ -5,37 +5,50 @@ import { join } from "path";
 import { homedir } from "os";
 import http from "http";
 import { BrowserWindow } from "electron";
-import { VSCODE_PORT } from "./constants";
+import { EDITOR_PORTS } from "./constants";
+import { getEditorBinary } from "./editorDetect";
+import type { EditorType } from "../shared/types";
 
 const POLL_INTERVAL_MS = 500;
 
-const MACOS_BINARY_CANDIDATES = [
-  "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code",
-  "/usr/local/bin/code", // Intel — installed via VS Code command palette
-  "/opt/homebrew/bin/code" // Apple Silicon — Homebrew
-];
-
-function findDesktopSettingsPath(): string | null {
-  if (process.platform === "win32") {
-    const appData = process.env.APPDATA;
-    return appData ? join(appData, "Code", "User", "settings.json") : null;
-  }
-  if (process.platform === "darwin") {
-    return join(homedir(), "Library", "Application Support", "Code", "User", "settings.json");
-  }
-  // Linux
-  return join(homedir(), ".config", "Code", "User", "settings.json");
+interface EditorSession {
+  process: ChildProcess;
+  port: number;
+  ready: boolean;
+  error: boolean;
+  pollTimer: ReturnType<typeof setInterval> | null;
 }
 
-// Copies the Desktop VS Code settings.json to the Machine-level settings path that
-// serve-web reads on startup. Machine settings have lower priority than user settings
-// (stored in IndexedDB), so any override made inside the web UI is preserved.
-function syncDesktopSettings(): void {
+const sessions = new Map<EditorType, EditorSession>();
+
+function findDesktopSettingsPath(type: EditorType): string | null {
+  const appNames: Record<EditorType, string> = {
+    vscode: "Code",
+    cursor: "Cursor",
+    windsurf: "Windsurf",
+    vscodium: "VSCodium"
+  };
+  const appName = appNames[type];
+
+  if (process.platform === "win32") {
+    const appData = process.env.APPDATA;
+    return appData ? join(appData, appName, "User", "settings.json") : null;
+  }
+  if (process.platform === "darwin") {
+    return join(homedir(), "Library", "Application Support", appName, "User", "settings.json");
+  }
+  return join(homedir(), ".config", appName, "User", "settings.json");
+}
+
+function syncDesktopSettings(type: EditorType): void {
   try {
-    const desktopSettingsPath = findDesktopSettingsPath();
+    const desktopSettingsPath = findDesktopSettingsPath(type);
     if (!desktopSettingsPath || !existsSync(desktopSettingsPath)) return;
 
-    const machineSettingsDir = join(homedir(), ".vscode", "data", "Machine");
+    const serverDataDir = getServerDataDir(type);
+    if (!serverDataDir) return;
+
+    const machineSettingsDir = join(serverDataDir, "data", "Machine");
     mkdirSync(machineSettingsDir, { recursive: true });
     writeFileSync(join(machineSettingsDir, "settings.json"), readFileSync(desktopSettingsPath));
   } catch {
@@ -43,7 +56,18 @@ function syncDesktopSettings(): void {
   }
 }
 
-function buildVSCodeArgs(port: number): string[] {
+function getServerDataDir(type: EditorType): string | null {
+  const dirs: Record<EditorType, string> = {
+    vscode: join(homedir(), ".vscode"),
+    cursor: join(homedir(), ".cursor"),
+    windsurf: join(homedir(), ".windsurf"),
+    vscodium: join(homedir(), ".vscodium")
+  };
+  const dir = dirs[type];
+  return existsSync(dir) ? dir : null;
+}
+
+function buildServeWebArgs(type: EditorType, port: number): string[] {
   const args = [
     "serve-web",
     "--port",
@@ -52,97 +76,14 @@ function buildVSCodeArgs(port: number): string[] {
     "--accept-server-license-terms"
   ];
 
-  // Point serve-web at ~/.vscode so it picks up the user's installed extensions.
-  // serve-web looks for extensions at <server-data-dir>/extensions/, and ~/.vscode/extensions
-  // is exactly where VS Code Desktop stores them.
-  // Note: --user-data-dir and --extensions-dir are not supported by serve-web.
-  const vscodeDir = join(homedir(), ".vscode");
-  if (existsSync(vscodeDir)) {
-    args.push("--server-data-dir", vscodeDir);
+  const serverDataDir = getServerDataDir(type);
+  if (serverDataDir) {
+    args.push("--server-data-dir", serverDataDir);
   }
 
   return args;
 }
 
-function findCodeBinary(): string | null {
-  if (process.platform === "win32") {
-    const localAppData = process.env.LOCALAPPDATA;
-    if (localAppData) {
-      const windowsDefault = join(localAppData, "Programs", "Microsoft VS Code", "bin", "code.cmd");
-      if (existsSync(windowsDefault)) return windowsDefault;
-    }
-    try {
-      execSync("where code.cmd", { stdio: "ignore" });
-      return "code.cmd";
-    } catch {
-      return null;
-    }
-  }
-
-  if (process.platform === "darwin") {
-    for (const candidate of MACOS_BINARY_CANDIDATES) {
-      if (existsSync(candidate)) return candidate;
-    }
-    try {
-      execSync("which code", { stdio: "ignore" });
-      return "code";
-    } catch {
-      return null;
-    }
-  }
-
-  // Linux
-  try {
-    execSync("which code", { stdio: "ignore" });
-    return "code";
-  } catch {
-    return null;
-  }
-}
-
-let editorProcess: ChildProcess | null = null;
-let editorReady = false;
-let editorError = false;
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-function stopPoll(): void {
-  if (pollTimer) {
-    clearInterval(pollTimer);
-    pollTimer = null;
-  }
-}
-
-function startPoll(): void {
-  pollTimer = setInterval(() => {
-    http
-      .get(`http://localhost:${VSCODE_PORT}`, (response) => {
-        response.resume();
-        if (editorReady) return; // in-flight duplicate — already handled
-        stopPoll();
-        editorReady = true;
-        BrowserWindow.getAllWindows().forEach((window) => {
-          window.webContents.send("editor:ready");
-        });
-      })
-      .on("error", () => {
-        // VS Code not ready yet — keep polling
-      });
-  }, POLL_INTERVAL_MS);
-}
-
-function spawnEditor(binary: string, args: string[]): ChildProcess {
-  // On Windows, .cmd files cannot be spawned directly by CreateProcess —
-  // they must go through cmd.exe. Passing the binary as a separate argument
-  // lets Node.js correctly quote paths that contain spaces.
-  if (process.platform === "win32") {
-    return spawn("cmd.exe", ["/c", binary, ...args], { stdio: "ignore" });
-  }
-  return spawn(binary, args, { stdio: "ignore" });
-}
-
-// Kills any process occupying the given port before we start our own.
-// Handles orphaned VS Code processes left over from previous dev sessions
-// where the Electron main process was killed without running cleanup.
 function killPortIfInUse(port: number): void {
   try {
     if (process.platform === "win32") {
@@ -157,63 +98,111 @@ function killPortIfInUse(port: number): void {
         try {
           execSync(`taskkill /PID ${pid} /F`, { stdio: "ignore" });
         } catch {
-          // taskkill failed — process already gone, nothing to do
+          // Process already gone.
         }
       });
     } else {
       execSync(`lsof -ti:${port} | xargs kill -9`, { stdio: "ignore" });
     }
   } catch {
-    // No process on the port — nothing to clean up.
+    // No process on the port.
   }
 }
 
-export function startEditor(): void {
-  if (editorProcess) return;
+function spawnProcess(binary: string, args: string[]): ChildProcess {
+  if (process.platform === "win32") {
+    return spawn("cmd.exe", ["/c", binary, ...args], { stdio: "ignore" });
+  }
+  return spawn(binary, args, { stdio: "ignore" });
+}
 
-  syncDesktopSettings();
-  killPortIfInUse(VSCODE_PORT);
+function stopPoll(session: EditorSession): void {
+  if (session.pollTimer) {
+    clearInterval(session.pollTimer);
+    session.pollTimer = null;
+  }
+}
 
-  const binary = findCodeBinary();
+function broadcastReady(type: EditorType): void {
+  BrowserWindow.getAllWindows().forEach((window) => {
+    window.webContents.send("editor:ready", type);
+  });
+}
+
+function broadcastError(type: EditorType): void {
+  BrowserWindow.getAllWindows().forEach((window) => {
+    window.webContents.send("editor:error", type);
+  });
+}
+
+export function startEditor(type: EditorType): void {
+  if (sessions.has(type)) return;
+
+  syncDesktopSettings(type);
+
+  const port = EDITOR_PORTS[type];
+  killPortIfInUse(port);
+
+  const binary = getEditorBinary(type);
   if (!binary) {
-    editorError = true;
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("editor:error", type);
+    });
     return;
   }
 
-  const args = buildVSCodeArgs(VSCODE_PORT);
-  editorProcess = spawnEditor(binary, args);
+  const args = buildServeWebArgs(type, port);
+  const process = spawnProcess(binary, args);
 
-  editorProcess.on("error", (error) => {
-    console.error("[editor] Failed to start VS Code serve-web:", error.message);
-    editorProcess = null;
-    editorError = true;
-    stopPoll();
-    BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send("editor:error");
-    });
+  const session: EditorSession = { process, port, ready: false, error: false, pollTimer: null };
+  sessions.set(type, session);
+
+  process.on("error", (error) => {
+    console.error(`[editor:${type}] Failed to start serve-web:`, error.message);
+    sessions.delete(type);
+    broadcastError(type);
   });
 
-  editorProcess.on("exit", () => {
-    editorProcess = null;
-    editorReady = false;
+  process.on("exit", () => {
+    sessions.delete(type);
   });
 
-  startPoll();
+  session.pollTimer = setInterval(() => {
+    http
+      .get(`http://localhost:${port}`, (response) => {
+        response.resume();
+        const current = sessions.get(type);
+        if (!current || current.ready) return;
+        stopPoll(current);
+        current.ready = true;
+        broadcastReady(type);
+      })
+      .on("error", () => {
+        // Not ready yet — keep polling.
+      });
+  }, POLL_INTERVAL_MS);
 }
 
-export function getEditorError(): boolean {
-  return editorError;
+export function getEditorReady(type: EditorType): boolean {
+  return sessions.get(type)?.ready ?? false;
 }
 
-export function stopEditor(): void {
-  stopPoll();
-  editorReady = false;
-  if (editorProcess) {
-    editorProcess.kill();
-    editorProcess = null;
-  }
+export function getEditorError(type: EditorType): boolean {
+  return sessions.get(type)?.error ?? false;
 }
 
-export function getEditorReady(): boolean {
-  return editorReady;
+export function getEditorPort(type: EditorType): number {
+  return EDITOR_PORTS[type];
+}
+
+export function stopEditor(type: EditorType): void {
+  const session = sessions.get(type);
+  if (!session) return;
+  stopPoll(session);
+  session.process.kill();
+  sessions.delete(type);
+}
+
+export function stopAllEditors(): void {
+  sessions.forEach((_session, type) => stopEditor(type));
 }

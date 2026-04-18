@@ -1,18 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Code2, Terminal } from "lucide-react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
-import type { EmbeddableType } from "../types/embeddable";
+import type { EditorInfo, ShellInfo } from "../../../shared/types";
+import Picker, { type PickerOption } from "./Picker";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
-}
-
-function addNode(excalidrawAPI: ExcalidrawImperativeAPI, type: EmbeddableType): void {
-  const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
-  const existingElements = excalidrawAPI.getSceneElements();
-  const newElement = createEmbeddableElement(type, scrollX, scrollY, zoom.value, existingElements);
-  excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
 }
 
 const ICON_PX = 16;
@@ -28,16 +22,19 @@ const TEXT = {
 function ToolButton({
   icon,
   title,
-  onClick
+  onClick,
+  buttonRef
 }: {
   icon: React.ReactNode;
   title: string;
   onClick: () => void;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
 }): React.JSX.Element {
   const [hovered, setHovered] = useState(false);
 
   return (
     <button
+      ref={buttonRef}
       title={title}
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
@@ -62,27 +59,95 @@ function ToolButton({
 }
 
 export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
+  const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
+  const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
+  const [activePicker, setActivePicker] = useState<"editor" | "terminal" | null>(null);
+
+  const editorButtonRef = useRef<HTMLButtonElement>(null);
+  const terminalButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    window.api.detectEditors().then((editors: EditorInfo[]) => {
+      setEditorOptions(editors.map((editor) => ({ value: editor.type, label: editor.label })));
+    });
+    window.api.detectShells().then((shells: ShellInfo[]) => {
+      setShellOptions(shells.map((shell) => ({ value: shell.path, label: shell.label })));
+    });
+  }, []);
+
+  function handleEditorSelect(editorType: string): void {
+    setActivePicker(null);
+    const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
+    const existingElements = excalidrawAPI.getSceneElements();
+    const newElement = createEmbeddableElement(
+      "editor",
+      { editorType },
+      scrollX,
+      scrollY,
+      zoom.value,
+      existingElements
+    );
+    excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
+  }
+
+  function handleShellSelect(shell: string): void {
+    setActivePicker(null);
+    const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
+    const existingElements = excalidrawAPI.getSceneElements();
+    const newElement = createEmbeddableElement(
+      "terminal",
+      { shell },
+      scrollX,
+      scrollY,
+      zoom.value,
+      existingElements
+    );
+    excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: ISLAND_GAP,
-        background: "var(--island-bg-color)",
-        borderRadius: "var(--border-radius-lg, 0.5rem)",
-        boxShadow: "var(--shadow-island)",
-        padding: ISLAND_PADDING
-      }}
-    >
-      <ToolButton
-        icon={<Code2 size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
-        title={TEXT.addEditor}
-        onClick={() => addNode(excalidrawAPI, "editor")}
-      />
-      <ToolButton
-        icon={<Terminal size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
-        title={TEXT.addTerminal}
-        onClick={() => addNode(excalidrawAPI, "terminal")}
-      />
-    </div>
+    <>
+      <div
+        style={{
+          display: "flex",
+          gap: ISLAND_GAP,
+          background: "var(--island-bg-color)",
+          borderRadius: "var(--border-radius-lg, 0.5rem)",
+          boxShadow: "var(--shadow-island)",
+          padding: ISLAND_PADDING
+        }}
+      >
+        <ToolButton
+          buttonRef={editorButtonRef}
+          icon={<Code2 size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
+          title={TEXT.addEditor}
+          onClick={() => setActivePicker(activePicker === "editor" ? null : "editor")}
+        />
+        <ToolButton
+          buttonRef={terminalButtonRef}
+          icon={<Terminal size={ICON_PX} strokeWidth={ICON_STROKE_WIDTH} />}
+          title={TEXT.addTerminal}
+          onClick={() => setActivePicker(activePicker === "terminal" ? null : "terminal")}
+        />
+      </div>
+
+      {activePicker === "editor" && editorOptions.length > 0 && (
+        <Picker
+          options={editorOptions}
+          onSelect={handleEditorSelect}
+          onClose={() => setActivePicker(null)}
+          anchorRef={editorButtonRef}
+        />
+      )}
+
+      {activePicker === "terminal" && shellOptions.length > 0 && (
+        <Picker
+          options={shellOptions}
+          onSelect={handleShellSelect}
+          onClose={() => setActivePicker(null)}
+          anchorRef={terminalButtonRef}
+        />
+      )}
+    </>
   );
 }

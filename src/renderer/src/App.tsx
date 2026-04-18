@@ -10,6 +10,7 @@ import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors } from "./theme";
+import type { EditorType } from "../../shared/types";
 
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
@@ -30,14 +31,19 @@ export default function App(): React.JSX.Element {
     element,
     appState
   ) => {
-    // Route by customData.type — stable even if the user renames the link label.
     const type = element.customData?.type;
+    const theme = appState.theme === "light" ? "light" : "dark";
+
     if (type === "editor") {
-      return (
-        <Editor theme={appState.theme === "light" ? "light" : "dark"} scrollLocked={scrollLocked} />
-      );
+      const editorType = (element.customData?.editorType ?? "vscode") as EditorType;
+      return <Editor editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
     }
-    if (type === "terminal") return <Terminal id={element.id} scrollLocked={scrollLocked} />;
+
+    if (type === "terminal") {
+      const shell = (element.customData?.shell ?? "") as string;
+      return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
+    }
+
     return null;
   };
 

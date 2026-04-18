@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { colorsByTheme } from "../theme";
 import Spinner from "./Spinner";
+import type { EditorType } from "../../../shared/types";
 
-const TEXT = {
-  loading: "Loading editor…",
-  errorTitle: "VS Code not found",
-  errorBody: "Install VS Code and restart the app."
-} as const;
+const EDITOR_LABELS: Record<EditorType, string> = {
+  vscode: "VS Code",
+  cursor: "Cursor",
+  windsurf: "Windsurf",
+  vscodium: "VSCodium"
+};
 
-const EDITOR_BASE_URL = "http://localhost:8080";
 const LOADING_FONT_SIZE = 14;
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
@@ -17,42 +18,63 @@ const ERROR_GAP = 8;
 const LOADING_FONT_FAMILY = "monospace";
 const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
 
+const TEXT = {
+  loading: "Loading editor…",
+  errorNotFound: (label: string) => `${label} not found`,
+  errorInstall: (label: string) => `Install ${label} and restart the app.`
+} as const;
+
 interface EditorProps {
+  editorType: EditorType;
   theme: "dark" | "light";
   scrollLocked: boolean;
 }
 
-export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.Element {
+export default function Editor({
+  editorType,
+  theme,
+  scrollLocked
+}: EditorProps): React.JSX.Element {
   const [serverReady, setServerReady] = useState(false);
   const [webviewLoaded, setWebviewLoaded] = useState(false);
   const [editorError, setEditorError] = useState(false);
   const [editorUrl, setEditorUrl] = useState<string | null>(null);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
+  const label = EDITOR_LABELS[editorType];
 
   useEffect(() => {
-    window.api.checkEditorError().then((hasError) => {
+    window.api.startEditor(editorType);
+
+    window.api.checkEditorError(editorType).then((hasError) => {
       if (hasError) {
         setEditorError(true);
         return;
       }
-      window.api.onEditorError(() => setEditorError(true));
+      window.api.onEditorError((type) => {
+        if (type === editorType) setEditorError(true);
+      });
     });
-    window.api.loadEditorUrl().then((url) => {
-      setEditorUrl(url ?? EDITOR_BASE_URL);
+
+    window.api.getEditorPort(editorType).then((port) => {
+      window.api.loadEditorUrl(editorType).then((savedUrl) => {
+        setEditorUrl(savedUrl ?? `http://localhost:${port}`);
+      });
     });
-  }, []);
+  }, [editorType]);
 
   useEffect(() => {
     if (editorError) return;
-    window.api.checkEditorReady().then((isReady) => {
+    window.api.checkEditorReady(editorType).then((isReady) => {
       if (isReady) {
         setServerReady(true);
       } else {
-        window.api.onEditorReady(() => setServerReady(true));
+        window.api.onEditorReady((type) => {
+          if (type === editorType) setServerReady(true);
+        });
       }
     });
-  }, [editorError]);
+  }, [editorError, editorType]);
 
   // Attach dom-ready listener once the webview is in the DOM.
   useEffect(() => {
@@ -95,12 +117,12 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
 
     const handleDidNavigate = (event: { url: string }): void => {
       const { url } = event;
-      if (
-        url.startsWith(EDITOR_BASE_URL) &&
-        (url.includes("?folder=") || url.includes("?workspace="))
-      ) {
-        window.api.saveEditorUrl(url).catch(() => undefined);
-      }
+      window.api.getEditorPort(editorType).then((port) => {
+        const baseUrl = `http://localhost:${port}`;
+        if (url.startsWith(baseUrl) && (url.includes("?folder=") || url.includes("?workspace="))) {
+          window.api.saveEditorUrl(editorType, url).catch(() => undefined);
+        }
+      });
     };
 
     webview.addEventListener("dom-ready", handleDomReady);
@@ -109,7 +131,7 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
       webview.removeEventListener("dom-ready", handleDomReady);
       webview.removeEventListener("did-navigate", handleDidNavigate);
     };
-  }, [serverReady, editorUrl]); // re-run when either flips so webview is guaranteed in the DOM
+  }, [serverReady, editorUrl, editorType]);
 
   const containerStyle: React.CSSProperties = {
     width: "100%",
@@ -175,10 +197,10 @@ export default function Editor({ theme, scrollLocked }: EditorProps): React.JSX.
       <div style={containerStyle}>
         <div style={errorStyle}>
           <span style={{ fontSize: ERROR_TITLE_FONT_SIZE, color: themeColors.red }}>
-            {TEXT.errorTitle}
+            {TEXT.errorNotFound(label)}
           </span>
           <span style={{ fontSize: LOADING_FONT_SIZE, color: themeColors.text }}>
-            {TEXT.errorBody}
+            {TEXT.errorInstall(label)}
           </span>
         </div>
       </div>

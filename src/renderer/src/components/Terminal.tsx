@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
-import { terminalTheme } from "../theme";
 
 const TERMINAL_FONT_FAMILY = "monospace";
 const TERMINAL_FONT_SIZE = 14;
@@ -11,10 +10,11 @@ const RESIZE_DEBOUNCE_MS = 50;
 
 interface TerminalProps {
   id: string;
+  shell: string;
   scrollLocked: boolean;
 }
 
-export default function Terminal({ id, scrollLocked }: TerminalProps): React.JSX.Element {
+export default function Terminal({ id, shell, scrollLocked }: TerminalProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ export default function Terminal({ id, scrollLocked }: TerminalProps): React.JSX
     if (!container) return;
 
     const xterm = new XTerm({
-      theme: terminalTheme,
       fontFamily: TERMINAL_FONT_FAMILY,
       fontSize: TERMINAL_FONT_SIZE,
       cursorBlink: true
@@ -33,7 +32,7 @@ export default function Terminal({ id, scrollLocked }: TerminalProps): React.JSX
     xterm.open(container);
     fitAddon.fit();
 
-    window.api.terminalSpawn(id, xterm.cols, xterm.rows).catch(() => undefined);
+    window.api.terminalSpawn(id, shell, xterm.cols, xterm.rows).catch(() => undefined);
 
     xterm.onData((data) => {
       window.api.terminalWrite(id, data).catch(() => undefined);
@@ -62,15 +61,14 @@ export default function Terminal({ id, scrollLocked }: TerminalProps): React.JSX
       // Excalidraw element, not the React component. killAllTerminals() on app
       // close cleans up remaining sessions.
     };
-  }, [id]);
+  }, [id, shell]);
 
   const containerStyle: React.CSSProperties = {
     width: "100%",
     height: "100%",
     borderRadius: TERMINAL_BORDER_RADIUS,
     overflow: "hidden",
-    pointerEvents: scrollLocked ? "none" : "auto",
-    background: terminalTheme.background
+    pointerEvents: scrollLocked ? "none" : "auto"
   };
 
   return <div ref={containerRef} style={containerStyle} />;
