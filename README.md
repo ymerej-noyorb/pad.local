@@ -10,13 +10,14 @@ No cloud. No auth. No database. No monthly bill.
 
 ## What's inside
 
-| Panel          | Tech                                                        |
-| -------------- | ----------------------------------------------------------- |
-| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                 |
-| 💻 Code editor | VS Code (`code serve-web`) — your extensions, your settings |
-| 🖥️ Terminal    | xterm.js + node-pty                                         |
+| Panel          | Tech                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------- |
+| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                           |
+| 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
+| 🖥️ Terminal    | xterm.js + node-pty                                                                   |
+| 🤖 AI          | Claude, ChatGPT, Gemini, Grok, Perplexity, Mistral, Copilot, DeepSeek, Meta AI, Phind |
 
-The editor and terminal live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
+The editor, terminal, and AI panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 
 ---
 
@@ -29,14 +30,9 @@ npm install
 npm run dev
 ```
 
-Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code (with the `code` command available in your PATH).
+Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code installed on your machine.
 
-- **macOS**: open VS Code → `Cmd+Shift+P` → "Shell Command: Install 'code' command in PATH"
-- **Windows / Linux**: the installer adds `code` to PATH automatically
-- **WSL2**: Electron needs a few system libs not included in the default WSL2 install. Run once before `npm run dev`:
-  ```bash
-  sudo apt-get install -y libnspr4 libnss3 libasound2t64 --fix-missing
-  ```
+Supported platforms: macOS, Windows, Linux. **WSL is not supported.**
 
 ---
 
@@ -56,18 +52,20 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 - **[React](https://react.dev/) + TypeScript** — UI
 - **[electron-vite](https://electron-vite.org/)** — Build tooling
 - **[Excalidraw](https://github.com/excalidraw/excalidraw)** — Fullscreen canvas
-- **[VS Code](https://code.visualstudio.com/)** — Editor via `code serve-web`
+- **[VS Code](https://code.visualstudio.com/)** — Editor, served via `code serve-web`
 - **[xterm.js](https://xtermjs.org/) + [node-pty](https://github.com/microsoft/node-pty)** — Terminal
 
 ---
 
 ## How it works
 
-When you launch pad.local, Electron:
+When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 
-1. Runs `code serve-web --port 8080 --without-connection-token` (uses your existing VS Code install)
-2. Opens a PTY for the terminal via `node-pty`
-3. Loads Excalidraw fullscreen — add Editor and Terminal nodes anywhere on the canvas
+- **Add Editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
+- **Add Terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
+- **Add AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
+
+Each Editor node runs an independent server on its own port. Multiple editors, terminals, and AI panels of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
 
 Everything runs locally. Nothing leaves your machine.
 
@@ -84,10 +82,19 @@ Everything runs locally. Nothing leaves your machine.
 
 - **Local first** — works offline, always
 - **Zero infra** — no server, no database, no auth
-- **Clone and run** — Node.js and VS Code are the only prerequisites
+- **Clone and run** — Node.js + VS Code are the only prerequisites
+
+---
+
+## Known limitations
+
+- **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
+- **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
 
 ---
 
 ## Inspired by
 
 [pad.ws](https://github.com/coderamp-labs/pad.ws) — great concept, now abandoned (last commit Aug 2025, site down). pad.local is the "just run it" version.
+
+[ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.
