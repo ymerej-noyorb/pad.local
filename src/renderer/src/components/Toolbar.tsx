@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import {
+  IconBrandVscode,
+  IconBrandOpenai,
+  IconBrandWindows,
+  IconBrandPowershell,
+  IconBrandGit,
+  IconBrandGithubCopilot,
+  IconCode,
+  IconTerminal,
+  IconRobot,
+} from "@tabler/icons-react";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
 import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../shared/types";
 import { AI_PROVIDERS } from "../../../shared/aiProviders";
-import type { IconName } from "../lib/iconData";
 import Icon from "./Icon";
 import Picker, { type PickerOption } from "./Picker";
 
@@ -12,49 +22,50 @@ interface Props {
 }
 
 const ICON_PX = 16;
+const TABLER_STROKE = 1.5;
 const ISLAND_GAP = "0.125rem";
 const ISLAND_PADDING = "0.25rem";
 
 const TEXT = {
-  addEditor: "Add Editor",
-  addTerminal: "Add Terminal",
-  addAi: "Add AI"
+  addEditor: "New editor",
+  addTerminal: "New terminal",
+  addAi: "New AI",
 } as const;
 
-const EDITOR_ICON: Record<EditorType, IconName> = {
-  vscode: "vscode",
-  cursor: "cursor",
-  windsurf: "windsurf",
-  vscodium: "vscodium"
+const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
+  vscode: <IconBrandVscode size={ICON_PX} stroke={TABLER_STROKE} />,
+  cursor: <Icon name="cursor" size={ICON_PX} />,
+  windsurf: <Icon name="windsurf" size={ICON_PX} />,
+  vscodium: <Icon name="vscodium" size={ICON_PX} />,
 };
 
-const AI_ICON: Record<AiProvider, IconName> = {
-  claude: "claude",
-  chatgpt: "openai",
-  gemini: "gemini",
-  copilot: "copilot",
-  perplexity: "perplexity",
-  mistral: "mistral"
+const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
+  claude: <Icon name="claude" size={ICON_PX} />,
+  chatgpt: <IconBrandOpenai size={ICON_PX} stroke={TABLER_STROKE} />,
+  gemini: <Icon name="gemini" size={ICON_PX} />,
+  copilot: <IconBrandGithubCopilot size={ICON_PX} stroke={TABLER_STROKE} />,
+  perplexity: <Icon name="perplexity" size={ICON_PX} />,
+  mistral: <Icon name="mistral" size={ICON_PX} />,
 };
 
-function getShellIcon(label: string): IconName {
+function getShellIcon(label: string): React.JSX.Element {
   const lower = label.toLowerCase();
-  if (lower.includes("powershell")) return "powershell";
-  if (lower.includes("git")) return "git";
-  if (lower.includes("bash")) return "bash";
-  if (lower.includes("zsh")) return "zsh";
-  if (lower.includes("fish")) return "fish";
-  if (lower.includes("cmd")) return "windows";
-  return "terminal";
+  if (lower.includes("powershell")) return <IconBrandPowershell size={ICON_PX} stroke={TABLER_STROKE} />;
+  if (lower.includes("git")) return <IconBrandGit size={ICON_PX} stroke={TABLER_STROKE} />;
+  if (lower.includes("bash")) return <Icon name="bash" size={ICON_PX} />;
+  if (lower.includes("zsh")) return <Icon name="zsh" size={ICON_PX} />;
+  if (lower.includes("fish")) return <Icon name="fish" size={ICON_PX} />;
+  if (lower.includes("cmd")) return <IconBrandWindows size={ICON_PX} stroke={TABLER_STROKE} />;
+  return <IconTerminal size={ICON_PX} stroke={TABLER_STROKE} />;
 }
 
 function ToolButton({
   icon,
   title,
   onClick,
-  buttonRef
+  buttonRef,
 }: {
-  icon: IconName;
+  icon: React.ReactNode;
   title: string;
   onClick: () => void;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
@@ -79,10 +90,10 @@ function ToolButton({
         background: hovered ? "var(--button-hover-bg)" : "transparent",
         color: "var(--icon-fill-color, #e3e3e8)",
         cursor: "pointer",
-        padding: 0
+        padding: 0,
       }}
     >
-      <Icon name={icon} size={ICON_PX} />
+      {icon}
     </button>
   );
 }
@@ -99,7 +110,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const aiOptions: PickerOption[] = AI_PROVIDERS.map((provider) => ({
     value: provider.id,
     label: provider.label,
-    icon: <Icon name={AI_ICON[provider.id]} size={ICON_PX} />
+    icon: AI_ICONS[provider.id],
   }));
 
   useEffect(() => {
@@ -108,7 +119,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         editors.map((editor) => ({
           value: editor.type,
           label: editor.label,
-          icon: <Icon name={EDITOR_ICON[editor.type as EditorType]} size={ICON_PX} />
+          icon: EDITOR_ICONS[editor.type as EditorType],
         }))
       );
     });
@@ -117,7 +128,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         shells.map((shell) => ({
           value: shell.path,
           label: shell.label,
-          icon: <Icon name={getShellIcon(shell.label)} size={ICON_PX} />
+          icon: getShellIcon(shell.label),
         }))
       );
     });
@@ -179,24 +190,24 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           background: "var(--island-bg-color)",
           borderRadius: "var(--border-radius-lg, 0.5rem)",
           boxShadow: "var(--shadow-island)",
-          padding: ISLAND_PADDING
+          padding: ISLAND_PADDING,
         }}
       >
         <ToolButton
           buttonRef={editorButtonRef}
-          icon="code"
+          icon={<IconCode size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addEditor}
           onClick={() => setActivePicker(activePicker === "editor" ? null : "editor")}
         />
         <ToolButton
           buttonRef={terminalButtonRef}
-          icon="terminal"
+          icon={<IconTerminal size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addTerminal}
           onClick={() => setActivePicker(activePicker === "terminal" ? null : "terminal")}
         />
         <ToolButton
           buttonRef={aiButtonRef}
-          icon="bot"
+          icon={<IconRobot size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addAi}
           onClick={() => setActivePicker(activePicker === "ai" ? null : "ai")}
         />
