@@ -57,6 +57,8 @@ function getShellIcon(label: string): React.JSX.Element {
   if (lower.includes("bash")) return <Icon name="bash" size={ICON_PX} />;
   if (lower.includes("zsh")) return <Icon name="zsh" size={ICON_PX} />;
   if (lower.includes("fish")) return <Icon name="fish" size={ICON_PX} />;
+  if (lower.includes("dash")) return <Icon name="dash" size={ICON_PX} />;
+  if (lower === "nu") return <Icon name="nushell" size={ICON_PX} />;
   if (lower.includes("cmd")) return <IconBrandWindows size={ICON_PX} stroke={TABLER_STROKE} />;
   return <IconTerminal size={ICON_PX} stroke={TABLER_STROKE} />;
 }

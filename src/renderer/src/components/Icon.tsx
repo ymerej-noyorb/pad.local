@@ -8,7 +8,9 @@ import {
   siWindsurf,
   siVscodium,
   siZsh,
-  siFishshell
+  siFishshell,
+  siDash,
+  siNushell
 } from "simple-icons";
 
 const DEFAULT_SIZE = 16;
@@ -23,7 +25,9 @@ const SI_ICONS = {
   windsurf: siWindsurf.path,
   vscodium: siVscodium.path,
   zsh: siZsh.path,
-  fish: siFishshell.path
+  fish: siFishshell.path,
+  dash: siDash.path,
+  nushell: siNushell.path
 } as const;
 
 export type SiIconName = keyof typeof SI_ICONS;
