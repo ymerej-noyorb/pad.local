@@ -92,7 +92,26 @@ export default function App(): React.JSX.Element {
         }
         onChange={handleChange}
         onScrollChange={handleScrollChange}
-        renderTopRightUI={() => (excalidrawAPI ? <Toolbar excalidrawAPI={excalidrawAPI} /> : null)}
+        renderTopRightUI={() =>
+          excalidrawAPI ? (
+            <div
+              style={{
+                position: "fixed",
+                bottom: "1.5rem",
+                left: 0,
+                right: 0,
+                display: "flex",
+                justifyContent: "center",
+                pointerEvents: "none",
+                zIndex: 10,
+              }}
+            >
+              <div style={{ pointerEvents: "auto" }}>
+                <Toolbar excalidrawAPI={excalidrawAPI} />
+              </div>
+            </div>
+          ) : null
+        }
         UIOptions={{ canvasActions: CANVAS_ACTIONS }}
       />
     </div>

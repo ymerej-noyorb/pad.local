@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 
-const PICKER_MIN_WIDTH = 160;
+const PICKER_MIN_WIDTH = 200;
 const PICKER_BORDER_RADIUS = 8;
-const PICKER_PADDING = 4;
-const OPTION_HEIGHT = "2rem";
-const OPTION_PADDING = "0 0.5rem";
+const PICKER_PADDING = 6;
+const OPTION_HEIGHT = "2.25rem";
+const OPTION_PADDING = "0 0.625rem";
 const OPTION_BORDER_RADIUS = 6;
-const OPTION_FONT_SIZE = "0.875rem";
+const OPTION_FONT_SIZE = "0.9375rem";
 const OPTION_FONT_WEIGHT = 400;
-const OPTION_ICON_SIZE = 16;
-const OPTION_ICON_GAP = "0.625rem";
+const OPTION_ICON_SIZE = 20;
+const OPTION_ICON_GAP = "0.75rem";
 
 export interface PickerOption {
   value: string;
@@ -31,13 +31,12 @@ export default function Picker({
   anchorRef
 }: PickerProps): React.JSX.Element | null {
   const pickerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
 
   useEffect(() => {
     if (!anchorRef.current) return;
     const rect = anchorRef.current.getBoundingClientRect();
-    // Anchor to the right edge of the button so the picker doesn't overflow the window.
-    setPosition({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    setPosition({ bottom: window.innerHeight - rect.top + 6, left: rect.left + rect.width / 2 });
   }, [anchorRef]);
 
   useEffect(() => {
@@ -62,8 +61,9 @@ export default function Picker({
       ref={pickerRef}
       style={{
         position: "fixed",
-        top: position.top,
-        right: position.right,
+        bottom: position.bottom,
+        left: position.left,
+        transform: "translateX(-50%)",
         minWidth: PICKER_MIN_WIDTH,
         background: "var(--island-bg-color)",
         borderRadius: PICKER_BORDER_RADIUS,

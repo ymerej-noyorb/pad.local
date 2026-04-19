@@ -21,10 +21,11 @@ interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
 }
 
-const ICON_PX = 16;
+const ICON_PX = 20;
+const BUTTON_SIZE = "2.25rem";
 const TABLER_STROKE = 1.5;
 const ISLAND_GAP = "0.125rem";
-const ISLAND_PADDING = "0.25rem";
+const ISLAND_PADDING = "0.375rem";
 
 const TEXT = {
   addEditor: "New editor",
@@ -80,8 +81,8 @@ function ToolButton({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        width: "var(--default-button-size, 2rem)",
-        height: "var(--default-button-size, 2rem)",
+        width: BUTTON_SIZE,
+        height: BUTTON_SIZE,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
