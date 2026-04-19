@@ -21,18 +21,18 @@ body {
   font-size: 14px;
 }
 
-@keyframes pad-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes pad-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    opacity: 0.2;
   }
 }
 
-.pad-spin {
-  animation: pad-spin 0.8s linear infinite;
-  display: block;
+.pad-pulse {
+  animation: pad-pulse 1.8s ease-in-out infinite;
 }
 
 /* This app has no use for Excalidraw's element hyperlink popup.

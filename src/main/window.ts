@@ -3,6 +3,7 @@ import { join } from "path";
 import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import { EDITOR_PORTS } from "./constants";
+import { AI_PROVIDERS } from "../shared/aiProviders";
 
 const WINDOW_WIDTH = 900;
 const WINDOW_HEIGHT = 670;
@@ -44,9 +45,26 @@ function allowVSCodeEmbedding(): void {
   );
 }
 
+// Each AI provider webview uses partition="persist:ai-<id>", so requests go through
+// that partition's session — not defaultSession. We strip framing headers on each one.
+function allowAiEmbedding(): void {
+  for (const provider of AI_PROVIDERS) {
+    const providerSession = session.fromPartition(`persist:ai-${provider.id}`);
+    providerSession.webRequest.onHeadersReceived((details, callback) => {
+      const responseHeaders = { ...details.responseHeaders };
+      delete responseHeaders["x-frame-options"];
+      delete responseHeaders["X-Frame-Options"];
+      delete responseHeaders["content-security-policy"];
+      delete responseHeaders["Content-Security-Policy"];
+      callback({ responseHeaders });
+    });
+  }
+}
+
 export function createWindow(): void {
   forceEnglishLocale();
   allowVSCodeEmbedding();
+  allowAiEmbedding();
 
   const mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,

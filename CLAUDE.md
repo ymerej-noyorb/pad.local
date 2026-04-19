@@ -11,17 +11,18 @@ It runs entirely on the developer's machine — no server, no auth, no database,
 
 The goal: any developer clones it, `npm install && npm run dev`, done.
 
-**Prerequisites:** VS Code must be installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
+**Prerequisites:** Node.js v24 LTS and VS Code installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
 
 ---
 
 ## Core panels
 
-| Panel       | Implementation                                                                     |
-| ----------- | ---------------------------------------------------------------------------------- |
-| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes       |
-| Code editor | VS Code (`code serve-web`) on localhost:8080, embedded as an Excalidraw node       |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node |
+| Panel       | Implementation                                                                         |
+| ----------- | -------------------------------------------------------------------------------------- |
+| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes           |
+| Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium         |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node     |
+| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers |
 
 ---
 
@@ -34,7 +35,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Frontend      | React + TypeScript            | Familiar, component-based                                         |
 | Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
 | Editor        | VS Code `serve-web`           | Full VS Code experience, no extra install if VS Code is present   |
-| Panels        | Excalidraw `renderEmbeddable` | Editor and terminal are nodes in the canvas, like pad.ws          |
+| Panels        | Excalidraw `renderEmbeddable` | Editor, terminal, and AI are nodes in the canvas, like pad.ws     |
 | Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
 ---
@@ -76,9 +77,9 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 
 ## Key behaviors
 
-- On app launch: Electron main spawns `code serve-web` on port 8080 and opens a PTY via `node-pty`
-- On app close: Electron kills both processes cleanly
-- The user can add Editor and Terminal nodes anywhere on the Excalidraw canvas via a toolbar
+- On app launch: Electron main process is ready; `serve-web` and PTY are spawned on demand when the user creates an Editor or Terminal node
+- On app close: Electron kills all `serve-web` processes and PTYs cleanly
+- The user can add Editor, Terminal, and AI nodes anywhere on the Excalidraw canvas via a toolbar
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)
 - During canvas pan/scroll, embedded iframes have `pointer-events: none` to avoid capture
 - Excalidraw scene (elements + positions) is auto-saved to a local JSON file on change
@@ -98,5 +99,6 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 
 ## Inspiration
 
-[pad.ws](https://github.com/coderamp-labs/pad.ws) — original project, abandoned (last commit Aug 2025, site down as of Apr 2026).
-pad.local is a simpler, local-only reimagining of the same idea.
+[pad.ws](https://github.com/coderamp-labs/pad.ws) — original project, abandoned (last commit Aug 2025, site down as of Apr 2026). pad.local is a simpler, local-only reimagining of the same idea.
+
+[ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.

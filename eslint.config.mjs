@@ -25,7 +25,8 @@ export default defineConfig(
     },
     rules: {
       ...eslintPluginReactHooks.configs.recommended.rules,
-      ...eslintPluginReactRefresh.configs.vite.rules
+      ...eslintPluginReactRefresh.configs.vite.rules,
+      "react/no-unknown-property": ["error", { ignore: ["partition"] }]
     }
   },
   eslintConfigPrettier

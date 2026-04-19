@@ -57,7 +57,6 @@ src/main/  (Node.js — Electron main process)
 
 ## Known limitations
 
-- **Export image + embedded panels** — Excalidraw exports via `<canvas>` (PNG) or SVG. Browsers block drawing iframe content onto a canvas (tainted canvas security restriction), even same-origin. The Editor and Terminal panels will appear as empty frames in exports. Annotations, shapes, and layout are captured correctly.
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`. macOS, Windows, and Linux (native) only.
 
 ---
@@ -156,24 +155,20 @@ All four use identical `serve-web` args. Only binary detection and settings dir 
 
 ---
 
-## Step 5 — AI panel (any provider, OAuth in-webview)
+## Step 5 — AI panel (any provider, OAuth in-webview) ✅
 
-Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. The session persists across restarts via Electron's default webview session store.
+Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. Sessions persist across restarts via Electron's `partition="persist:ai-<providerId>"` — one isolated cookie store per provider.
 
 ### Supported providers
 
-| Provider   | URL                             | Notes                          |
-| ---------- | ------------------------------- | ------------------------------ |
-| Claude     | `https://claude.ai`             |                                |
-| ChatGPT    | `https://chatgpt.com`           |                                |
-| Gemini     | `https://gemini.google.com`     |                                |
-| Grok       | `https://grok.com`              |                                |
-| Perplexity | `https://perplexity.ai`         |                                |
-| Mistral    | `https://chat.mistral.ai`       |                                |
-| Copilot    | `https://copilot.microsoft.com` |                                |
-| DeepSeek   | `https://chat.deepseek.com`     |                                |
-| Meta AI    | `https://www.meta.ai`           |                                |
-| Phind      | `https://phind.com`             | Dev-focused (code search + AI) |
+| Provider   | URL                             | Notes                      |
+| ---------- | ------------------------------- | -------------------------- |
+| Claude     | `https://claude.ai`             |                            |
+| ChatGPT    | `https://chatgpt.com`           |                            |
+| Gemini     | `https://gemini.google.com`     |                            |
+| Copilot    | `https://copilot.microsoft.com` |                            |
+| Perplexity | `https://perplexity.ai`         |                            |
+| Mistral    | `https://chat.mistral.ai`       | EU + open-source community |
 
 Detection is not needed — the list is static. All providers are always offered; the user's session (logged in or not) is their own business.
 
@@ -190,10 +185,24 @@ src/renderer/src/components/Toolbar.tsx   ← add "Add AI" button + Picker wired
 src/renderer/src/App.tsx                  ← handle "ai" embeddable type in renderEmbeddable
 ```
 
+### Session persistence
+
+Inspired by [ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron), which uses Electron's `session.fromPartition()` to isolate cookies per provider and persist them across restarts.
+
+We adopt the same pattern: each `<webview>` gets a dedicated partition (`persist:ai-<providerId>`), so the user stays logged in per provider independently of other webviews.
+
+```ts
+// AiPanel.tsx
+<webview src={url} partition={`persist:ai-${providerId}`} />
+```
+
+This replaces the "Electron's default webview session store" approach — explicit partitions give us per-provider isolation for free, with no extra code in the main process.
+
 ### Key behaviours
 
 - `AiPanel.tsx` mirrors `Editor.tsx` loading pattern (loading overlay until `dom-ready`), without the server-ready polling — webviews are ready as soon as the page loads
 - `scrollLocked` prop forwarded from `App.tsx` → `pointer-events: none` during canvas pan (same as Editor and Terminal)
+- Each webview uses `partition="persist:ai-<providerId>"` — cookies and sessions are isolated per provider and survive app restarts
 - No IPC handlers needed — the webview manages its own network requests and cookies
 - CSP strip in `window.ts`: extend `onHeadersReceived` to remove `x-frame-options` and `content-security-policy` for all AI provider origins
 

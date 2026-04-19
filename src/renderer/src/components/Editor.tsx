@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { IconBrandVscode } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
-import Spinner from "./Spinner";
+import Icon from "./Icon";
+import LoadingOverlay from "./LoadingOverlay";
 import type { EditorType } from "../../../shared/types";
 
-const LOADING_FONT_SIZE = 14;
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
-const LOADING_GAP = 12;
 const ERROR_GAP = 8;
 const LOADING_FONT_FAMILY = "monospace";
-const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
+const LOADING_FONT_SIZE = 14;
+const LOADING_ICON_SIZE = 48;
+const TABLER_STROKE = 1.5;
 
 const TEXT = {
   labels: {
@@ -18,10 +20,22 @@ const TEXT = {
     windsurf: "Windsurf",
     vscodium: "VSCodium"
   } satisfies Record<EditorType, string>,
-  loading: "Loading editor…",
   errorNotFound: (label: string) => `${label} not found`,
   errorInstall: (label: string) => `Install ${label} and restart the app.`
 } as const;
+
+function getEditorIcon(editorType: EditorType): React.JSX.Element {
+  switch (editorType) {
+    case "vscode":
+      return <IconBrandVscode size={LOADING_ICON_SIZE} stroke={TABLER_STROKE} />;
+    case "cursor":
+      return <Icon name="cursor" size={LOADING_ICON_SIZE} />;
+    case "windsurf":
+      return <Icon name="windsurf" size={LOADING_ICON_SIZE} />;
+    case "vscodium":
+      return <Icon name="vscodium" size={LOADING_ICON_SIZE} />;
+  }
+}
 
 interface EditorProps {
   editorType: EditorType;
@@ -139,29 +153,6 @@ export default function Editor({
     pointerEvents: scrollLocked ? "none" : "auto"
   };
 
-  const loadingStyle: React.CSSProperties = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: LOADING_GAP,
-    fontSize: LOADING_FONT_SIZE,
-    fontFamily: LOADING_FONT_FAMILY,
-    background: themeColors.base,
-    color: themeColors.text,
-    userSelect: "none",
-    opacity: webviewLoaded ? 0 : 1,
-    // Only fade-out (opaque → transparent). Reappearance is instant so VS Code
-    // is never visible during the transition back.
-    transition: webviewLoaded ? LOADING_FADE_OUT_TRANSITION : "none",
-    pointerEvents: "none"
-  };
-
   const webviewStyle: React.CSSProperties = {
     position: "absolute",
     top: 0,
@@ -209,10 +200,12 @@ export default function Editor({
       {serverReady && editorUrl !== null && (
         <webview ref={webviewRef} src={editorUrl} style={webviewStyle} />
       )}
-      <div style={loadingStyle}>
-        <Spinner color={themeColors.overlay0} />
-        <span>{TEXT.loading}</span>
-      </div>
+      <LoadingOverlay
+        icon={getEditorIcon(editorType)}
+        color={themeColors.overlay0}
+        background={themeColors.base}
+        loaded={webviewLoaded}
+      />
     </div>
   );
 }
