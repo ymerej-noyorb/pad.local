@@ -9,7 +9,7 @@ import {
   IconBrandGithubCopilot,
   IconCode,
   IconTerminal,
-  IconRobot,
+  IconRobot
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
 import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../shared/types";
@@ -30,14 +30,14 @@ const ISLAND_PADDING = "0.375rem";
 const TEXT = {
   addEditor: "New editor",
   addTerminal: "New terminal",
-  addAi: "New AI",
+  addAi: "New AI"
 } as const;
 
 const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
   vscode: <IconBrandVscode size={ICON_PX} stroke={TABLER_STROKE} />,
   cursor: <Icon name="cursor" size={ICON_PX} />,
   windsurf: <Icon name="windsurf" size={ICON_PX} />,
-  vscodium: <Icon name="vscodium" size={ICON_PX} />,
+  vscodium: <Icon name="vscodium" size={ICON_PX} />
 };
 
 const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
@@ -46,12 +46,13 @@ const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
   gemini: <Icon name="gemini" size={ICON_PX} />,
   copilot: <IconBrandGithubCopilot size={ICON_PX} stroke={TABLER_STROKE} />,
   perplexity: <Icon name="perplexity" size={ICON_PX} />,
-  mistral: <Icon name="mistral" size={ICON_PX} />,
+  mistral: <Icon name="mistral" size={ICON_PX} />
 };
 
 function getShellIcon(label: string): React.JSX.Element {
   const lower = label.toLowerCase();
-  if (lower.includes("powershell")) return <IconBrandPowershell size={ICON_PX} stroke={TABLER_STROKE} />;
+  if (lower.includes("powershell"))
+    return <IconBrandPowershell size={ICON_PX} stroke={TABLER_STROKE} />;
   if (lower.includes("git")) return <IconBrandGit size={ICON_PX} stroke={TABLER_STROKE} />;
   if (lower.includes("bash")) return <Icon name="bash" size={ICON_PX} />;
   if (lower.includes("zsh")) return <Icon name="zsh" size={ICON_PX} />;
@@ -64,7 +65,7 @@ function ToolButton({
   icon,
   title,
   onClick,
-  buttonRef,
+  buttonRef
 }: {
   icon: React.ReactNode;
   title: string;
@@ -91,7 +92,7 @@ function ToolButton({
         background: hovered ? "var(--button-hover-bg)" : "transparent",
         color: "var(--icon-fill-color, #e3e3e8)",
         cursor: "pointer",
-        padding: 0,
+        padding: 0
       }}
     >
       {icon}
@@ -111,7 +112,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const aiOptions: PickerOption[] = AI_PROVIDERS.map((provider) => ({
     value: provider.id,
     label: provider.label,
-    icon: AI_ICONS[provider.id],
+    icon: AI_ICONS[provider.id]
   }));
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         editors.map((editor) => ({
           value: editor.type,
           label: editor.label,
-          icon: EDITOR_ICONS[editor.type as EditorType],
+          icon: EDITOR_ICONS[editor.type as EditorType]
         }))
       );
     });
@@ -129,7 +130,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         shells.map((shell) => ({
           value: shell.path,
           label: shell.label,
-          icon: getShellIcon(shell.label),
+          icon: getShellIcon(shell.label)
         }))
       );
     });
@@ -191,7 +192,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           background: "var(--island-bg-color)",
           borderRadius: "var(--border-radius-lg, 0.5rem)",
           boxShadow: "var(--shadow-island)",
-          padding: ISLAND_PADDING,
+          padding: ISLAND_PADDING
         }}
       >
         <ToolButton

@@ -103,7 +103,7 @@ export default function App(): React.JSX.Element {
                 display: "flex",
                 justifyContent: "center",
                 pointerEvents: "none",
-                zIndex: 10,
+                zIndex: 10
               }}
             >
               <div style={{ pointerEvents: "auto" }}>
