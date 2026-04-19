@@ -5,15 +5,17 @@ import "@excalidraw/excalidraw/index.css";
 
 import Editor from "./components/Editor";
 import Terminal from "./components/Terminal";
+import AiPanel from "./components/AiPanel";
 import Spinner from "./components/Spinner";
 import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors } from "./theme";
-import type { EditorType } from "../../shared/types";
+import type { AiProvider, EditorType } from "../../shared/types";
 
 const EMBEDDABLE_TYPE_EDITOR = "editor";
 const EMBEDDABLE_TYPE_TERMINAL = "terminal";
+const EMBEDDABLE_TYPE_AI = "ai";
 
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
@@ -48,6 +50,14 @@ export default function App(): React.JSX.Element {
       return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
     }
 
+    if (type === EMBEDDABLE_TYPE_AI) {
+      const providerId = element.customData?.providerId as AiProvider;
+      const url = element.customData?.url as string;
+      return (
+        <AiPanel providerId={providerId} url={url} theme={theme} scrollLocked={scrollLocked} />
+      );
+    }
+
     return null;
   };
 
@@ -76,7 +86,9 @@ export default function App(): React.JSX.Element {
         gridModeEnabled
         renderEmbeddable={renderEmbeddable}
         validateEmbeddable={(link) =>
-          link === EMBEDDABLE_TYPE_EDITOR || link === EMBEDDABLE_TYPE_TERMINAL
+          link === EMBEDDABLE_TYPE_EDITOR ||
+          link === EMBEDDABLE_TYPE_TERMINAL ||
+          link === EMBEDDABLE_TYPE_AI
         }
         onChange={handleChange}
         onScrollChange={handleScrollChange}

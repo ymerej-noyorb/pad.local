@@ -161,18 +161,14 @@ Goal: add an AI node to the canvas. The user picks a provider from a curated lis
 
 ### Supported providers
 
-| Provider   | URL                             | Notes                          |
-| ---------- | ------------------------------- | ------------------------------ |
-| Claude     | `https://claude.ai`             |                                |
-| ChatGPT    | `https://chatgpt.com`           |                                |
-| Gemini     | `https://gemini.google.com`     |                                |
-| Grok       | `https://grok.com`              |                                |
-| Perplexity | `https://perplexity.ai`         |                                |
-| Mistral    | `https://chat.mistral.ai`       |                                |
-| Copilot    | `https://copilot.microsoft.com` |                                |
-| DeepSeek   | `https://chat.deepseek.com`     |                                |
-| Meta AI    | `https://www.meta.ai`           |                                |
-| Phind      | `https://phind.com`             | Dev-focused (code search + AI) |
+| Provider   | URL                             | Notes                      |
+| ---------- | ------------------------------- | -------------------------- |
+| Claude     | `https://claude.ai`             |                            |
+| ChatGPT    | `https://chatgpt.com`           |                            |
+| Gemini     | `https://gemini.google.com`     |                            |
+| Copilot    | `https://copilot.microsoft.com` |                            |
+| Perplexity | `https://perplexity.ai`         |                            |
+| Mistral    | `https://chat.mistral.ai`       | EU + open-source community |
 
 Detection is not needed — the list is static. All providers are always offered; the user's session (logged in or not) is their own business.
 

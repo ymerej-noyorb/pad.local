@@ -3,13 +3,16 @@ import { useEffect, useRef, useState } from "react";
 const PICKER_WIDTH = 200;
 const PICKER_BORDER_RADIUS = 8;
 const PICKER_PADDING = 4;
-const OPTION_PADDING = "0.4rem 0.75rem";
+const OPTION_PADDING = "0.3rem 0.75rem";
 const OPTION_BORDER_RADIUS = 6;
 const OPTION_FONT_SIZE = 13;
+const OPTION_ICON_SIZE = 16;
+const OPTION_ICON_GAP = 8;
 
 export interface PickerOption {
   value: string;
   label: string;
+  icon?: React.ReactNode;
 }
 
 interface PickerProps {
@@ -89,7 +92,9 @@ function PickerRow({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        display: "block",
+        display: "flex",
+        alignItems: "center",
+        gap: OPTION_ICON_GAP,
         width: "100%",
         padding: OPTION_PADDING,
         borderRadius: OPTION_BORDER_RADIUS,
@@ -102,6 +107,19 @@ function PickerRow({
         cursor: "pointer"
       }}
     >
+      {option.icon && (
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexShrink: 0,
+            width: OPTION_ICON_SIZE,
+            height: OPTION_ICON_SIZE
+          }}
+        >
+          {option.icon}
+        </span>
+      )}
       {option.label}
     </button>
   );

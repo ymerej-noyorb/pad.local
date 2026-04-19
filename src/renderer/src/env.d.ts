@@ -5,6 +5,7 @@ declare global {
     interface IntrinsicElements {
       webview: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         src?: string;
+        partition?: string;
         ref?: React.Ref<Electron.WebviewTag>;
       };
     }
