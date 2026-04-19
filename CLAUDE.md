@@ -11,7 +11,7 @@ It runs entirely on the developer's machine — no server, no auth, no database,
 
 The goal: any developer clones it, `npm install && npm run dev`, done.
 
-**Prerequisites:** Node.js v24 LTS and VS Code installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
+**Prerequisites:** Node.js v24 LTS and at least one of VS Code, Cursor, Windsurf, or VSCodium installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
 
 ---
 
@@ -67,6 +67,7 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 - VS Code — the default, uses `code serve-web`
 - Cursor — VS Code fork, inherits `serve-web`; only binary detection differs
 - Windsurf — VS Code fork, same as Cursor
+- VSCodium — VS Code fork, same as Cursor
 
 **Not supported:**
 
