@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
@@ -34,33 +34,35 @@ export default function App(): React.JSX.Element {
   const { initialData, ready, handleChange } = useScene();
   const handleScrollChange = useMemo(() => createScrollLock(setScrollLocked), []);
 
-  const renderEmbeddable: React.ComponentProps<typeof Excalidraw>["renderEmbeddable"] = (
-    element,
-    appState
-  ) => {
-    const type = element.customData?.type;
-    const theme = appState.theme === "light" ? "light" : "dark";
+  const renderEmbeddable = useCallback<
+    NonNullable<React.ComponentProps<typeof Excalidraw>["renderEmbeddable"]>
+  >(
+    (element, appState) => {
+      const type = element.customData?.type;
+      const theme = appState.theme === "light" ? "light" : "dark";
 
-    if (type === EMBEDDABLE_TYPE_EDITOR) {
-      const editorType = (element.customData?.editorType ?? "vscode") as EditorType;
-      return <Editor editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
-    }
+      if (type === EMBEDDABLE_TYPE_EDITOR) {
+        const editorType = (element.customData?.editorType ?? "vscode") as EditorType;
+        return <Editor editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
+      }
 
-    if (type === EMBEDDABLE_TYPE_TERMINAL) {
-      const shell = (element.customData?.shell ?? "") as string;
-      return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
-    }
+      if (type === EMBEDDABLE_TYPE_TERMINAL) {
+        const shell = (element.customData?.shell ?? "") as string;
+        return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
+      }
 
-    if (type === EMBEDDABLE_TYPE_AI) {
-      const providerId = element.customData?.providerId as AiProvider;
-      const url = element.customData?.url as string;
-      return (
-        <AiPanel providerId={providerId} url={url} theme={theme} scrollLocked={scrollLocked} />
-      );
-    }
+      if (type === EMBEDDABLE_TYPE_AI) {
+        const providerId = element.customData?.providerId as AiProvider;
+        const url = element.customData?.url as string;
+        return (
+          <AiPanel providerId={providerId} url={url} theme={theme} scrollLocked={scrollLocked} />
+        );
+      }
 
-    return null;
-  };
+      return null;
+    },
+    [scrollLocked]
+  );
 
   return (
     <div style={{ position: "fixed", inset: 0 }}>

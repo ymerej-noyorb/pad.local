@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 const FADE_OUT_TRANSITION = "opacity 0.3s";
+const OVERLAY_Z_INDEX = 9999;
 
 interface LoadingOverlayProps {
   icon: React.ReactNode;
@@ -12,7 +15,11 @@ export default function LoadingOverlay({
   color,
   background,
   loaded
-}: LoadingOverlayProps): React.JSX.Element {
+}: LoadingOverlayProps): React.JSX.Element | null {
+  const [hidden, setHidden] = useState(false);
+
+  if (hidden) return null;
+
   return (
     <div
       style={{
@@ -30,7 +37,10 @@ export default function LoadingOverlay({
         transition: loaded ? FADE_OUT_TRANSITION : "none",
         pointerEvents: "none",
         userSelect: "none",
-        zIndex: 9999
+        zIndex: OVERLAY_Z_INDEX
+      }}
+      onTransitionEnd={() => {
+        if (loaded) setHidden(true);
       }}
     >
       <div className="pad-pulse">{icon}</div>

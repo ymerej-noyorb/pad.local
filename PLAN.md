@@ -155,7 +155,7 @@ All four use identical `serve-web` args. Only binary detection and settings dir 
 
 ---
 
-## Step 5 — AI panel (any provider, OAuth in-webview)
+## Step 5 — AI panel (any provider, OAuth in-webview) ✅
 
 Goal: add an AI node to the canvas. The user picks a provider from a curated list; a webview opens directly on the provider's web interface. Authentication (OAuth, session cookies) is handled entirely by the webview — no API keys, no backend, no special integration required. Sessions persist across restarts via Electron's `partition="persist:ai-<providerId>"` — one isolated cookie store per provider.
 

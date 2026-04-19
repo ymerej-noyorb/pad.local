@@ -49,6 +49,12 @@ const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
   mistral: <Icon name="mistral" size={ICON_PX} />
 };
 
+const AI_OPTIONS: PickerOption[] = AI_PROVIDERS.map((provider) => ({
+  value: provider.id,
+  label: provider.label,
+  icon: AI_ICONS[provider.id]
+}));
+
 function getShellIcon(label: string): React.JSX.Element {
   const lower = label.toLowerCase();
   if (lower.includes("powershell"))
@@ -110,12 +116,6 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const editorButtonRef = useRef<HTMLButtonElement>(null);
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
-
-  const aiOptions: PickerOption[] = AI_PROVIDERS.map((provider) => ({
-    value: provider.id,
-    label: provider.label,
-    icon: AI_ICONS[provider.id]
-  }));
 
   useEffect(() => {
     window.api.detectEditors().then((editors: EditorInfo[]) => {
@@ -237,7 +237,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
 
       {activePicker === "ai" && (
         <Picker
-          options={aiOptions}
+          options={AI_OPTIONS}
           onSelect={handleAiSelect}
           onClose={() => setActivePicker(null)}
           anchorRef={aiButtonRef}

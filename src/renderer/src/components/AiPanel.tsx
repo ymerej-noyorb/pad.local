@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  IconBrandOpenai,
-  IconBrandGithubCopilot
-} from "@tabler/icons-react";
+import { IconBrandOpenai, IconBrandGithubCopilot } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import Icon from "./Icon";
 import LoadingOverlay from "./LoadingOverlay";
@@ -51,6 +48,8 @@ export default function AiPanel({
     if (!webview) return;
 
     const handleDomReady = (): void => {
+      // Electron's webview shadow-root contains an <iframe> with no explicit height.
+      // Without this patch the webview content does not fill its container.
       const innerIframe = webview.shadowRoot?.querySelector("iframe");
       if (innerIframe) {
         innerIframe.style.height = "100%";
