@@ -6,7 +6,8 @@ import "@excalidraw/excalidraw/index.css";
 import Editor from "./components/Editor";
 import Terminal from "./components/Terminal";
 import AiPanel from "./components/AiPanel";
-import Spinner from "./components/Spinner";
+import Icon from "./components/Icon";
+import LoadingOverlay from "./components/LoadingOverlay";
 import Toolbar from "./components/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
@@ -61,58 +62,49 @@ export default function App(): React.JSX.Element {
     return null;
   };
 
-  if (!ready) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: colors.base
-        }}
-      >
-        <Spinner size={28} color={colors.overlay0} />
-      </div>
-    );
-  }
-
   return (
     <div style={{ position: "fixed", inset: 0 }}>
-      <Excalidraw
-        excalidrawAPI={setExcalidrawAPI}
-        initialData={initialData ?? undefined}
-        gridModeEnabled
-        renderEmbeddable={renderEmbeddable}
-        validateEmbeddable={(link) =>
-          link === EMBEDDABLE_TYPE_EDITOR ||
-          link === EMBEDDABLE_TYPE_TERMINAL ||
-          link === EMBEDDABLE_TYPE_AI
-        }
-        onChange={handleChange}
-        onScrollChange={handleScrollChange}
-        renderTopRightUI={() =>
-          excalidrawAPI ? (
-            <div
-              style={{
-                position: "fixed",
-                bottom: "1.5rem",
-                left: 0,
-                right: 0,
-                display: "flex",
-                justifyContent: "center",
-                pointerEvents: "none",
-                zIndex: 10
-              }}
-            >
-              <div style={{ pointerEvents: "auto" }}>
-                <Toolbar excalidrawAPI={excalidrawAPI} />
+      {ready && (
+        <Excalidraw
+          excalidrawAPI={setExcalidrawAPI}
+          initialData={initialData ?? undefined}
+          gridModeEnabled
+          renderEmbeddable={renderEmbeddable}
+          validateEmbeddable={(link) =>
+            link === EMBEDDABLE_TYPE_EDITOR ||
+            link === EMBEDDABLE_TYPE_TERMINAL ||
+            link === EMBEDDABLE_TYPE_AI
+          }
+          onChange={handleChange}
+          onScrollChange={handleScrollChange}
+          renderTopRightUI={() =>
+            excalidrawAPI ? (
+              <div
+                style={{
+                  position: "fixed",
+                  bottom: "1.5rem",
+                  left: 0,
+                  right: 0,
+                  display: "flex",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                  zIndex: 10
+                }}
+              >
+                <div style={{ pointerEvents: "auto" }}>
+                  <Toolbar excalidrawAPI={excalidrawAPI} />
+                </div>
               </div>
-            </div>
-          ) : null
-        }
-        UIOptions={{ canvasActions: CANVAS_ACTIONS }}
+            ) : null
+          }
+          UIOptions={{ canvasActions: CANVAS_ACTIONS }}
+        />
+      )}
+      <LoadingOverlay
+        icon={<Icon name="excalidraw" size={48} />}
+        color={colors.overlay0}
+        background={colors.base}
+        loaded={ready && excalidrawAPI !== null}
       />
     </div>
   );

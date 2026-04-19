@@ -10,7 +10,8 @@ import {
   siZsh,
   siFishshell,
   siDash,
-  siNushell
+  siNushell,
+  siExcalidraw
 } from "simple-icons";
 
 const DEFAULT_SIZE = 16;
@@ -27,7 +28,8 @@ const SI_ICONS = {
   zsh: siZsh.path,
   fish: siFishshell.path,
   dash: siDash.path,
-  nushell: siNushell.path
+  nushell: siNushell.path,
+  excalidraw: siExcalidraw.path
 } as const;
 
 export type SiIconName = keyof typeof SI_ICONS;

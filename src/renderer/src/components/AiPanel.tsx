@@ -1,17 +1,33 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  IconBrandOpenai,
+  IconBrandGithubCopilot
+} from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
-import Spinner from "./Spinner";
+import Icon from "./Icon";
+import LoadingOverlay from "./LoadingOverlay";
 import type { AiProvider } from "../../../shared/types";
 
-const LOADING_FONT_SIZE = 14;
 const LOADING_BORDER_RADIUS = 4;
-const LOADING_GAP = 12;
-const LOADING_FONT_FAMILY = "monospace";
-const LOADING_FADE_OUT_TRANSITION = "opacity 0.3s";
+const LOADING_ICON_SIZE = 48;
+const TABLER_STROKE = 1.5;
 
-const TEXT = {
-  loading: "Loading…"
-} as const;
+function getProviderIcon(providerId: AiProvider): React.JSX.Element {
+  switch (providerId) {
+    case "claude":
+      return <Icon name="claude" size={LOADING_ICON_SIZE} />;
+    case "chatgpt":
+      return <IconBrandOpenai size={LOADING_ICON_SIZE} stroke={TABLER_STROKE} />;
+    case "gemini":
+      return <Icon name="gemini" size={LOADING_ICON_SIZE} />;
+    case "copilot":
+      return <IconBrandGithubCopilot size={LOADING_ICON_SIZE} stroke={TABLER_STROKE} />;
+    case "perplexity":
+      return <Icon name="perplexity" size={LOADING_ICON_SIZE} />;
+    case "mistral":
+      return <Icon name="mistral" size={LOADING_ICON_SIZE} />;
+  }
+}
 
 interface AiPanelProps {
   providerId: AiProvider;
@@ -57,27 +73,6 @@ export default function AiPanel({
     pointerEvents: scrollLocked ? "none" : "auto"
   };
 
-  const loadingStyle: React.CSSProperties = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: LOADING_GAP,
-    fontSize: LOADING_FONT_SIZE,
-    fontFamily: LOADING_FONT_FAMILY,
-    background: themeColors.base,
-    color: themeColors.text,
-    userSelect: "none",
-    opacity: loaded ? 0 : 1,
-    transition: loaded ? LOADING_FADE_OUT_TRANSITION : "none",
-    pointerEvents: "none"
-  };
-
   const webviewStyle: React.CSSProperties = {
     position: "absolute",
     top: 0,
@@ -96,10 +91,12 @@ export default function AiPanel({
         partition={`persist:ai-${providerId}`}
         style={webviewStyle}
       />
-      <div style={loadingStyle}>
-        <Spinner color={themeColors.overlay0} />
-        <span>{TEXT.loading}</span>
-      </div>
+      <LoadingOverlay
+        icon={getProviderIcon(providerId)}
+        color={themeColors.overlay0}
+        background={themeColors.base}
+        loaded={loaded}
+      />
     </div>
   );
 }
