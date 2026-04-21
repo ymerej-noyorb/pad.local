@@ -1,3 +1,5 @@
+![pad.local logo](docs/logo.png)
+
 # pad.local
 
 [![Node.js v24+](https://img.shields.io/badge/node-v24%2B-brightgreen)](https://nodejs.org)
@@ -24,7 +26,7 @@ Open source. No cloud. No auth. No database.
 
 The editor, terminal, and AI panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 
-![pad.local screenshot](docs/screenshot.png)
+![pad.local banner](docs/banner.png)
 
 ---
 
