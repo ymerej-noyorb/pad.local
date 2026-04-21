@@ -35,13 +35,14 @@ export function useScene(): {
     });
   }, []);
 
-  const handleChange: ExcalidrawChangeHandler = (elements, appState) => {
+  const handleChange: ExcalidrawChangeHandler = (elements, appState, files) => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       window.api.saveScene(
         JSON.stringify({
           elements,
-          appState: { scrollX: appState.scrollX, scrollY: appState.scrollY, theme: appState.theme }
+          appState: { scrollX: appState.scrollX, scrollY: appState.scrollY, theme: appState.theme },
+          files
         })
       );
     }, SAVE_DEBOUNCE_MS);
