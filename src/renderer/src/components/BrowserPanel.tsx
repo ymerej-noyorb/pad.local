@@ -52,7 +52,9 @@ export default function BrowserPanel({
   const [refreshHovered, setRefreshHovered] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const onUrlChangeRef = useRef(onUrlChange);
-  onUrlChangeRef.current = onUrlChange;
+  useEffect(() => {
+    onUrlChangeRef.current = onUrlChange;
+  }, [onUrlChange]);
   const themeColors = colorsByTheme[theme];
 
   const loaded = loadedSrc === src;
