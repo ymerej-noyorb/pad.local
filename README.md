@@ -9,7 +9,7 @@
 
 > Your local-first dev workspace. Build once, everything you need, zero infrastructure cost.
 
-pad.local is a desktop app inspired by [pad.ws](https://github.com/coderamp-labs/pad.ws), stripped down to its essence: a whiteboard, a code editor, a terminal, and an AI panel — all in one window, running entirely on your machine.
+pad.local is a desktop app inspired by [pad.ws](https://github.com/coderamp-labs/pad.ws), stripped down to its essence: a whiteboard, a code editor, a terminal, an AI panel, and a browser — all in one window, running entirely on your machine.
 
 Open source. No cloud. No auth. No database.
 
@@ -23,10 +23,13 @@ Open source. No cloud. No auth. No database.
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                   |
 | 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                 |
+| 🌐 Browser     | Embedded webview with address bar, dimension inputs, and DevTools                     |
 
-The editor, terminal, and AI panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
+All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 
 ![pad.local banner](docs/banner.png)
+
+![pad.local screenshot](docs/screenshot.png)
 
 ---
 
@@ -73,8 +76,9 @@ When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 - **New editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
 - **New terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
 - **New AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
+- **New browser** → a blank browser node appears instantly with an address bar — type a URL and hit Enter to load it; use the dimension inputs (W × H) to test responsive layouts at exact breakpoints; open the embedded DevTools to inspect the page
 
-Each Editor node runs an independent server on its own port. Multiple editors, terminals, and AI panels of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
+Each Editor node runs an independent server on its own port. Multiple editors, terminals, AI panels, and browser nodes of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
 
 Everything runs locally. Nothing leaves your machine.
 
@@ -82,7 +86,10 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Persistence
 
-- Excalidraw scene (elements, positions) → saved as a local JSON file
+- Excalidraw scene (elements, positions, zoom level) → saved as a local JSON file
+- Terminal working directory → restored on next launch (zsh and fish only via OSC 7)
+- Editor last opened folder/workspace → restored on next launch
+- AI sessions → persistent per provider (you stay logged in across restarts)
 - Editor / terminal → your actual filesystem, no abstraction
 
 ---

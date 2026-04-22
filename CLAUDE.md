@@ -36,7 +36,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | Frontend      | React + TypeScript            | Familiar, component-based                                         |
 | Whiteboard    | Excalidraw                    | Open source, embeddable, same approach as pad.ws                  |
 | Editor        | VS Code `serve-web`           | Full VS Code experience, no extra install if VS Code is present   |
-| Panels        | Excalidraw `renderEmbeddable` | Editor, terminal, and AI are nodes in the canvas, like pad.ws     |
+| Panels        | Excalidraw `renderEmbeddable` | Editor, terminal, AI, and browser are nodes in the canvas         |
 | Bundler       | electron-vite                 | Vite for renderer, Electron-aware, fast HMR                       |
 
 ---
@@ -79,7 +79,7 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 
 ## Key behaviors
 
-- On app launch: Electron main process is ready; `serve-web` and PTY are spawned on demand when the user creates an Editor or Terminal node
+- On app launch: Electron main process is ready; `serve-web` and PTY are spawned on demand when the user creates an Editor or Terminal node; AI and Browser webviews are created on demand in the renderer
 - On app close: Electron kills all `serve-web` processes and PTYs cleanly
 - The user can add Editor, Terminal, AI, and Browser nodes anywhere on the Excalidraw canvas via a toolbar
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)
