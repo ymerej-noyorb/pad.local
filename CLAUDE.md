@@ -21,8 +21,8 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | ----------- | ------------------------------------------------------------------------------------------------ |
 | Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes                     |
 | Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium                   |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node              |
-| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers          |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node               |
+| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers           |
 | Browser     | Generic `<webview>` with address bar and dimension inputs — for local responsive dev and testing |
 
 ---
