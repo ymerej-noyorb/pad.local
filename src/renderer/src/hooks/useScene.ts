@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Excalidraw } from "@excalidraw/excalidraw";
-import type { SavedScene } from "../types/scene";
+import type { SavedScene, NormalizedZoomValue } from "../types/scene";
 
 type ExcalidrawChangeHandler = NonNullable<React.ComponentProps<typeof Excalidraw>["onChange"]>;
 
@@ -24,7 +24,15 @@ export function useScene(): {
     window.api.loadScene().then((json: string | null) => {
       if (json) {
         try {
-          setInitialData(JSON.parse(json));
+          const parsed = JSON.parse(json) as SavedScene;
+          // JSON deserializes zoom.value as a plain number; cast it back to the branded type.
+          if (parsed.appState?.zoom !== undefined) {
+            parsed.appState = {
+              ...parsed.appState,
+              zoom: { value: parsed.appState.zoom.value as NormalizedZoomValue }
+            };
+          }
+          setInitialData(parsed);
         } catch {
           setInitialData(DEFAULT_SCENE);
         }
@@ -41,7 +49,12 @@ export function useScene(): {
       window.api.saveScene(
         JSON.stringify({
           elements,
-          appState: { scrollX: appState.scrollX, scrollY: appState.scrollY, theme: appState.theme },
+          appState: {
+            scrollX: appState.scrollX,
+            scrollY: appState.scrollY,
+            zoom: appState.zoom,
+            theme: appState.theme
+          },
           files
         })
       );

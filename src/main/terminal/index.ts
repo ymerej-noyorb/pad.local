@@ -9,6 +9,7 @@ const CWD_SAVE_DEBOUNCE_MS = 1000;
 
 // OSC 7 sequences emitted by zsh and fish on every directory change:
 // ESC ] 7 ; file://hostname/path BEL   or   ESC ] 7 ; file://hostname/path ESC \
+// eslint-disable-next-line no-control-regex
 const OSC7_REGEX = /\x1b\]7;([^\x07\x1b]+)(?:\x07|\x1b\\)/g;
 
 const sessions = new Map<string, IPty>();

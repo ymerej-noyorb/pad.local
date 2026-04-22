@@ -36,7 +36,6 @@ function normalizeUrl(input: string): string {
 }
 
 export default function BrowserPanel({
-  elementId: _elementId,
   url: initialUrl,
   width,
   height,
@@ -47,16 +46,16 @@ export default function BrowserPanel({
 }: BrowserPanelProps): React.JSX.Element {
   const [src, setSrc] = useState(initialUrl);
   const [addressInput, setAddressInput] = useState(initialUrl);
-  const [loaded, setLoaded] = useState(false);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [devtoolsHovered, setDevtoolsHovered] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
 
+  const loaded = loadedSrc === src;
+
   useEffect(() => {
     const webview = webviewRef.current;
     if (!webview || !src) return;
-
-    setLoaded(false);
 
     const handleDomReady = (): void => {
       // Electron's webview shadow-root contains an <iframe> with no explicit height.
@@ -65,7 +64,7 @@ export default function BrowserPanel({
       if (innerIframe) {
         innerIframe.style.height = "100%";
       }
-      setLoaded(true);
+      setLoadedSrc(src);
     };
 
     webview.addEventListener("dom-ready", handleDomReady);
@@ -234,12 +233,7 @@ export default function BrowserPanel({
       </div>
       <div style={webviewContainerStyle}>
         {src && (
-          <webview
-            ref={webviewRef}
-            src={src}
-            partition="persist:browser"
-            style={webviewStyle}
-          />
+          <webview ref={webviewRef} src={src} partition="persist:browser" style={webviewStyle} />
         )}
         {src && (
           <LoadingOverlay
