@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IconWorld, IconBug } from "@tabler/icons-react";
+import { IconWorld, IconBug, IconRefresh } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import { patchWebviewIframeHeight } from "../lib/patchWebview";
 import LoadingOverlay from "./LoadingOverlay";
@@ -14,6 +14,7 @@ const TABLER_STROKE = 1.5;
 
 const TEXT = {
   addressPlaceholder: "Enter URL (e.g. http://localhost:3000)",
+  refresh: "Refresh",
   devtools: "DevTools",
   dimensionSeparator: "×"
 } as const;
@@ -48,7 +49,12 @@ export default function BrowserPanel({
   const [addressInput, setAddressInput] = useState(initialUrl);
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [devtoolsHovered, setDevtoolsHovered] = useState(false);
+  const [refreshHovered, setRefreshHovered] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
+  const onUrlChangeRef = useRef(onUrlChange);
+  useEffect(() => {
+    onUrlChangeRef.current = onUrlChange;
+  }, [onUrlChange]);
   const themeColors = colorsByTheme[theme];
 
   const loaded = loadedSrc === src;
@@ -62,9 +68,24 @@ export default function BrowserPanel({
       setLoadedSrc(src);
     };
 
+    const handleDidNavigate = (event: Electron.DidNavigateEvent): void => {
+      setAddressInput(event.url);
+      onUrlChangeRef.current(event.url);
+    };
+
+    const handleDidNavigateInPage = (event: Electron.DidNavigateInPageEvent): void => {
+      if (!event.isMainFrame) return;
+      setAddressInput(event.url);
+      onUrlChangeRef.current(event.url);
+    };
+
     webview.addEventListener("dom-ready", handleDomReady);
+    webview.addEventListener("did-navigate", handleDidNavigate);
+    webview.addEventListener("did-navigate-in-page", handleDidNavigateInPage);
     return () => {
       webview.removeEventListener("dom-ready", handleDomReady);
+      webview.removeEventListener("did-navigate", handleDidNavigate);
+      webview.removeEventListener("did-navigate-in-page", handleDidNavigateInPage);
     };
   }, [src]);
 
@@ -131,6 +152,21 @@ export default function BrowserPanel({
     flexShrink: 0
   };
 
+  const iconButtonStyle = (hovered: boolean): React.CSSProperties => ({
+    height: 26,
+    width: 26,
+    padding: 0,
+    background: hovered ? themeColors.surface1 : "transparent",
+    border: `1px solid ${themeColors.surface1}`,
+    borderRadius: BORDER_RADIUS,
+    color: themeColors.text,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  });
+
   const devtoolsButtonStyle: React.CSSProperties = {
     height: 26,
     padding: "0 0.4rem",
@@ -186,6 +222,15 @@ export default function BrowserPanel({
     <div style={containerStyle}>
       <div style={topBarStyle}>
         <IconWorld size={ICON_SIZE} stroke={TABLER_STROKE} color={themeColors.overlay0} />
+        <button
+          style={iconButtonStyle(refreshHovered)}
+          onClick={() => webviewRef.current?.reload()}
+          onMouseEnter={() => setRefreshHovered(true)}
+          onMouseLeave={() => setRefreshHovered(false)}
+          title={TEXT.refresh}
+        >
+          <IconRefresh size={ICON_SIZE} stroke={TABLER_STROKE} />
+        </button>
         <input
           type="text"
           value={addressInput}
