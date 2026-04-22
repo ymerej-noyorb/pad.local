@@ -1,8 +1,4 @@
-/**
- * Design tokens — Catppuccin palette
- * https://catppuccin.com/palette
- * dark → Mocha, light → Latte
- */
+// Design tokens — Catppuccin Mocha (dark) / Latte (light): https://catppuccin.com/palette
 export const colorsByTheme = {
   dark: {
     base: "#1e1e2e", // main background

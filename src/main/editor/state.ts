@@ -18,12 +18,14 @@ function loadAll(): Record<string, string> {
   }
 }
 
+// Loaded once at module init — avoids re-reading the file on every URL lookup.
+const urlCache: Record<string, string> = loadAll();
+
 export function loadEditorUrl(type: EditorType): string | null {
-  return loadAll()[type] ?? null;
+  return urlCache[type] ?? null;
 }
 
 export async function saveEditorUrl(type: EditorType, url: string): Promise<void> {
-  const all = loadAll();
-  all[type] = url;
-  await writeFile(editorUrlFilePath(), JSON.stringify(all), "utf-8");
+  urlCache[type] = url;
+  await writeFile(editorUrlFilePath(), JSON.stringify(urlCache), "utf-8");
 }

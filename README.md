@@ -1,10 +1,17 @@
+![pad.local logo](docs/logo.png)
+
 # pad.local
+
+[![Node.js v24+](https://img.shields.io/badge/node-v24%2B-brightgreen)](https://nodejs.org)
+[![Electron](https://img.shields.io/badge/built%20with-Electron-47848F)](https://www.electronjs.org)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://github.com/ymerej-noyorb/pad.local)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 > Your local-first dev workspace. Build once, everything you need, zero infrastructure cost.
 
-pad.local is a desktop app inspired by [pad.ws](https://github.com/coderamp-labs/pad.ws), stripped down to its essence: a whiteboard, a code editor, and a terminal — all in one window, running entirely on your machine.
+pad.local is a desktop app inspired by [pad.ws](https://github.com/coderamp-labs/pad.ws), stripped down to its essence: a whiteboard, a code editor, a terminal, and an AI panel — all in one window, running entirely on your machine.
 
-No cloud. No auth. No database. No monthly bill.
+Open source. No cloud. No auth. No database.
 
 ---
 
@@ -15,9 +22,11 @@ No cloud. No auth. No database. No monthly bill.
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                           |
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                   |
-| 🤖 AI          | Claude, ChatGPT, Gemini, Grok, Perplexity, Mistral, Copilot, DeepSeek, Meta AI, Phind |
+| 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                 |
 
 The editor, terminal, and AI panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
+
+![pad.local banner](docs/banner.png)
 
 ---
 
@@ -30,7 +39,7 @@ npm install
 npm run dev
 ```
 
-Prerequisites: Node.js v24 LTS (v24.14.1+) and VS Code installed on your machine.
+Prerequisites: Node.js v24 LTS (v24.14.1+) and at least one of VS Code, Cursor, Windsurf, or VSCodium installed on your machine.
 
 Supported platforms: macOS, Windows, Linux. **WSL is not supported.**
 
@@ -52,7 +61,7 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 - **[React](https://react.dev/) + TypeScript** — UI
 - **[electron-vite](https://electron-vite.org/)** — Build tooling
 - **[Excalidraw](https://github.com/excalidraw/excalidraw)** — Fullscreen canvas
-- **[VS Code](https://code.visualstudio.com/)** — Editor, served via `code serve-web`
+- **[VS Code](https://code.visualstudio.com/)** (or Cursor, Windsurf, VSCodium) — Editor, served via `serve-web`
 - **[xterm.js](https://xtermjs.org/) + [node-pty](https://github.com/microsoft/node-pty)** — Terminal
 
 ---
@@ -61,9 +70,9 @@ Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.
 
 When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 
-- **Add Editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
-- **Add Terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
-- **Add AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
+- **New editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
+- **New terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
+- **New AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
 
 Each Editor node runs an independent server on its own port. Multiple editors, terminals, and AI panels of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
 
@@ -82,7 +91,7 @@ Everything runs locally. Nothing leaves your machine.
 
 - **Local first** — works offline, always
 - **Zero infra** — no server, no database, no auth
-- **Clone and run** — Node.js + VS Code are the only prerequisites
+- **Clone and run** — Node.js + a VS Code fork are the only prerequisites
 
 ---
 
@@ -95,6 +104,12 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Inspired by
 
-[pad.ws](https://github.com/coderamp-labs/pad.ws) — great concept, now abandoned (last commit Aug 2025, site down). pad.local is the "just run it" version.
+[pad.ws](https://github.com/coderamp-labs/pad.ws) — great concept, now abandoned (last commit Aug 2025, site down). pad.local is the "just run it" version — and adds an AI panel that pad.ws never had.
 
 [ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.
+
+---
+
+## License
+
+[MIT](LICENSE)

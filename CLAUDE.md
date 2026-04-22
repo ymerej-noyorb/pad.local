@@ -11,18 +11,19 @@ It runs entirely on the developer's machine — no server, no auth, no database,
 
 The goal: any developer clones it, `npm install && npm run dev`, done.
 
-**Prerequisites:** Node.js v24 LTS and VS Code installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
+**Prerequisites:** Node.js v24 LTS and at least one of VS Code, Cursor, Windsurf, or VSCodium installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
 
 ---
 
 ## Core panels
 
-| Panel       | Implementation                                                                         |
-| ----------- | -------------------------------------------------------------------------------------- |
-| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes           |
-| Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium         |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node     |
-| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers |
+| Panel       | Implementation                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes                     |
+| Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium                   |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node               |
+| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers           |
+| Browser     | Generic `<webview>` with address bar and dimension inputs — for local responsive dev and testing |
 
 ---
 
@@ -67,6 +68,7 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 - VS Code — the default, uses `code serve-web`
 - Cursor — VS Code fork, inherits `serve-web`; only binary detection differs
 - Windsurf — VS Code fork, same as Cursor
+- VSCodium — VS Code fork, same as Cursor
 
 **Not supported:**
 
@@ -79,10 +81,14 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 
 - On app launch: Electron main process is ready; `serve-web` and PTY are spawned on demand when the user creates an Editor or Terminal node
 - On app close: Electron kills all `serve-web` processes and PTYs cleanly
-- The user can add Editor, Terminal, and AI nodes anywhere on the Excalidraw canvas via a toolbar
+- The user can add Editor, Terminal, AI, and Browser nodes anywhere on the Excalidraw canvas via a toolbar
 - Nodes are draggable and resizable directly in the canvas (Excalidraw handles it)
 - During canvas pan/scroll, embedded iframes have `pointer-events: none` to avoid capture
-- Excalidraw scene (elements + positions) is auto-saved to a local JSON file on change
+- Excalidraw scene (elements + positions, including zoom level) is auto-saved to a local JSON file on change
+- **Terminal CWD persistence** — OSC 7 escape sequences emitted by zsh and fish are parsed to track the working directory per terminal ID; the CWD is restored on the next launch. bash, PowerShell, and cmd do not emit OSC 7 and always start from `$HOME`.
+- **PTY lifecycle vs React component** — PTY sessions are intentionally NOT killed when the Terminal React component unmounts (e.g. during Excalidraw re-renders). On Windows, killing a ConPTY propagates `STATUS_CONTROL_C_EXIT` to any PTY spawned shortly after in the same console group; decoupling the lifecycle avoids this race. Sessions are cleaned up by `killAllTerminals()` on app close.
+- **Browser session** — all Browser nodes share a single Electron session (`partition="persist:browser"`). This gives them shared cookies and storage, which is intentional for local dev use (one login = accessible from all nodes).
+- **AI sessions** — each AI provider gets its own isolated session (`partition="persist:ai-<providerId>"`), so logging into Claude does not affect the ChatGPT session and vice versa.
 
 ---
 

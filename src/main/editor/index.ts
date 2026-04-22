@@ -19,6 +19,7 @@ interface EditorSession {
 }
 
 const sessions = new Map<EditorType, EditorSession>();
+const erroredTypes = new Set<EditorType>();
 
 function findDesktopSettingsPath(type: EditorType): string | null {
   const appNames: Record<EditorType, string> = {
@@ -135,6 +136,7 @@ function broadcastReady(type: EditorType): void {
 }
 
 function broadcastError(type: EditorType): void {
+  erroredTypes.add(type);
   BrowserWindow.getAllWindows().forEach((window) => {
     window.webContents.send("editor:error", type);
   });
@@ -157,18 +159,18 @@ export function startEditor(type: EditorType): void {
   }
 
   const args = buildServeWebArgs(type, port);
-  const process = spawnProcess(binary, args);
+  const editorProcess = spawnProcess(binary, args);
 
-  const session: EditorSession = { process, port, ready: false, pollTimer: null };
+  const session: EditorSession = { process: editorProcess, port, ready: false, pollTimer: null };
   sessions.set(type, session);
 
-  process.on("error", (error) => {
+  editorProcess.on("error", (error) => {
     console.error(`[editor:${type}] Failed to start serve-web:`, error.message);
     sessions.delete(type);
     broadcastError(type);
   });
 
-  process.on("exit", () => {
+  editorProcess.on("exit", () => {
     sessions.delete(type);
   });
 
@@ -192,8 +194,8 @@ export function getEditorReady(type: EditorType): boolean {
   return sessions.get(type)?.ready ?? false;
 }
 
-export function getEditorError(): boolean {
-  return false;
+export function getEditorError(type: EditorType): boolean {
+  return erroredTypes.has(type);
 }
 
 export function getEditorPort(type: EditorType): number {

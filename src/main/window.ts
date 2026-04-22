@@ -45,6 +45,20 @@ function allowVSCodeEmbedding(): void {
   );
 }
 
+// Browser nodes all use partition="persist:browser". We strip framing headers so arbitrary
+// URLs (including those that set X-Frame-Options) can be embedded in the webview.
+function allowBrowserEmbedding(): void {
+  const browserSession = session.fromPartition("persist:browser");
+  browserSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = { ...details.responseHeaders };
+    delete responseHeaders["x-frame-options"];
+    delete responseHeaders["X-Frame-Options"];
+    delete responseHeaders["content-security-policy"];
+    delete responseHeaders["Content-Security-Policy"];
+    callback({ responseHeaders });
+  });
+}
+
 // Each AI provider webview uses partition="persist:ai-<id>", so requests go through
 // that partition's session — not defaultSession. We strip framing headers on each one.
 function allowAiEmbedding(): void {
@@ -65,6 +79,7 @@ export function createWindow(): void {
   forceEnglishLocale();
   allowVSCodeEmbedding();
   allowAiEmbedding();
+  allowBrowserEmbedding();
 
   const mainWindow = new BrowserWindow({
     width: WINDOW_WIDTH,

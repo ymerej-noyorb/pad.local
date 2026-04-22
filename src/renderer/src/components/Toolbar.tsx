@@ -9,7 +9,8 @@ import {
   IconBrandGithubCopilot,
   IconCode,
   IconTerminal,
-  IconRobot
+  IconRobot,
+  IconBrowser
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
 import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../shared/types";
@@ -30,7 +31,8 @@ const ISLAND_PADDING = "0.375rem";
 const TEXT = {
   addEditor: "New editor",
   addTerminal: "New terminal",
-  addAi: "New AI"
+  addAi: "New AI",
+  addBrowser: "New browser"
 } as const;
 
 const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
@@ -168,6 +170,20 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
     excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
   }
 
+  function handleBrowserAdd(): void {
+    const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
+    const existingElements = excalidrawAPI.getSceneElements();
+    const newElement = createEmbeddableElement(
+      "browser",
+      { url: "" },
+      scrollX,
+      scrollY,
+      zoom.value,
+      existingElements
+    );
+    excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
+  }
+
   function handleAiSelect(providerId: string): void {
     setActivePicker(null);
     const provider = AI_PROVIDERS.find((p) => p.id === providerId);
@@ -214,6 +230,11 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           icon={<IconRobot size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addAi}
           onClick={() => setActivePicker(activePicker === "ai" ? null : "ai")}
+        />
+        <ToolButton
+          icon={<IconBrowser size={ICON_PX} stroke={TABLER_STROKE} />}
+          title={TEXT.addBrowser}
+          onClick={handleBrowserAdd}
         />
       </div>
 

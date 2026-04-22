@@ -46,8 +46,8 @@ export function createEmbeddableElement(
   zoom: number,
   existingElements: readonly SceneElement[]
 ): ExcalidrawEmbeddableElement {
-  const baseX = (window.innerWidth / 2 - scrollX) / zoom - NODE_WIDTH / 2;
-  const baseY = (window.innerHeight / 2 - scrollY) / zoom - NODE_HEIGHT / 2;
+  const baseX = window.innerWidth / 2 / zoom - scrollX - NODE_WIDTH / 2;
+  const baseY = window.innerHeight / 2 / zoom - scrollY - NODE_HEIGHT / 2;
   const { x, y } = findNonOverlappingPosition(baseX, baseY, existingElements);
 
   return {

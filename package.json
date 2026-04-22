@@ -4,6 +4,7 @@
   "description": "A local-first desktop dev workspace — Excalidraw canvas with embedded VS Code editor and terminal",
   "main": "./out/main/index.js",
   "author": "ymerej-noyorb",
+  "license": "MIT",
   "homepage": "https://github.com/ymerej-noyorb/pad.local",
   "scripts": {
     "format": "prettier --write .",
