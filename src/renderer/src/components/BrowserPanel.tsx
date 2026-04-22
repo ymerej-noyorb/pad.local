@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IconWorld, IconBug } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
+import { patchWebviewIframeHeight } from "../lib/patchWebview";
 import LoadingOverlay from "./LoadingOverlay";
 
 const TOP_BAR_HEIGHT = 40;
@@ -18,7 +19,6 @@ const TEXT = {
 } as const;
 
 interface BrowserPanelProps {
-  elementId: string;
   url: string;
   width: number;
   height: number;
@@ -58,12 +58,7 @@ export default function BrowserPanel({
     if (!webview || !src) return;
 
     const handleDomReady = (): void => {
-      // Electron's webview shadow-root contains an <iframe> with no explicit height.
-      // Without this patch the webview content does not fill its container.
-      const innerIframe = webview.shadowRoot?.querySelector("iframe");
-      if (innerIframe) {
-        innerIframe.style.height = "100%";
-      }
+      patchWebviewIframeHeight(webview);
       setLoadedSrc(src);
     };
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IconBrandVscode } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
+import { patchWebviewIframeHeight } from "../lib/patchWebview";
 import Icon from "./Icon";
 import LoadingOverlay from "./LoadingOverlay";
 import type { EditorType } from "../../../shared/types";
@@ -75,11 +76,11 @@ export default function Editor({
       if (isReady) setServerReady(true);
     });
 
-    window.api.getEditorPort(editorType).then((port) => {
-      window.api.loadEditorUrl(editorType).then((savedUrl) => {
+    Promise.all([window.api.getEditorPort(editorType), window.api.loadEditorUrl(editorType)]).then(
+      ([port, savedUrl]) => {
         setEditorUrl(savedUrl ?? `http://localhost:${port}`);
-      });
-    });
+      }
+    );
 
     return () => {
       unsubscribeError();
@@ -93,12 +94,7 @@ export default function Editor({
     if (!webview) return;
 
     const handleDomReady = (): void => {
-      // The Electron webview shadow-root contains an <iframe> with no explicit height,
-      // which prevents VS Code from filling the webview viewport. We patch it here.
-      const innerIframe = webview.shadowRoot?.querySelector("iframe");
-      if (innerIframe) {
-        innerIframe.style.height = "100%";
-      }
+      patchWebviewIframeHeight(webview);
 
       // Wait for VS Code's workbench to finish initialising before revealing the editor.
       // VS Code sets document.title once the workbench is fully rendered (~500 ms after

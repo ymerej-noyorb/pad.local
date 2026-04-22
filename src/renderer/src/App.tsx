@@ -65,7 +65,6 @@ export default function App(): React.JSX.Element {
         const url = (element.customData?.url ?? "") as string;
         return (
           <BrowserPanel
-            elementId={element.id}
             url={url}
             width={element.width}
             height={element.height}

@@ -118,7 +118,6 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const editorButtonRef = useRef<HTMLButtonElement>(null);
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
-  const browserButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     window.api.detectEditors().then((editors: EditorInfo[]) => {
@@ -233,7 +232,6 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onClick={() => setActivePicker(activePicker === "ai" ? null : "ai")}
         />
         <ToolButton
-          buttonRef={browserButtonRef}
           icon={<IconBrowser size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addBrowser}
           onClick={handleBrowserAdd}
