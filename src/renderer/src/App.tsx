@@ -73,18 +73,20 @@ export default function App(): React.JSX.Element {
             scrollLocked={scrollLocked}
             onResize={(width, height) => {
               excalidrawAPI?.updateScene({
-                elements: excalidrawAPI.getSceneElements().map((el) =>
-                  el.id === element.id ? { ...el, width, height } : el
-                )
+                elements: excalidrawAPI
+                  .getSceneElements()
+                  .map((el) => (el.id === element.id ? { ...el, width, height } : el))
               });
             }}
             onUrlChange={(newUrl) => {
               excalidrawAPI?.updateScene({
-                elements: excalidrawAPI.getSceneElements().map((el) =>
-                  el.id === element.id
-                    ? { ...el, customData: { ...el.customData, url: newUrl } }
-                    : el
-                )
+                elements: excalidrawAPI
+                  .getSceneElements()
+                  .map((el) =>
+                    el.id === element.id
+                      ? { ...el, customData: { ...el.customData, url: newUrl } }
+                      : el
+                  )
               });
             }}
           />
