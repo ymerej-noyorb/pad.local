@@ -1,7 +1,7 @@
 import { BrowserWindow, shell, session } from "electron";
 import { join } from "path";
 import { is } from "@electron-toolkit/utils";
-import icon from "../../resources/icon.png?asset";
+import icon from "../../build/icon.png?asset";
 import { EDITOR_PORTS } from "./constants";
 import { AI_PROVIDERS } from "../shared/aiProviders";
 
@@ -87,7 +87,7 @@ export function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     backgroundColor: "#1e1e2e", // Catppuccin Mocha: base — avoids white flash before renderer loads
-    ...(process.platform === "linux" ? { icon } : {}),
+    icon,
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,
