@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const PICKER_MIN_WIDTH = 200;
+const PICKER_Z_INDEX = 9999;
 const PICKER_BORDER_RADIUS = 8;
 const PICKER_PADDING = 6;
 const OPTION_HEIGHT = "2.25rem";
@@ -69,7 +70,7 @@ export default function Picker({
         borderRadius: PICKER_BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",
         padding: PICKER_PADDING,
-        zIndex: 9999
+        zIndex: PICKER_Z_INDEX
       }}
     >
       {options.map((option) => (

@@ -6,6 +6,7 @@ import "@excalidraw/excalidraw/index.css";
 import Editor from "./components/Editor";
 import Terminal from "./components/Terminal";
 import AiPanel from "./components/AiPanel";
+import BrowserPanel from "./components/BrowserPanel";
 import Icon from "./components/Icon";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Toolbar from "./components/Toolbar";
@@ -17,6 +18,7 @@ import type { AiProvider, EditorType } from "../../shared/types";
 const EMBEDDABLE_TYPE_EDITOR = "editor";
 const EMBEDDABLE_TYPE_TERMINAL = "terminal";
 const EMBEDDABLE_TYPE_AI = "ai";
+const EMBEDDABLE_TYPE_BROWSER = "browser";
 
 const CANVAS_ACTIONS = {
   changeViewBackgroundColor: false,
@@ -59,9 +61,40 @@ export default function App(): React.JSX.Element {
         );
       }
 
+      if (type === EMBEDDABLE_TYPE_BROWSER) {
+        const url = (element.customData?.url ?? "") as string;
+        return (
+          <BrowserPanel
+            url={url}
+            width={element.width}
+            height={element.height}
+            theme={theme}
+            scrollLocked={scrollLocked}
+            onResize={(width, height) => {
+              excalidrawAPI?.updateScene({
+                elements: excalidrawAPI
+                  .getSceneElements()
+                  .map((el) => (el.id === element.id ? { ...el, width, height } : el))
+              });
+            }}
+            onUrlChange={(newUrl) => {
+              excalidrawAPI?.updateScene({
+                elements: excalidrawAPI
+                  .getSceneElements()
+                  .map((el) =>
+                    el.id === element.id
+                      ? { ...el, customData: { ...el.customData, url: newUrl } }
+                      : el
+                  )
+              });
+            }}
+          />
+        );
+      }
+
       return null;
     },
-    [scrollLocked]
+    [scrollLocked, excalidrawAPI]
   );
 
   return (
@@ -75,7 +108,8 @@ export default function App(): React.JSX.Element {
           validateEmbeddable={(link) =>
             link === EMBEDDABLE_TYPE_EDITOR ||
             link === EMBEDDABLE_TYPE_TERMINAL ||
-            link === EMBEDDABLE_TYPE_AI
+            link === EMBEDDABLE_TYPE_AI ||
+            link === EMBEDDABLE_TYPE_BROWSER
           }
           onChange={handleChange}
           onScrollChange={handleScrollChange}

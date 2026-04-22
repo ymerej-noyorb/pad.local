@@ -1,1 +1,1 @@
-export type EmbeddableType = "editor" | "terminal" | "ai";
+export type EmbeddableType = "editor" | "terminal" | "ai" | "browser";
