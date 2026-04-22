@@ -195,7 +195,7 @@ export default function BrowserPanel({
           style={addressInputStyle}
         />
         <input
-          key={width}
+          key={"w" + width}
           type="number"
           defaultValue={Math.round(width)}
           onBlur={(event) => commitWidth(event.target.value)}
@@ -206,7 +206,7 @@ export default function BrowserPanel({
         />
         <span style={separatorStyle}>{TEXT.dimensionSeparator}</span>
         <input
-          key={height + 1}
+          key={"h" + height}
           type="number"
           defaultValue={Math.round(height)}
           onBlur={(event) => commitHeight(event.target.value)}
