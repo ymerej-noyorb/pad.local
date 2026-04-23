@@ -33,7 +33,7 @@ interface DeviceGroup {
   devices: DevicePreset[];
 }
 
-export const TOUCH_CAPABLE_GROUPS = new Set(["Phones", "Tablets"]);
+const TOUCH_CAPABLE_GROUPS = new Set(["Phones", "Tablets"]);
 
 const DEVICE_GROUPS: DeviceGroup[] = [
   {

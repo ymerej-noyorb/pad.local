@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { IconWorld, IconBug, IconRefresh, IconDevices, IconHandFinger } from "@tabler/icons-react";
-import DeviceDropdown, { TOUCH_CAPABLE_GROUPS } from "./DeviceDropdown";
+import DeviceDropdown from "./DeviceDropdown";
 import { colorsByTheme } from "../../theme";
 import { patchWebviewIframeHeight } from "../../lib/patchWebview";
 import LoadingOverlay from "../LoadingOverlay";
