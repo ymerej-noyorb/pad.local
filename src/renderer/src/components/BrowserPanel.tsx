@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { IconWorld, IconBug, IconRefresh, IconDevices, IconHandFinger } from "@tabler/icons-react";
+import {
+  IconWorld,
+  IconBug,
+  IconRefresh,
+  IconDevices,
+  IconHandFinger,
+  IconPlus,
+  IconX
+} from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import { patchWebviewIframeHeight } from "../lib/patchWebview";
 import LoadingOverlay from "./LoadingOverlay";
@@ -15,6 +23,7 @@ const DROPDOWN_WIDTH = 240;
 const DROPDOWN_MAX_HEIGHT = 320;
 const DROPDOWN_ITEM_HEIGHT = 32;
 const DROPDOWN_GROUP_LABEL_FONT_SIZE = 11;
+const CUSTOM_DEVICES_STORAGE_KEY = "pad.local:customDevices";
 
 const TEXT = {
   addressPlaceholder: "Enter URL (e.g. http://localhost:3000)",
@@ -23,7 +32,12 @@ const TEXT = {
   touchOff: "Touch simulation: off",
   responsive: "Responsive",
   devtools: "DevTools",
-  dimensionSeparator: "×"
+  dimensionSeparator: "×",
+  customGroup: "Custom",
+  addDevice: "Add custom size",
+  addDeviceNamePlaceholder: "Name",
+  addDeviceConfirm: "Add",
+  deleteDevice: "Delete"
 } as const;
 
 interface DevicePreset {
@@ -150,6 +164,19 @@ export default function BrowserPanel({
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [devicesHovered, setDevicesHovered] = useState(false);
   const [hoveredDeviceName, setHoveredDeviceName] = useState<string | null>(null);
+  const [customDevices, setCustomDevices] = useState<DevicePreset[]>(() => {
+    try {
+      const stored = localStorage.getItem(CUSTOM_DEVICES_STORAGE_KEY);
+      return stored ? (JSON.parse(stored) as DevicePreset[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newDeviceName, setNewDeviceName] = useState("");
+  const [newDeviceWidth, setNewDeviceWidth] = useState("");
+  const [newDeviceHeight, setNewDeviceHeight] = useState("");
+  const [hoveredDeleteIndex, setHoveredDeleteIndex] = useState<number | null>(null);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const onUrlChangeRef = useRef(onUrlChange);
@@ -160,6 +187,26 @@ export default function BrowserPanel({
   useEffect(() => {
     onTouchStateChangeRef.current = onTouchStateChange;
   }, [onTouchStateChange]);
+  useEffect(() => {
+    localStorage.setItem(CUSTOM_DEVICES_STORAGE_KEY, JSON.stringify(customDevices));
+  }, [customDevices]);
+
+  function handleAddDevice(): void {
+    const name = newDeviceName.trim();
+    const width = Number(newDeviceWidth);
+    const height = Number(newDeviceHeight);
+    if (!name || width <= 0 || height <= 0) return;
+    setCustomDevices((prev) => [...prev, { name, width, height }]);
+    setNewDeviceName("");
+    setNewDeviceWidth("");
+    setNewDeviceHeight("");
+    setShowAddForm(false);
+  }
+
+  function handleDeleteCustomDevice(index: number): void {
+    setCustomDevices((prev) => prev.filter((_, deviceIndex) => deviceIndex !== index));
+  }
+
   const isTouchStateMounted = useRef(false);
   useEffect(() => {
     if (!isTouchStateMounted.current) {
@@ -261,7 +308,7 @@ export default function BrowserPanel({
 
   function commitHeight(rawValue: string): void {
     const value = Number(rawValue);
-    if (value > 0) onResize(width, value);
+    if (value > 0) onResize(width, value + TOP_BAR_HEIGHT);
   }
 
   const topBarStyle: React.CSSProperties = {
@@ -415,6 +462,60 @@ export default function BrowserPanel({
     flexShrink: 0
   };
 
+  const dropdownDividerStyle: React.CSSProperties = {
+    height: 1,
+    background: themeColors.surface1,
+    margin: "0.25rem 0"
+  };
+
+  const dropdownDeleteButtonStyle = (hovered: boolean): React.CSSProperties => ({
+    height: 20,
+    width: 20,
+    padding: 0,
+    background: hovered ? themeColors.red : "transparent",
+    border: "none",
+    borderRadius: BORDER_RADIUS,
+    color: hovered ? themeColors.base : themeColors.overlay0,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  });
+
+  const dropdownAddRowStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    padding: "0.375rem 0.5rem"
+  };
+
+  const dropdownAddInputStyle: React.CSSProperties = {
+    height: 24,
+    padding: "0 0.25rem",
+    background: themeColors.base,
+    border: `1px solid ${themeColors.surface1}`,
+    borderRadius: BORDER_RADIUS,
+    color: themeColors.text,
+    fontSize: INPUT_FONT_SIZE,
+    outline: "none",
+    fontFamily: "inherit"
+  };
+
+  const dropdownAddButtonStyle: React.CSSProperties = {
+    height: 24,
+    padding: "0 0.4rem",
+    background: themeColors.blue,
+    border: "none",
+    borderRadius: BORDER_RADIUS,
+    color: themeColors.base,
+    fontSize: INPUT_FONT_SIZE,
+    cursor: "pointer",
+    fontFamily: "inherit",
+    flexShrink: 0,
+    fontWeight: 600
+  };
+
   return (
     <div ref={containerRef} style={containerStyle}>
       <div style={topBarStyle}>
@@ -452,7 +553,7 @@ export default function BrowserPanel({
             <input
               key={"h" + height}
               type="number"
-              defaultValue={Math.round(height)}
+              defaultValue={Math.round(height) - TOP_BAR_HEIGHT}
               onBlur={(event) => commitHeight(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") commitHeight(event.currentTarget.value);
@@ -514,6 +615,73 @@ export default function BrowserPanel({
               onClick={() => setDevicesOpen(false)}
             />
             <div style={dropdownStyle}>
+              {customDevices.length > 0 && (
+                <div>
+                  <div style={dropdownGroupLabelStyle}>{TEXT.customGroup}</div>
+                  {customDevices.map((device, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        ...dropdownItemStyle(hoveredDeviceName === `custom-${index}`),
+                        paddingRight: "0.25rem",
+                        gap: "0.5rem"
+                      }}
+                      onMouseEnter={() => setHoveredDeviceName(`custom-${index}`)}
+                      onMouseLeave={() => setHoveredDeviceName(null)}
+                    >
+                      <button
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          background: "transparent",
+                          border: "none",
+                          color: themeColors.text,
+                          fontSize: INPUT_FONT_SIZE,
+                          cursor: "pointer",
+                          padding: 0,
+                          fontFamily: "inherit",
+                          minWidth: 0
+                        }}
+                        onClick={() => {
+                          if (!touchEnabled) setTouchEnabled(false);
+                          setTouchCapable(false);
+                          onResize(device.width, device.height + TOP_BAR_HEIGHT);
+                          setDevicesOpen(false);
+                        }}
+                      >
+                        <span
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            textAlign: "left"
+                          }}
+                        >
+                          {device.name}
+                        </span>
+                        <span style={{ ...dropdownItemDimsStyle, marginLeft: "0.5rem" }}>
+                          {device.width}×{device.height}
+                        </span>
+                      </button>
+                      <button
+                        style={dropdownDeleteButtonStyle(hoveredDeleteIndex === index)}
+                        onMouseEnter={() => setHoveredDeleteIndex(index)}
+                        onMouseLeave={() => setHoveredDeleteIndex(null)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteCustomDevice(index);
+                        }}
+                        title={TEXT.deleteDevice}
+                      >
+                        <IconX size={12} stroke={TABLER_STROKE} />
+                      </button>
+                    </div>
+                  ))}
+                  <div style={dropdownDividerStyle} />
+                </div>
+              )}
               {DEVICE_GROUPS.map((group) => (
                 <div key={group.label}>
                   <div style={dropdownGroupLabelStyle}>{group.label}</div>
@@ -539,6 +707,81 @@ export default function BrowserPanel({
                   ))}
                 </div>
               ))}
+              <div style={dropdownDividerStyle} />
+              {showAddForm ? (
+                <div>
+                  <div style={dropdownAddRowStyle}>
+                    <input
+                      type="text"
+                      placeholder={TEXT.addDeviceNamePlaceholder}
+                      value={newDeviceName}
+                      onChange={(event) => setNewDeviceName(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") handleAddDevice();
+                        if (event.key === "Escape") setShowAddForm(false);
+                      }}
+                      style={{ ...dropdownAddInputStyle, flex: 1, minWidth: 0 }}
+                      autoFocus
+                    />
+                  </div>
+                  <div style={dropdownAddRowStyle}>
+                    <input
+                      type="number"
+                      placeholder="W"
+                      value={newDeviceWidth}
+                      onChange={(event) => setNewDeviceWidth(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") handleAddDevice();
+                        if (event.key === "Escape") setShowAddForm(false);
+                      }}
+                      style={{
+                        ...dropdownAddInputStyle,
+                        width: DIMENSION_INPUT_WIDTH,
+                        textAlign: "center"
+                      }}
+                    />
+                    <span style={separatorStyle}>{TEXT.dimensionSeparator}</span>
+                    <input
+                      type="number"
+                      placeholder="H"
+                      value={newDeviceHeight}
+                      onChange={(event) => setNewDeviceHeight(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") handleAddDevice();
+                        if (event.key === "Escape") setShowAddForm(false);
+                      }}
+                      style={{
+                        ...dropdownAddInputStyle,
+                        width: DIMENSION_INPUT_WIDTH,
+                        textAlign: "center"
+                      }}
+                    />
+                    <button style={dropdownAddButtonStyle} onClick={handleAddDevice}>
+                      {TEXT.addDeviceConfirm}
+                    </button>
+                    <button
+                      style={dropdownDeleteButtonStyle(false)}
+                      onClick={() => setShowAddForm(false)}
+                    >
+                      <IconX size={12} stroke={TABLER_STROKE} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  style={{
+                    ...dropdownItemStyle(hoveredDeviceName === "__add__"),
+                    color: themeColors.overlay0,
+                    gap: "0.375rem"
+                  }}
+                  onMouseEnter={() => setHoveredDeviceName("__add__")}
+                  onMouseLeave={() => setHoveredDeviceName(null)}
+                  onClick={() => setShowAddForm(true)}
+                >
+                  <IconPlus size={ICON_SIZE} stroke={TABLER_STROKE} />
+                  {TEXT.addDevice}
+                </button>
+              )}
             </div>
           </>
         )}
