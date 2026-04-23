@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IconWorld, IconBug, IconRefresh } from "@tabler/icons-react";
+import { IconWorld, IconBug, IconRefresh, IconDevices } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import { patchWebviewIframeHeight } from "../lib/patchWebview";
 import LoadingOverlay from "./LoadingOverlay";
@@ -11,13 +11,97 @@ const INPUT_FONT_SIZE = 13;
 const DIMENSION_INPUT_WIDTH = 56;
 const BORDER_RADIUS = 4;
 const TABLER_STROKE = 1.5;
+const DROPDOWN_WIDTH = 240;
+const DROPDOWN_MAX_HEIGHT = 320;
+const DROPDOWN_ITEM_HEIGHT = 32;
+const DROPDOWN_GROUP_LABEL_FONT_SIZE = 11;
 
 const TEXT = {
   addressPlaceholder: "Enter URL (e.g. http://localhost:3000)",
   refresh: "Refresh",
+  responsive: "Responsive",
   devtools: "DevTools",
   dimensionSeparator: "×"
 } as const;
+
+interface DevicePreset {
+  name: string;
+  width: number;
+  height: number;
+}
+
+interface DeviceGroup {
+  label: string;
+  devices: DevicePreset[];
+}
+
+const DEVICE_GROUPS: DeviceGroup[] = [
+  {
+    label: "Phones",
+    devices: [
+      { name: "Galaxy Note 9", width: 414, height: 846 },
+      { name: "Galaxy S10/S10+", width: 360, height: 760 },
+      { name: "Galaxy S20", width: 360, height: 800 },
+      { name: "Galaxy S20+", width: 384, height: 854 },
+      { name: "Galaxy S25", width: 360, height: 780 },
+      { name: "Galaxy S25+", width: 384, height: 832 },
+      { name: "Galaxy S25 Ultra", width: 384, height: 824 },
+      { name: "Galaxy S9/S9+", width: 360, height: 740 },
+      { name: "iPhone 11 Pro", width: 375, height: 812 },
+      { name: "iPhone 11 Pro Max", width: 414, height: 896 },
+      { name: "iPhone 12/13 + Pro", width: 390, height: 844 },
+      { name: "iPhone 12/13 Pro Max", width: 428, height: 926 },
+      { name: "iPhone 12/13 mini", width: 375, height: 812 },
+      { name: "iPhone 14 / 15 / 16", width: 390, height: 844 },
+      { name: "iPhone 14 / 15 / 16 Plus", width: 430, height: 932 },
+      { name: "iPhone 15 / 16 Pro", width: 393, height: 852 },
+      { name: "iPhone 16 Pro Max", width: 430, height: 932 },
+      { name: "iPhone 17 / 17 Pro", width: 393, height: 852 },
+      { name: "iPhone 17 Pro Max", width: 440, height: 956 },
+      { name: "iPhone Air", width: 390, height: 844 },
+      { name: "iPhone SE", width: 375, height: 667 },
+      { name: "iPhone X/XS", width: 375, height: 812 },
+      { name: "iPhone XR/11", width: 414, height: 896 },
+      { name: "iPhone XS Max", width: 414, height: 896 },
+      { name: "Pixel 5", width: 393, height: 851 },
+      { name: "Pixel 8 / 9 (Chrome)", width: 412, height: 915 },
+      { name: "Pixel 8 / 9 (Firefox)", width: 412, height: 915 }
+    ]
+  },
+  {
+    label: "Tablets",
+    devices: [
+      { name: "Galaxy Tab S9", width: 800, height: 1280 },
+      { name: "Galaxy Tab S9 Ultra", width: 848, height: 1312 },
+      { name: "Galaxy Tab S9+", width: 832, height: 1280 },
+      { name: "iPad", width: 768, height: 1024 },
+      { name: "iPad (10th / 11th gen)", width: 820, height: 1180 },
+      { name: "iPad Air", width: 820, height: 1180 },
+      { name: "iPad Mini", width: 768, height: 1024 },
+      { name: "iPad Mini (6th gen)", width: 744, height: 1133 },
+      { name: "iPad Pro 11-inch (M4)", width: 834, height: 1194 },
+      { name: "iPad Pro 11-inch (old)", width: 834, height: 1194 },
+      { name: "iPad Pro 12.9-inch (old)", width: 1024, height: 1366 },
+      { name: "iPad Pro 13-inch (M4)", width: 1032, height: 1376 }
+    ]
+  },
+  {
+    label: "Laptops",
+    devices: [
+      { name: "Laptop with HiDPI screen", width: 1440, height: 900 },
+      { name: "Laptop with MDPI screen", width: 1280, height: 800 },
+      { name: "Laptop with touch", width: 1280, height: 950 }
+    ]
+  },
+  {
+    label: "TVs",
+    devices: [
+      { name: "720p HD Television", width: 1280, height: 720 },
+      { name: "1080p Full HD Television", width: 1920, height: 1080 },
+      { name: "4K Ultra HD Television", width: 3840, height: 2160 }
+    ]
+  }
+];
 
 interface BrowserPanelProps {
   url: string;
@@ -50,6 +134,9 @@ export default function BrowserPanel({
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [devtoolsHovered, setDevtoolsHovered] = useState(false);
   const [refreshHovered, setRefreshHovered] = useState(false);
+  const [devicesOpen, setDevicesOpen] = useState(false);
+  const [devicesHovered, setDevicesHovered] = useState(false);
+  const [hoveredDeviceName, setHoveredDeviceName] = useState<string | null>(null);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const onUrlChangeRef = useRef(onUrlChange);
   useEffect(() => {
@@ -218,6 +305,50 @@ export default function BrowserPanel({
     border: "none"
   };
 
+  const dropdownStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    width: DROPDOWN_WIDTH,
+    maxHeight: DROPDOWN_MAX_HEIGHT,
+    overflowY: "auto",
+    background: themeColors.surface0,
+    border: `1px solid ${themeColors.surface1}`,
+    borderRadius: BORDER_RADIUS,
+    zIndex: 10
+  };
+
+  const dropdownGroupLabelStyle: React.CSSProperties = {
+    padding: "0.375rem 0.5rem 0.125rem",
+    fontSize: DROPDOWN_GROUP_LABEL_FONT_SIZE,
+    color: themeColors.overlay0,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    userSelect: "none"
+  };
+
+  const dropdownItemStyle = (hovered: boolean): React.CSSProperties => ({
+    width: "100%",
+    height: DROPDOWN_ITEM_HEIGHT,
+    padding: "0 0.5rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    background: hovered ? themeColors.surface1 : "transparent",
+    border: "none",
+    color: themeColors.text,
+    fontSize: INPUT_FONT_SIZE,
+    cursor: "pointer",
+    textAlign: "left",
+    fontFamily: "inherit"
+  });
+
+  const dropdownItemDimsStyle: React.CSSProperties = {
+    color: themeColors.overlay0,
+    fontSize: INPUT_FONT_SIZE - 1,
+    flexShrink: 0
+  };
+
   return (
     <div style={containerStyle}>
       <div style={topBarStyle}>
@@ -261,6 +392,15 @@ export default function BrowserPanel({
           style={dimInputStyle}
         />
         <button
+          style={iconButtonStyle(devicesHovered)}
+          onClick={() => setDevicesOpen((open) => !open)}
+          onMouseEnter={() => setDevicesHovered(true)}
+          onMouseLeave={() => setDevicesHovered(false)}
+          title={TEXT.responsive}
+        >
+          <IconDevices size={ICON_SIZE} stroke={TABLER_STROKE} />
+        </button>
+        <button
           style={devtoolsButtonStyle}
           onClick={() => webviewRef.current?.openDevTools()}
           onMouseEnter={() => setDevtoolsHovered(true)}
@@ -282,6 +422,38 @@ export default function BrowserPanel({
             background={themeColors.base}
             loaded={loaded}
           />
+        )}
+        {devicesOpen && (
+          <>
+            <div
+              style={{ position: "absolute", inset: 0, zIndex: 9 }}
+              onClick={() => setDevicesOpen(false)}
+            />
+            <div style={dropdownStyle}>
+              {DEVICE_GROUPS.map((group) => (
+                <div key={group.label}>
+                  <div style={dropdownGroupLabelStyle}>{group.label}</div>
+                  {group.devices.map((device) => (
+                    <button
+                      key={device.name}
+                      style={dropdownItemStyle(hoveredDeviceName === device.name)}
+                      onMouseEnter={() => setHoveredDeviceName(device.name)}
+                      onMouseLeave={() => setHoveredDeviceName(null)}
+                      onClick={() => {
+                        onResize(device.width, device.height + TOP_BAR_HEIGHT);
+                        setDevicesOpen(false);
+                      }}
+                    >
+                      <span>{device.name}</span>
+                      <span style={dropdownItemDimsStyle}>
+                        {device.width}×{device.height}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
