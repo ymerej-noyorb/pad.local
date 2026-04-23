@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, webContents, screen, BrowserWindow } from "electron";
 import { loadScene, saveScene } from "./scene";
 import { startEditor, getEditorReady, getEditorError, getEditorPort } from "./editor";
 import { loadEditorUrl, saveEditorUrl } from "./editor/state";
@@ -31,5 +31,33 @@ export function registerIpcHandlers(): void {
   ipcMain.handle("terminal:write", (_event, id: string, data: string) => writeTerminal(id, data));
   ipcMain.handle("terminal:resize", (_event, id: string, cols: number, rows: number) =>
     resizeTerminal(id, cols, rows)
+  );
+
+  ipcMain.handle("cursor:getPosition", () => {
+    const cursorPos = screen.getCursorScreenPoint();
+    const win = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    const contentBounds = win?.getContentBounds() ?? { x: 0, y: 0 };
+    return { x: cursorPos.x - contentBounds.x, y: cursorPos.y - contentBounds.y };
+  });
+
+  ipcMain.handle(
+    "browser:setTouchEmulation",
+    async (_event, webContentsId: number, enabled: boolean) => {
+      const wc = webContents.fromId(webContentsId);
+      if (!wc) return;
+      try {
+        if (!wc.debugger.isAttached()) wc.debugger.attach("1.3");
+        await wc.debugger.sendCommand("Emulation.setTouchEmulationEnabled", {
+          enabled,
+          maxTouchPoints: 5
+        });
+        await wc.debugger.sendCommand("Emulation.setEmitTouchEventsForMouse", {
+          enabled,
+          configuration: "mobile"
+        });
+      } catch {
+        // DevTools is open and holds the debugger — silently skip
+      }
+    }
   );
 }

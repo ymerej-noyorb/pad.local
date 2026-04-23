@@ -40,6 +40,11 @@ const api = {
     ipcRenderer.invoke("terminal:write", id, data),
   terminalResize: (id: string, cols: number, rows: number): Promise<void> =>
     ipcRenderer.invoke("terminal:resize", id, cols, rows),
+  browserSetTouchEmulation: (webContentsId: number, enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke("browser:setTouchEmulation", webContentsId, enabled),
+  getCursorPosition: (): Promise<{ x: number; y: number }> =>
+    ipcRenderer.invoke("cursor:getPosition"),
+
   onTerminalData: (callback: (id: string, data: string) => void): (() => void) => {
     const handler = (
       _event: Electron.IpcRendererEvent,
