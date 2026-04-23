@@ -7,6 +7,7 @@ export const colorsByTheme = {
     overlay0: "#6c7086", // borders / strokes
     text: "#cdd6f4", // primary text
     red: "#f38ba8", // error text
+    blue: "#89b4fa", // accent
     shadow: "rgba(0,0,0,0.5)"
   },
   light: {
@@ -16,6 +17,7 @@ export const colorsByTheme = {
     overlay0: "#9ca0b0", // borders / strokes
     text: "#4c4f69", // primary text
     red: "#d20f39", // error text
+    blue: "#1e66f5", // accent
     shadow: "rgba(0,0,0,0.15)"
   }
 } as const;

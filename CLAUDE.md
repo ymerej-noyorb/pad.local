@@ -17,13 +17,13 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 ## Core panels
 
-| Panel       | Implementation                                                                                   |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes                     |
-| Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium                   |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node               |
-| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers           |
-| Browser     | Generic `<webview>` with address bar and dimension inputs — for local responsive dev and testing |
+| Panel       | Implementation                                                                                                              |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes                                                |
+| Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium                                              |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node                                          |
+| AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers                                      |
+| Browser     | Generic `<webview>` with address bar, device presets, touch simulation, and DevTools — for local responsive dev and testing |
 
 ---
 
@@ -88,6 +88,9 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 - **Terminal CWD persistence** — OSC 7 escape sequences emitted by zsh and fish are parsed to track the working directory per terminal ID; the CWD is restored on the next launch. bash, PowerShell, and cmd do not emit OSC 7 and always start from `$HOME`.
 - **PTY lifecycle vs React component** — PTY sessions are intentionally NOT killed when the Terminal React component unmounts (e.g. during Excalidraw re-renders). On Windows, killing a ConPTY propagates `STATUS_CONTROL_C_EXIT` to any PTY spawned shortly after in the same console group; decoupling the lifecycle avoids this race. Sessions are cleaned up by `killAllTerminals()` on app close.
 - **Browser session** — all Browser nodes share a single Electron session (`partition="persist:browser"`). This gives them shared cookies and storage, which is intentional for local dev use (one login = accessible from all nodes).
+- **Browser URL tracking** — the address bar updates automatically on in-page navigation via `did-navigate` and `did-navigate-in-page` webview events, so the displayed URL always reflects the current page.
+- **Browser device presets** — a dropdown lists the full Firefox device list (phones, tablets, laptops, TVs) plus user-defined custom sizes persisted in `localStorage`. Selecting a preset resizes the Excalidraw node instantly. Dimension inputs show viewport dimensions (without the toolbar height) and are hidden in phone/tablet view.
+- **Browser touch simulation** — phone and tablet presets expose a touch toggle. When enabled, CDP `Emulation.setTouchEmulationEnabled` + `Emulation.setEmitTouchEventsForMouse` are applied to the webview's WebContents. Because CDP operates at the Chromium compositor level and consumes hover mouse events globally, cursor-in-panel detection uses `screen.getCursorScreenPoint()` polled from the main process every 50 ms rather than DOM events. `touchCapable` and `touchEnabled` are persisted in the Excalidraw element's `customData` and restored on the next launch.
 - **AI sessions** — each AI provider gets its own isolated session (`partition="persist:ai-<providerId>"`), so logging into Claude does not affect the ChatGPT session and vice versa.
 
 ---

@@ -6,7 +6,7 @@ import "@excalidraw/excalidraw/index.css";
 import Editor from "./components/Editor";
 import Terminal from "./components/Terminal";
 import AiPanel from "./components/AiPanel";
-import BrowserPanel from "./components/BrowserPanel";
+import BrowserPanel from "./components/Browser";
 import Icon from "./components/Icon";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Toolbar from "./components/Toolbar";
@@ -63,9 +63,13 @@ export default function App(): React.JSX.Element {
 
       if (type === EMBEDDABLE_TYPE_BROWSER) {
         const url = (element.customData?.url ?? "") as string;
+        const touchCapable = (element.customData?.touchCapable ?? false) as boolean;
+        const touchEnabled = (element.customData?.touchEnabled ?? false) as boolean;
         return (
           <BrowserPanel
             url={url}
+            touchCapable={touchCapable}
+            touchEnabled={touchEnabled}
             width={element.width}
             height={element.height}
             theme={theme}
@@ -86,6 +90,22 @@ export default function App(): React.JSX.Element {
                       ? { ...el, customData: { ...el.customData, url: newUrl } }
                       : el
                   )
+              });
+            }}
+            onTouchStateChange={(newTouchCapable, newTouchEnabled) => {
+              excalidrawAPI?.updateScene({
+                elements: excalidrawAPI.getSceneElements().map((el) =>
+                  el.id === element.id
+                    ? {
+                        ...el,
+                        customData: {
+                          ...el.customData,
+                          touchCapable: newTouchCapable,
+                          touchEnabled: newTouchEnabled
+                        }
+                      }
+                    : el
+                )
               });
             }}
           />

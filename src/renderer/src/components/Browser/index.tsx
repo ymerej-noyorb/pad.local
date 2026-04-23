@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { IconWorld, IconBug, IconRefresh } from "@tabler/icons-react";
-import { colorsByTheme } from "../theme";
-import { patchWebviewIframeHeight } from "../lib/patchWebview";
-import LoadingOverlay from "./LoadingOverlay";
+import { IconWorld, IconBug, IconRefresh, IconDevices, IconHandFinger } from "@tabler/icons-react";
+import DeviceDropdown from "./DeviceDropdown";
+import { colorsByTheme } from "../../theme";
+import { patchWebviewIframeHeight } from "../../lib/patchWebview";
+import LoadingOverlay from "../LoadingOverlay";
 
 const TOP_BAR_HEIGHT = 40;
 const ICON_SIZE = 16;
@@ -15,18 +16,24 @@ const TABLER_STROKE = 1.5;
 const TEXT = {
   addressPlaceholder: "Enter URL (e.g. http://localhost:3000)",
   refresh: "Refresh",
+  touchOn: "Touch simulation: on",
+  touchOff: "Touch simulation: off",
+  responsive: "Responsive",
   devtools: "DevTools",
   dimensionSeparator: "×"
 } as const;
 
 interface BrowserPanelProps {
   url: string;
+  touchCapable: boolean;
+  touchEnabled: boolean;
   width: number;
   height: number;
   theme: "dark" | "light";
   scrollLocked: boolean;
   onResize: (width: number, height: number) => void;
   onUrlChange: (url: string) => void;
+  onTouchStateChange: (touchCapable: boolean, touchEnabled: boolean) => void;
 }
 
 function normalizeUrl(input: string): string {
@@ -38,23 +45,44 @@ function normalizeUrl(input: string): string {
 
 export default function BrowserPanel({
   url: initialUrl,
+  touchCapable: initialTouchCapable,
+  touchEnabled: initialTouchEnabled,
   width,
   height,
   theme,
   scrollLocked,
   onResize,
-  onUrlChange
+  onUrlChange,
+  onTouchStateChange
 }: BrowserPanelProps): React.JSX.Element {
   const [src, setSrc] = useState(initialUrl);
   const [addressInput, setAddressInput] = useState(initialUrl);
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [devtoolsHovered, setDevtoolsHovered] = useState(false);
   const [refreshHovered, setRefreshHovered] = useState(false);
+  const [touchCapable, setTouchCapable] = useState(initialTouchCapable);
+  const [touchEnabled, setTouchEnabled] = useState(initialTouchEnabled);
+  const [touchHovered, setTouchHovered] = useState(false);
+  const [devicesOpen, setDevicesOpen] = useState(false);
+  const [devicesHovered, setDevicesHovered] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const onUrlChangeRef = useRef(onUrlChange);
   useEffect(() => {
     onUrlChangeRef.current = onUrlChange;
   }, [onUrlChange]);
+  const onTouchStateChangeRef = useRef(onTouchStateChange);
+  useEffect(() => {
+    onTouchStateChangeRef.current = onTouchStateChange;
+  }, [onTouchStateChange]);
+  const isTouchStateMounted = useRef(false);
+  useEffect(() => {
+    if (!isTouchStateMounted.current) {
+      isTouchStateMounted.current = true;
+      return;
+    }
+    onTouchStateChangeRef.current(touchCapable, touchEnabled);
+  }, [touchCapable, touchEnabled]);
   const themeColors = colorsByTheme[theme];
 
   const loaded = loadedSrc === src;
@@ -101,6 +129,46 @@ export default function BrowserPanel({
     if (event.key === "Enter") handleNavigate();
   }
 
+  useEffect(() => {
+    if (!touchEnabled) return;
+
+    const webview = webviewRef.current;
+    if (!webview) return;
+
+    let touchActive = false;
+
+    const syncCdp = (inside: boolean): void => {
+      if (inside === touchActive) return;
+      touchActive = inside;
+      window.api.browserSetTouchEmulation(webview.getWebContentsId(), inside);
+    };
+
+    // DOM mouse events are unreliable here: CDP setEmitTouchEventsForMouse operates at the
+    // Chromium compositor level and converts/consumes hover mousemove across the entire window,
+    // so document.mousemove and container.mouseleave do not fire during hover.
+    // Polling screen.getCursorScreenPoint() from the main process bypasses the event pipeline.
+    const POLL_INTERVAL_MS = 50;
+    const pollId = setInterval(async () => {
+      const pos = await window.api.getCursorPosition();
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const inside =
+        pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom;
+      syncCdp(inside);
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      clearInterval(pollId);
+      if (touchActive) {
+        window.api.browserSetTouchEmulation(webview.getWebContentsId(), false);
+      }
+    };
+  }, [touchEnabled]);
+
+  function handleToggleTouch(): void {
+    setTouchEnabled((prev) => !prev);
+  }
+
   function commitWidth(rawValue: string): void {
     const value = Number(rawValue);
     if (value > 0) onResize(value, height);
@@ -108,7 +176,7 @@ export default function BrowserPanel({
 
   function commitHeight(rawValue: string): void {
     const value = Number(rawValue);
-    if (value > 0) onResize(width, value);
+    if (value > 0) onResize(width, value + TOP_BAR_HEIGHT);
   }
 
   const topBarStyle: React.CSSProperties = {
@@ -218,8 +286,19 @@ export default function BrowserPanel({
     border: "none"
   };
 
+  function handleDeviceSelect(
+    deviceWidth: number,
+    deviceHeight: number,
+    touchCapable: boolean
+  ): void {
+    if (!touchCapable && touchEnabled) setTouchEnabled(false);
+    setTouchCapable(touchCapable);
+    onResize(deviceWidth, deviceHeight + TOP_BAR_HEIGHT);
+    setDevicesOpen(false);
+  }
+
   return (
-    <div style={containerStyle}>
+    <div ref={containerRef} style={containerStyle}>
       <div style={topBarStyle}>
         <IconWorld size={ICON_SIZE} stroke={TABLER_STROKE} color={themeColors.overlay0} />
         <button
@@ -239,27 +318,54 @@ export default function BrowserPanel({
           placeholder={TEXT.addressPlaceholder}
           style={addressInputStyle}
         />
-        <input
-          key={"w" + width}
-          type="number"
-          defaultValue={Math.round(width)}
-          onBlur={(event) => commitWidth(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") commitWidth(event.currentTarget.value);
-          }}
-          style={dimInputStyle}
-        />
-        <span style={separatorStyle}>{TEXT.dimensionSeparator}</span>
-        <input
-          key={"h" + height}
-          type="number"
-          defaultValue={Math.round(height)}
-          onBlur={(event) => commitHeight(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") commitHeight(event.currentTarget.value);
-          }}
-          style={dimInputStyle}
-        />
+        {!touchCapable && (
+          <>
+            <input
+              key={"w" + width}
+              type="number"
+              defaultValue={Math.round(width)}
+              onBlur={(event) => commitWidth(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitWidth(event.currentTarget.value);
+              }}
+              style={dimInputStyle}
+            />
+            <span style={separatorStyle}>{TEXT.dimensionSeparator}</span>
+            <input
+              key={"h" + height}
+              type="number"
+              defaultValue={Math.round(height) - TOP_BAR_HEIGHT}
+              onBlur={(event) => commitHeight(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitHeight(event.currentTarget.value);
+              }}
+              style={dimInputStyle}
+            />
+          </>
+        )}
+        <button
+          style={iconButtonStyle(devicesHovered)}
+          onClick={() => setDevicesOpen((open) => !open)}
+          onMouseEnter={() => setDevicesHovered(true)}
+          onMouseLeave={() => setDevicesHovered(false)}
+          title={TEXT.responsive}
+        >
+          <IconDevices size={ICON_SIZE} stroke={TABLER_STROKE} />
+        </button>
+        {touchCapable && (
+          <button
+            style={{
+              ...iconButtonStyle(touchHovered || touchEnabled),
+              color: touchEnabled ? themeColors.blue : themeColors.text
+            }}
+            onClick={handleToggleTouch}
+            onMouseEnter={() => setTouchHovered(true)}
+            onMouseLeave={() => setTouchHovered(false)}
+            title={touchEnabled ? TEXT.touchOn : TEXT.touchOff}
+          >
+            <IconHandFinger size={ICON_SIZE} stroke={TABLER_STROKE} />
+          </button>
+        )}
         <button
           style={devtoolsButtonStyle}
           onClick={() => webviewRef.current?.openDevTools()}
@@ -281,6 +387,13 @@ export default function BrowserPanel({
             color={themeColors.overlay0}
             background={themeColors.base}
             loaded={loaded}
+          />
+        )}
+        {devicesOpen && (
+          <DeviceDropdown
+            theme={theme}
+            onSelect={handleDeviceSelect}
+            onClose={() => setDevicesOpen(false)}
           />
         )}
       </div>
