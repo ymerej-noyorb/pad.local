@@ -23,7 +23,7 @@ Open source. No cloud. No auth. No database.
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                   |
 | 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                 |
-| 🌐 Browser     | Embedded webview with address bar, dimension inputs, and DevTools                     |
+| 🌐 Browser     | Embedded webview with address bar, device presets (Firefox list + custom sizes), touch simulation, and DevTools |
 
 All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
 
@@ -76,7 +76,7 @@ When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 - **New editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
 - **New terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
 - **New AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
-- **New browser** → a blank browser node appears instantly with an address bar — type a URL and hit Enter to load it; use the dimension inputs (W × H) to test responsive layouts at exact breakpoints; open the embedded DevTools to inspect the page
+- **New browser** → a blank browser node appears instantly with an address bar — type a URL and hit Enter to load it; pick a device from the preset dropdown (full Firefox device list + custom sizes) to resize the node instantly; enable touch simulation for phone/tablet presets to test touch interactions; open the embedded DevTools to inspect the page
 
 Each Editor node runs an independent server on its own port. Multiple editors, terminals, AI panels, and browser nodes of different types can coexist on the same canvas. Each AI provider keeps its own isolated session — you stay logged in across restarts.
 
