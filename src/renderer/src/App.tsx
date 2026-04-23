@@ -6,7 +6,7 @@ import "@excalidraw/excalidraw/index.css";
 import Editor from "./components/Editor";
 import Terminal from "./components/Terminal";
 import AiPanel from "./components/AiPanel";
-import BrowserPanel from "./components/BrowserPanel";
+import BrowserPanel from "./components/Browser";
 import Icon from "./components/Icon";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Toolbar from "./components/Toolbar";
