@@ -17,12 +17,12 @@ Open source. No cloud. No auth. No database.
 
 ## What's inside
 
-| Panel          | Tech                                                                                  |
-| -------------- | ------------------------------------------------------------------------------------- |
-| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                           |
-| 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings |
-| 🖥️ Terminal    | xterm.js + node-pty                                                                   |
-| 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                 |
+| Panel          | Tech                                                                                                            |
+| -------------- | --------------------------------------------------------------------------------------------------------------- |
+| 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                                                     |
+| 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings                           |
+| 🖥️ Terminal    | xterm.js + node-pty                                                                                             |
+| 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                                           |
 | 🌐 Browser     | Embedded webview with address bar, device presets (Firefox list + custom sizes), touch simulation, and DevTools |
 
 All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
