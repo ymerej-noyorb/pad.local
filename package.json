@@ -1,6 +1,6 @@
 {
   "name": "padlocal",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "A local-first desktop dev workspace — Excalidraw canvas with embedded VS Code editor and terminal",
   "main": "./out/main/index.js",
   "author": "ymerej-noyorb",
