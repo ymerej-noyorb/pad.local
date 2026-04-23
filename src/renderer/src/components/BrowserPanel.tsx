@@ -374,7 +374,7 @@ export default function BrowserPanel({
   const dropdownStyle: React.CSSProperties = {
     position: "absolute",
     top: 8,
-    left: 8,
+    right: 8,
     width: DROPDOWN_WIDTH,
     maxHeight: DROPDOWN_MAX_HEIGHT,
     overflowY: "auto",
