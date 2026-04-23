@@ -20,6 +20,9 @@ declare global {
 
       detectShells: () => Promise<ShellInfo[]>;
 
+      browserSetTouchEmulation: (webContentsId: number, enabled: boolean) => Promise<void>;
+      getCursorPosition: () => Promise<{ x: number; y: number }>;
+
       terminalSpawn: (id: string, shell: string, cols: number, rows: number) => Promise<void>;
       terminalWrite: (id: string, data: string) => Promise<void>;
       terminalResize: (id: string, cols: number, rows: number) => Promise<void>;

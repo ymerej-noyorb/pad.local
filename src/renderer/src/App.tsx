@@ -63,9 +63,13 @@ export default function App(): React.JSX.Element {
 
       if (type === EMBEDDABLE_TYPE_BROWSER) {
         const url = (element.customData?.url ?? "") as string;
+        const touchCapable = (element.customData?.touchCapable ?? false) as boolean;
+        const touchEnabled = (element.customData?.touchEnabled ?? false) as boolean;
         return (
           <BrowserPanel
             url={url}
+            touchCapable={touchCapable}
+            touchEnabled={touchEnabled}
             width={element.width}
             height={element.height}
             theme={theme}
@@ -86,6 +90,22 @@ export default function App(): React.JSX.Element {
                       ? { ...el, customData: { ...el.customData, url: newUrl } }
                       : el
                   )
+              });
+            }}
+            onTouchStateChange={(newTouchCapable, newTouchEnabled) => {
+              excalidrawAPI?.updateScene({
+                elements: excalidrawAPI.getSceneElements().map((el) =>
+                  el.id === element.id
+                    ? {
+                        ...el,
+                        customData: {
+                          ...el.customData,
+                          touchCapable: newTouchCapable,
+                          touchEnabled: newTouchEnabled
+                        }
+                      }
+                    : el
+                )
               });
             }}
           />
