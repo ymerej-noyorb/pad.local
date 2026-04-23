@@ -35,6 +35,58 @@ All panels live as nodes inside the Excalidraw canvas — drag them anywhere, re
 
 ## Getting started
 
+### Prerequisites
+
+**Node.js v24 LTS** (v24.14.1 or later) and at least one of **VS Code**, **Cursor**, **Windsurf**, or **VSCodium** installed and available in your `PATH`.
+
+Supported platforms: macOS, Windows, Linux. **WSL is not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
+
+#### Install Node.js — macOS
+
+Using [nvm](https://github.com/nvm-sh/nvm) (recommended):
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# restart your terminal, then:
+nvm install 24
+nvm use 24
+```
+
+Or using Homebrew: `brew install node@24`
+
+#### Install Node.js — Windows
+
+Using [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (recommended) — download the installer, then:
+
+```powershell
+nvm install 24
+nvm use 24
+```
+
+Or download the official **v24 LTS** installer from [nodejs.org](https://nodejs.org).
+
+> Install Node.js in native Windows, not inside WSL.
+
+#### Install Node.js — Linux
+
+Using [nvm](https://github.com/nvm-sh/nvm) (recommended):
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# restart your terminal, then:
+nvm install 24
+nvm use 24
+```
+
+Or via NodeSource (Ubuntu / Debian):
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+### Run
+
 ```bash
 git clone https://github.com/ymerej-noyorb/pad.local
 cd pad.local
@@ -42,19 +94,38 @@ npm install
 npm run dev
 ```
 
-Prerequisites: Node.js v24 LTS (v24.14.1+) and at least one of VS Code, Cursor, Windsurf, or VSCodium installed on your machine.
-
-Supported platforms: macOS, Windows, Linux. **WSL is not supported.**
-
 ---
 
 ## Building for distribution
 
+### macOS — produces a `.dmg`
+
 ```bash
-npm run build
+npm run build:mac
 ```
 
-Produces a native executable for your OS (`.dmg` on macOS, `.exe` on Windows, `.AppImage` on Linux).
+Output: `dist/pad.local-x.y.z.dmg`.
+
+### Windows — produces a `.exe` installer
+
+```bash
+npm run build:win
+```
+
+Output: `dist/pad.local Setup x.y.z.exe` (NSIS installer). No administrator rights required.
+
+### Linux — produces an `.AppImage`
+
+```bash
+npm run build:linux
+```
+
+Output: `dist/pad.local-x.y.z.AppImage`. Make it executable and run it directly — no installation needed:
+
+```bash
+chmod +x dist/pad.local-*.AppImage
+./dist/pad.local-*.AppImage
+```
 
 ---
 
@@ -90,6 +161,7 @@ Everything runs locally. Nothing leaves your machine.
 - Terminal working directory → restored on next launch (zsh and fish only via OSC 7)
 - Editor last opened folder/workspace → restored on next launch
 - AI sessions → persistent per provider (you stay logged in across restarts)
+- Browser custom device sizes → persisted in localStorage (available across restarts)
 - Editor / terminal → your actual filesystem, no abstraction
 
 ---
