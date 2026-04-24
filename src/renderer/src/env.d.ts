@@ -6,6 +6,7 @@ declare global {
       webview: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         src?: string;
         partition?: string;
+        preload?: string;
         ref?: React.Ref<Electron.WebviewTag>;
       };
     }
