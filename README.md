@@ -22,6 +22,7 @@ Open source. No cloud. No auth. No database.
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                                                     |
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings                           |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                                             |
+| ⛶ Fullscreen  | F11 (Windows / Linux) or Ctrl+Cmd+F (macOS) on any node — Escape to exit                                       |
 | 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                                           |
 | 🌐 Browser     | Embedded webview with address bar, device presets (Firefox list + custom sizes), touch simulation, and DevTools |
 
