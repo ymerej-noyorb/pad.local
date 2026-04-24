@@ -21,7 +21,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 | ----------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Whiteboard  | Excalidraw fullscreen canvas — the panels live inside it as embeddable nodes                                                |
 | Code editor | VS Code fork (`serve-web`) — user picks VS Code, Cursor, Windsurf, or VSCodium                                              |
-| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js as a node                                          |
+| Terminal    | PTY managed by `node-pty` (Electron main process), rendered via xterm.js in a dedicated `<webview>` (`terminal.html`)       |
 | AI          | Provider web UI in a `<webview>` node — user picks from a curated list of AI providers                                      |
 | Browser     | Generic `<webview>` with address bar, device presets, touch simulation, and DevTools — for local responsive dev and testing |
 
@@ -92,6 +92,7 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 - **Browser device presets** — a dropdown lists the full Firefox device list (phones, tablets, laptops, TVs) plus user-defined custom sizes persisted in `localStorage`. Selecting a preset resizes the Excalidraw node instantly. Dimension inputs show viewport dimensions (without the toolbar height) and are hidden in phone/tablet view.
 - **Browser touch simulation** — phone and tablet presets expose a touch toggle. When enabled, CDP `Emulation.setTouchEmulationEnabled` + `Emulation.setEmitTouchEventsForMouse` are applied to the webview's WebContents. Because CDP operates at the Chromium compositor level and consumes hover mouse events globally, cursor-in-panel detection uses `screen.getCursorScreenPoint()` polled from the main process every 50 ms rather than DOM events. `touchCapable` and `touchEnabled` are persisted in the Excalidraw element's `customData` and restored on the next launch.
 - **AI sessions** — each AI provider gets its own isolated session (`partition="persist:ai-<providerId>"`), so logging into Claude does not affect the ChatGPT session and vice versa.
+- **Node fullscreen** — pressing F11 (Windows / Linux) or `Ctrl+Cmd+F` (macOS) while a node is focused expands it to fill the entire window; Escape exits. Implemented via the HTML Fullscreen API: `FULLSCREEN_INJECT_SCRIPT` is injected into every webview on `dom-ready`; the host component listens to `enter-html-full-screen` / `leave-html-full-screen` to switch to a `position: fixed; inset: 0` container. On macOS, F11 is intercepted by Mission Control before reaching Electron, hence the `Ctrl+Cmd+F` alternative. The Terminal node uses the same mechanism — it runs inside a dedicated `terminal.html` webview so it benefits from the same Fullscreen API path as the other nodes.
 
 ---
 

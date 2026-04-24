@@ -3,6 +3,11 @@ import { IconWorld, IconBug, IconRefresh, IconDevices, IconHandFinger } from "@t
 import DeviceDropdown from "./DeviceDropdown";
 import { colorsByTheme } from "../../theme";
 import { patchWebviewIframeHeight } from "../../lib/patchWebview";
+import {
+  FULLSCREEN_INJECT_SCRIPT,
+  FULLSCREEN_Z_INDEX,
+  registerFullscreenListeners
+} from "../../lib/webviewFullscreen";
 import LoadingOverlay from "../LoadingOverlay";
 
 const TOP_BAR_HEIGHT = 40;
@@ -65,6 +70,7 @@ export default function BrowserPanel({
   const [touchHovered, setTouchHovered] = useState(false);
   const [devicesOpen, setDevicesOpen] = useState(false);
   const [devicesHovered, setDevicesHovered] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const onUrlChangeRef = useRef(onUrlChange);
@@ -94,6 +100,7 @@ export default function BrowserPanel({
     const handleDomReady = (): void => {
       patchWebviewIframeHeight(webview);
       setLoadedSrc(src);
+      webview.executeJavaScript(FULLSCREEN_INJECT_SCRIPT).catch(() => undefined);
     };
 
     const handleDidNavigate = (event: Electron.DidNavigateEvent): void => {
@@ -107,6 +114,8 @@ export default function BrowserPanel({
       onUrlChangeRef.current(event.url);
     };
 
+    const detachFullscreen = registerFullscreenListeners(webview, setIsFullscreen);
+
     webview.addEventListener("dom-ready", handleDomReady);
     webview.addEventListener("did-navigate", handleDidNavigate);
     webview.addEventListener("did-navigate-in-page", handleDidNavigateInPage);
@@ -114,6 +123,7 @@ export default function BrowserPanel({
       webview.removeEventListener("dom-ready", handleDomReady);
       webview.removeEventListener("did-navigate", handleDidNavigate);
       webview.removeEventListener("did-navigate-in-page", handleDidNavigateInPage);
+      detachFullscreen();
     };
   }, [src]);
 
@@ -259,21 +269,32 @@ export default function BrowserPanel({
     userSelect: "none"
   };
 
-  const containerStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    borderRadius: BORDER_RADIUS,
-    overflow: "hidden",
-    background: themeColors.base
-  };
+  const containerStyle: React.CSSProperties = isFullscreen
+    ? {
+        position: "fixed",
+        inset: 0,
+        zIndex: FULLSCREEN_Z_INDEX,
+        display: "flex",
+        flexDirection: "column",
+        borderRadius: 0,
+        overflow: "hidden",
+        background: themeColors.base
+      }
+    : {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        borderRadius: BORDER_RADIUS,
+        overflow: "hidden",
+        background: themeColors.base
+      };
 
   const webviewContainerStyle: React.CSSProperties = {
     flex: 1,
     position: "relative",
     overflow: "hidden",
-    pointerEvents: scrollLocked ? "none" : "auto"
+    pointerEvents: scrollLocked && !isFullscreen ? "none" : "auto"
   };
 
   const webviewStyle: React.CSSProperties = {
