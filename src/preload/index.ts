@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import { join } from "path";
 import type { EditorType, EditorInfo, ShellInfo } from "../shared/types";
 
 const api = {
@@ -44,6 +45,8 @@ const api = {
     ipcRenderer.invoke("browser:setTouchEmulation", webContentsId, enabled),
   getCursorPosition: (): Promise<{ x: number; y: number }> =>
     ipcRenderer.invoke("cursor:getPosition"),
+
+  terminalPreloadPath: join(__dirname, "terminal.js"),
 
   onTerminalData: (callback: (id: string, data: string) => void): (() => void) => {
     const handler = (

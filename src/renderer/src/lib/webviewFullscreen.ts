@@ -1,0 +1,26 @@
+export const FULLSCREEN_Z_INDEX = 9999;
+
+export const FULLSCREEN_INJECT_SCRIPT = `document.addEventListener('keydown', function(e) {
+  var isF11 = e.key === 'F11';
+  var isCtrlCmdF = e.ctrlKey && e.metaKey && e.key === 'f';
+  if (isF11 || isCtrlCmdF) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else { document.documentElement.requestFullscreen(); }
+  }
+}, true);`;
+
+export function registerFullscreenListeners(
+  webview: Electron.WebviewTag,
+  setIsFullscreen: (value: boolean) => void
+): () => void {
+  const handleEnter = (): void => setIsFullscreen(true);
+  const handleLeave = (): void => setIsFullscreen(false);
+  webview.addEventListener("enter-html-full-screen", handleEnter);
+  webview.addEventListener("leave-html-full-screen", handleLeave);
+  return () => {
+    webview.removeEventListener("enter-html-full-screen", handleEnter);
+    webview.removeEventListener("leave-html-full-screen", handleLeave);
+  };
+}

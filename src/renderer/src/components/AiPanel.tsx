@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { IconBrandOpenai, IconBrandGithubCopilot } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import { patchWebviewIframeHeight } from "../lib/patchWebview";
+import {
+  FULLSCREEN_INJECT_SCRIPT,
+  FULLSCREEN_Z_INDEX,
+  registerFullscreenListeners
+} from "../lib/webviewFullscreen";
 import Icon from "./Icon";
 import LoadingOverlay from "./LoadingOverlay";
 import type { AiProvider } from "../../../shared/types";
@@ -41,6 +46,7 @@ export default function AiPanel({
   scrollLocked
 }: AiPanelProps): React.JSX.Element {
   const [loaded, setLoaded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
 
@@ -51,22 +57,35 @@ export default function AiPanel({
     const handleDomReady = (): void => {
       patchWebviewIframeHeight(webview);
       setLoaded(true);
+      webview.executeJavaScript(FULLSCREEN_INJECT_SCRIPT).catch(() => undefined);
     };
+
+    const detachFullscreen = registerFullscreenListeners(webview, setIsFullscreen);
 
     webview.addEventListener("dom-ready", handleDomReady);
     return () => {
       webview.removeEventListener("dom-ready", handleDomReady);
+      detachFullscreen();
     };
   }, []);
 
-  const containerStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-    borderRadius: LOADING_BORDER_RADIUS,
-    overflow: "hidden",
-    pointerEvents: scrollLocked ? "none" : "auto"
-  };
+  const containerStyle: React.CSSProperties = isFullscreen
+    ? {
+        position: "fixed",
+        inset: 0,
+        zIndex: FULLSCREEN_Z_INDEX,
+        borderRadius: 0,
+        overflow: "hidden",
+        pointerEvents: "auto"
+      }
+    : {
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        borderRadius: LOADING_BORDER_RADIUS,
+        overflow: "hidden",
+        pointerEvents: scrollLocked ? "none" : "auto"
+      };
 
   const webviewStyle: React.CSSProperties = {
     position: "absolute",
