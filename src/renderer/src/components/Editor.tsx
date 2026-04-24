@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { IconBrandVscode } from "@tabler/icons-react";
 import { colorsByTheme } from "../theme";
 import { patchWebviewIframeHeight } from "../lib/patchWebview";
+import {
+  FULLSCREEN_INJECT_SCRIPT,
+  FULLSCREEN_Z_INDEX,
+  registerFullscreenListeners
+} from "../lib/webviewFullscreen";
 import Icon from "./Icon";
 import LoadingOverlay from "./LoadingOverlay";
 import type { EditorType } from "../../../shared/types";
@@ -53,6 +58,7 @@ export default function Editor({
   const [webviewLoaded, setWebviewLoaded] = useState(false);
   const [editorError, setEditorError] = useState(false);
   const [editorUrl, setEditorUrl] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const webviewRef = useRef<Electron.WebviewTag>(null);
   const themeColors = colorsByTheme[theme];
   const label = TEXT.labels[editorType];
@@ -95,6 +101,7 @@ export default function Editor({
 
     const handleDomReady = (): void => {
       patchWebviewIframeHeight(webview);
+      webview.executeJavaScript(FULLSCREEN_INJECT_SCRIPT).catch(() => undefined);
 
       // Wait for VS Code's workbench to finish initialising before revealing the editor.
       // VS Code sets document.title once the workbench is fully rendered (~500 ms after
@@ -132,22 +139,34 @@ export default function Editor({
       });
     };
 
+    const detachFullscreen = registerFullscreenListeners(webview, setIsFullscreen);
+
     webview.addEventListener("dom-ready", handleDomReady);
     webview.addEventListener("did-navigate", handleDidNavigate);
     return () => {
       webview.removeEventListener("dom-ready", handleDomReady);
       webview.removeEventListener("did-navigate", handleDidNavigate);
+      detachFullscreen();
     };
   }, [serverReady, editorUrl, editorType]);
 
-  const containerStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-    borderRadius: LOADING_BORDER_RADIUS,
-    overflow: "hidden",
-    pointerEvents: scrollLocked ? "none" : "auto"
-  };
+  const containerStyle: React.CSSProperties = isFullscreen
+    ? {
+        position: "fixed",
+        inset: 0,
+        zIndex: FULLSCREEN_Z_INDEX,
+        borderRadius: 0,
+        overflow: "hidden",
+        pointerEvents: "auto"
+      }
+    : {
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        borderRadius: LOADING_BORDER_RADIUS,
+        overflow: "hidden",
+        pointerEvents: scrollLocked ? "none" : "auto"
+      };
 
   const webviewStyle: React.CSSProperties = {
     position: "absolute",
