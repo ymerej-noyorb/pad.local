@@ -1,7 +1,9 @@
 export const FULLSCREEN_Z_INDEX = 9999;
 
 export const FULLSCREEN_INJECT_SCRIPT = `document.addEventListener('keydown', function(e) {
-  if (e.key === 'F11') {
+  var isF11 = e.key === 'F11';
+  var isCtrlCmdF = e.ctrlKey && e.metaKey && e.key === 'f';
+  if (isF11 || isCtrlCmdF) {
     e.preventDefault();
     e.stopImmediatePropagation();
     if (document.fullscreenElement) { document.exitFullscreen(); }
