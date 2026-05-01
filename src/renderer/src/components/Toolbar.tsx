@@ -39,7 +39,6 @@ const TEXT = {
   about: "About"
 } as const;
 
-
 const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
   vscode: <IconBrandVscode size={ICON_PX} stroke={TABLER_STROKE} />,
   cursor: <Icon name="cursor" size={ICON_PX} />,
@@ -118,7 +117,9 @@ function ToolButton({
 export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
-  const [activePicker, setActivePicker] = useState<"editor" | "terminal" | "ai" | "browser" | "about" | null>(null);
+  const [activePicker, setActivePicker] = useState<
+    "editor" | "terminal" | "ai" | "browser" | "about" | null
+  >(null);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
   const editorButtonRef = useRef<HTMLButtonElement>(null);
@@ -295,9 +296,12 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
       )}
 
       {activePicker === "about" && (
-        <AboutPanel anchorRef={aboutButtonRef} positionRef={toolbarRef} onClose={() => setActivePicker(null)} />
+        <AboutPanel
+          anchorRef={aboutButtonRef}
+          positionRef={toolbarRef}
+          onClose={() => setActivePicker(null)}
+        />
       )}
     </>
   );
 }
-

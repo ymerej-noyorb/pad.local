@@ -42,7 +42,10 @@ export default function Picker({
     const ref = positionRef ?? anchorRef;
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    setPosition({ bottom: window.innerHeight - rect.top + MENU_GAP, left: rect.left + rect.width / 2 });
+    setPosition({
+      bottom: window.innerHeight - rect.top + MENU_GAP,
+      left: rect.left + rect.width / 2
+    });
   }, [anchorRef, positionRef]);
 
   useEffect(() => {

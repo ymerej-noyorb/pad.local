@@ -10,14 +10,14 @@ const INPUT_FONT_SIZE = "0.9375rem";
 const INPUT_BORDER_RADIUS = 6;
 
 const TEXT = {
-  placeholder: "https://",
+  placeholder: "https://"
 } as const;
 
 export default function BrowserUrlInput({
   anchorRef,
   positionRef,
   onSubmit,
-  onClose,
+  onClose
 }: {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   positionRef?: React.RefObject<HTMLElement | null>;
@@ -33,7 +33,10 @@ export default function BrowserUrlInput({
     const ref = positionRef ?? anchorRef;
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    setPosition({ bottom: window.innerHeight - rect.top + MENU_GAP, left: rect.left + rect.width / 2 });
+    setPosition({
+      bottom: window.innerHeight - rect.top + MENU_GAP,
+      left: rect.left + rect.width / 2
+    });
   }, [anchorRef, positionRef]);
 
   useEffect(() => {
@@ -83,7 +86,7 @@ export default function BrowserUrlInput({
         borderRadius: BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",
         padding: PADDING,
-        zIndex: Z_INDEX,
+        zIndex: Z_INDEX
       }}
     >
       <input
@@ -91,7 +94,9 @@ export default function BrowserUrlInput({
         type="text"
         value={url}
         onChange={(event) => setUrl(event.target.value)}
-        onKeyDown={(event) => { if (event.key === "Enter") handleSubmit(); }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") handleSubmit();
+        }}
         placeholder={TEXT.placeholder}
         style={{
           width: "100%",
@@ -104,7 +109,7 @@ export default function BrowserUrlInput({
           fontSize: INPUT_FONT_SIZE,
           fontFamily: "var(--ui-font)",
           outline: "none",
-          boxSizing: "border-box",
+          boxSizing: "border-box"
         }}
       />
     </div>

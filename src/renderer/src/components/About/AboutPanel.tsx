@@ -8,7 +8,11 @@ const ROW_HEIGHT = "2.25rem";
 const ROW_PADDING = "0 0.625rem";
 const ROW_FONT_SIZE = "0.9375rem";
 const ROW_BORDER_RADIUS = 6;
-const DIVIDER_STYLE = { height: "1px", background: "var(--default-border-color, rgba(255,255,255,0.08))", margin: `${PADDING}px 0` };
+const DIVIDER_STYLE = {
+  height: "1px",
+  background: "var(--default-border-color, rgba(255,255,255,0.08))",
+  margin: `${PADDING}px 0`
+};
 
 const APP_NAME = "pad.local";
 const GITHUB_URL = "https://github.com/ymerej-noyorb/pad.local";
@@ -59,7 +63,10 @@ export default function AboutPanel({
     const ref = positionRef ?? anchorRef;
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    setPosition({ bottom: window.innerHeight - rect.top + MENU_GAP, left: rect.left + rect.width / 2 });
+    setPosition({
+      bottom: window.innerHeight - rect.top + MENU_GAP,
+      left: rect.left + rect.width / 2
+    });
   }, [anchorRef, positionRef]);
 
   useEffect(() => {
