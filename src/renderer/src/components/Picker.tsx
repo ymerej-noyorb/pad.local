@@ -23,22 +23,27 @@ interface PickerProps {
   onSelect: (value: string) => void;
   onClose: () => void;
   anchorRef: React.RefObject<HTMLElement | null>;
+  positionRef?: React.RefObject<HTMLElement | null>;
 }
+
+const MENU_GAP = 8;
 
 export default function Picker({
   options,
   onSelect,
   onClose,
-  anchorRef
+  anchorRef,
+  positionRef
 }: PickerProps): React.JSX.Element | null {
   const pickerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
 
   useEffect(() => {
-    if (!anchorRef.current) return;
-    const rect = anchorRef.current.getBoundingClientRect();
-    setPosition({ bottom: window.innerHeight - rect.top + 6, left: rect.left + rect.width / 2 });
-  }, [anchorRef]);
+    const ref = positionRef ?? anchorRef;
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setPosition({ bottom: window.innerHeight - rect.top + MENU_GAP, left: rect.left + rect.width / 2 });
+  }, [anchorRef, positionRef]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent): void {

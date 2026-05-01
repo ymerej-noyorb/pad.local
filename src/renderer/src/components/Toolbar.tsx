@@ -10,13 +10,16 @@ import {
   IconCode,
   IconTerminal,
   IconRobot,
-  IconBrowser
+  IconBrowser,
+  IconInfoCircle
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
 import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../shared/types";
 import { AI_PROVIDERS } from "../../../shared/aiProviders";
 import Icon from "./Icon";
 import Picker, { type PickerOption } from "./Picker";
+import AboutPanel from "./About/AboutPanel";
+import BrowserUrlInput from "./Browser/BrowserUrlInput";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
@@ -32,8 +35,10 @@ const TEXT = {
   addEditor: "New editor",
   addTerminal: "New terminal",
   addAi: "New AI",
-  addBrowser: "New browser"
+  addBrowser: "New browser",
+  about: "About"
 } as const;
+
 
 const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
   vscode: <IconBrandVscode size={ICON_PX} stroke={TABLER_STROKE} />,
@@ -113,11 +118,14 @@ function ToolButton({
 export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
-  const [activePicker, setActivePicker] = useState<"editor" | "terminal" | "ai" | null>(null);
+  const [activePicker, setActivePicker] = useState<"editor" | "terminal" | "ai" | "browser" | "about" | null>(null);
 
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const editorButtonRef = useRef<HTMLButtonElement>(null);
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
+  const browserButtonRef = useRef<HTMLButtonElement>(null);
+  const aboutButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     window.api.detectEditors().then((editors: EditorInfo[]) => {
@@ -170,12 +178,13 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
     excalidrawAPI.updateScene({ elements: [...existingElements, newElement] });
   }
 
-  function handleBrowserAdd(): void {
+  function handleBrowserAdd(url: string): void {
+    setActivePicker(null);
     const { scrollX, scrollY, zoom } = excalidrawAPI.getAppState();
     const existingElements = excalidrawAPI.getSceneElements();
     const newElement = createEmbeddableElement(
       "browser",
-      { url: "" },
+      { url },
       scrollX,
       scrollY,
       zoom.value,
@@ -204,6 +213,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
   return (
     <>
       <div
+        ref={toolbarRef}
         style={{
           display: "flex",
           gap: ISLAND_GAP,
@@ -232,9 +242,16 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onClick={() => setActivePicker(activePicker === "ai" ? null : "ai")}
         />
         <ToolButton
+          buttonRef={browserButtonRef}
           icon={<IconBrowser size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addBrowser}
-          onClick={handleBrowserAdd}
+          onClick={() => setActivePicker(activePicker === "browser" ? null : "browser")}
+        />
+        <ToolButton
+          buttonRef={aboutButtonRef}
+          icon={<IconInfoCircle size={ICON_PX} stroke={TABLER_STROKE} />}
+          title={TEXT.about}
+          onClick={() => setActivePicker(activePicker === "about" ? null : "about")}
         />
       </div>
 
@@ -244,6 +261,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onSelect={handleEditorSelect}
           onClose={() => setActivePicker(null)}
           anchorRef={editorButtonRef}
+          positionRef={toolbarRef}
         />
       )}
 
@@ -253,6 +271,7 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onSelect={handleShellSelect}
           onClose={() => setActivePicker(null)}
           anchorRef={terminalButtonRef}
+          positionRef={toolbarRef}
         />
       )}
 
@@ -262,8 +281,23 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onSelect={handleAiSelect}
           onClose={() => setActivePicker(null)}
           anchorRef={aiButtonRef}
+          positionRef={toolbarRef}
         />
+      )}
+
+      {activePicker === "browser" && (
+        <BrowserUrlInput
+          anchorRef={browserButtonRef}
+          positionRef={toolbarRef}
+          onSubmit={handleBrowserAdd}
+          onClose={() => setActivePicker(null)}
+        />
+      )}
+
+      {activePicker === "about" && (
+        <AboutPanel anchorRef={aboutButtonRef} positionRef={toolbarRef} onClose={() => setActivePicker(null)} />
       )}
     </>
   );
 }
+

@@ -3,10 +3,10 @@ import { Excalidraw } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
 
-import Editor from "./components/Editor";
-import Terminal from "./components/Terminal";
-import AiPanel from "./components/AiPanel";
-import BrowserPanel from "./components/Browser";
+import EditorPanel from "./components/Editor/EditorPanel";
+import TerminalPanel from "./components/Terminal/TerminalPanel";
+import AiPanel from "./components/AI/AiPanel";
+import BrowserPanel from "./components/Browser/BrowserPanel";
 import Icon from "./components/Icon";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Toolbar from "./components/Toolbar";
@@ -45,12 +45,12 @@ export default function App(): React.JSX.Element {
 
       if (type === EMBEDDABLE_TYPE_EDITOR) {
         const editorType = (element.customData?.editorType ?? "vscode") as EditorType;
-        return <Editor editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
+        return <EditorPanel editorType={editorType} theme={theme} scrollLocked={scrollLocked} />;
       }
 
       if (type === EMBEDDABLE_TYPE_TERMINAL) {
         const shell = (element.customData?.shell ?? "") as string;
-        return <Terminal id={element.id} shell={shell} scrollLocked={scrollLocked} />;
+        return <TerminalPanel id={element.id} shell={shell} scrollLocked={scrollLocked} />;
       }
 
       if (type === EMBEDDABLE_TYPE_AI) {
