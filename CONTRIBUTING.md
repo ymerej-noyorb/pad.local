@@ -49,10 +49,10 @@ These are enforced — PRs that don't follow them won't be merged.
 
 ## Submitting a PR
 
-1. Fork the repo and create a branch from `develop`
+1. Fork the repo and create a branch from `main` (`feature/...`, `fix/...`, etc.)
 2. Make your changes
 3. Run the checks above
-4. Open a PR targeting `develop` — the template will guide you
+4. Open a PR targeting `main` — the template will guide you
 
 ---
 
