@@ -29,6 +29,9 @@ declare global {
       terminalWrite: (id: string, data: string) => Promise<void>;
       terminalResize: (id: string, cols: number, rows: number) => Promise<void>;
       onTerminalData: (callback: (id: string, data: string) => void) => () => void;
+
+      versions: { electron: string; node: string; chrome: string };
+      openExternal: (url: string) => void;
     };
   }
 }
