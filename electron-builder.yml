@@ -38,4 +38,7 @@ linux:
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish: []
+publish:
+  provider: github
+  owner: ymerej-noyorb
+  repo: pad.local
