@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { IconBrandOpenai, IconBrandGithubCopilot } from "@tabler/icons-react";
-import { colorsByTheme } from "../theme";
-import { patchWebviewIframeHeight } from "../lib/patchWebview";
+import { colorsByTheme } from "../../theme";
+import { patchWebviewIframeHeight } from "../../lib/patchWebview";
 import {
   FULLSCREEN_INJECT_SCRIPT,
   FULLSCREEN_Z_INDEX,
   registerFullscreenListeners
-} from "../lib/webviewFullscreen";
-import Icon from "./Icon";
-import LoadingOverlay from "./LoadingOverlay";
-import type { AiProvider } from "../../../shared/types";
+} from "../../lib/webviewFullscreen";
+import Icon from "../Icon";
+import LoadingOverlay from "../LoadingOverlay";
+import type { AiProvider } from "../../../../shared/types";
 
 const LOADING_BORDER_RADIUS = 4;
 const LOADING_ICON_SIZE = 48;

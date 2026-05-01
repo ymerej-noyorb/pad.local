@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { patchWebviewIframeHeight } from "../lib/patchWebview";
+import { patchWebviewIframeHeight } from "../../lib/patchWebview";
 import {
   FULLSCREEN_INJECT_SCRIPT,
   FULLSCREEN_Z_INDEX,
   registerFullscreenListeners
-} from "../lib/webviewFullscreen";
+} from "../../lib/webviewFullscreen";
 
 const TERMINAL_BORDER_RADIUS = 4;
 

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, shell } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import { join } from "path";
 import type { EditorType, EditorInfo, ShellInfo } from "../shared/types";
@@ -59,6 +59,16 @@ const api = {
     return () => {
       ipcRenderer.removeListener("terminal:data", handler);
     };
+  },
+
+  versions: {
+    electron: process.versions.electron,
+    node: process.versions.node,
+    chrome: process.versions.chrome
+  },
+
+  openExternal: (url: string): void => {
+    shell.openExternal(url);
   }
 };
 

@@ -20,6 +20,9 @@ export default defineConfig({
         "@renderer": resolve("src/renderer/src")
       }
     },
+    define: {
+      __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
+    },
     plugins: [react()],
     build: {
       rollupOptions: {

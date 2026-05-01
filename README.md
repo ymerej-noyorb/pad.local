@@ -6,6 +6,7 @@
 [![Electron](https://img.shields.io/badge/built%20with-Electron-47848F)](https://www.electronjs.org)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://github.com/ymerej-noyorb/pad.local)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Website](https://img.shields.io/badge/website-padlocal.vercel.app-blueviolet)](https://padlocal.vercel.app)
 
 > Your local-first dev workspace. Build once, everything you need, zero infrastructure cost.
 
@@ -22,11 +23,10 @@ Open source. No cloud. No auth. No database.
 | 🎨 Whiteboard  | Excalidraw — the canvas everything lives in                                                                     |
 | 💻 Code editor | VS Code, Cursor, Windsurf, or VSCodium (`serve-web`) — your extensions, your settings                           |
 | 🖥️ Terminal    | xterm.js + node-pty                                                                                             |
-| ⛶ Fullscreen   | F11 (Windows / Linux) or Ctrl+Cmd+F (macOS) on any node — Escape to exit                                        |
 | 🤖 AI          | Claude, ChatGPT, Gemini, Copilot, Perplexity, Mistral                                                           |
 | 🌐 Browser     | Embedded webview with address bar, device presets (Firefox list + custom sizes), touch simulation, and DevTools |
 
-All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them.
+All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them. Any panel can go fullscreen with F11 (Windows / Linux) or Ctrl+Cmd+F (macOS) — Escape to exit.
 
 ![pad.local banner](docs/banner.png)
 
@@ -105,7 +105,7 @@ npm run dev
 npm run build:mac
 ```
 
-Output: `dist/pad.local-x.y.z.dmg`.
+Output: `dist/pad.local.dmg`.
 
 ### Windows — produces a `.exe` installer
 
@@ -113,19 +113,19 @@ Output: `dist/pad.local-x.y.z.dmg`.
 npm run build:win
 ```
 
-Output: `dist/pad.local Setup x.y.z.exe` (NSIS installer). No administrator rights required.
+Output: `dist/pad.local-setup.exe` (NSIS installer). No administrator rights required.
 
-### Linux — produces an `.AppImage`
+### Linux — produces an `.AppImage` and a `.deb`
 
 ```bash
 npm run build:linux
 ```
 
-Output: `dist/pad.local-x.y.z.AppImage`. Make it executable and run it directly — no installation needed:
+Outputs: `dist/pad.local.AppImage` and a `.deb` package. To run the AppImage directly — no installation needed:
 
 ```bash
-chmod +x dist/pad.local-*.AppImage
-./dist/pad.local-*.AppImage
+chmod +x dist/pad.local.AppImage
+./dist/pad.local.AppImage
 ```
 
 ---
@@ -171,7 +171,7 @@ Everything runs locally. Nothing leaves your machine.
 
 - **Local first** — works offline, always
 - **Zero infra** — no server, no database, no auth
-- **Clone and run** — Node.js + a VS Code fork are the only prerequisites
+- **Your editor, your rules** — your extensions, your keybindings, your themes — pad.local embeds the editor you already use, unchanged
 
 ---
 
@@ -179,6 +179,7 @@ Everything runs locally. Nothing leaves your machine.
 
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
+- **Security warnings on first launch** — The distributed binaries are not code-signed. On Windows, SmartScreen will warn you ("Windows protected your PC") — click _More info → Run anyway_ to proceed. On macOS, Gatekeeper will block the app on first open — go to _System Settings → Privacy & Security_ and click _Open Anyway_. This is expected for an unsigned open-source app.
 
 ---
 

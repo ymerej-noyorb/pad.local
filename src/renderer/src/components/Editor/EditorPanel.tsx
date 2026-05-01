@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { IconBrandVscode } from "@tabler/icons-react";
-import { colorsByTheme } from "../theme";
-import { patchWebviewIframeHeight } from "../lib/patchWebview";
+import { colorsByTheme } from "../../theme";
+import { patchWebviewIframeHeight } from "../../lib/patchWebview";
 import {
   FULLSCREEN_INJECT_SCRIPT,
   FULLSCREEN_Z_INDEX,
   registerFullscreenListeners
-} from "../lib/webviewFullscreen";
-import Icon from "./Icon";
-import LoadingOverlay from "./LoadingOverlay";
-import type { EditorType } from "../../../shared/types";
+} from "../../lib/webviewFullscreen";
+import Icon from "../Icon";
+import LoadingOverlay from "../LoadingOverlay";
+import type { EditorType } from "../../../../shared/types";
 
 const ERROR_TITLE_FONT_SIZE = 16;
 const LOADING_BORDER_RADIUS = 4;
