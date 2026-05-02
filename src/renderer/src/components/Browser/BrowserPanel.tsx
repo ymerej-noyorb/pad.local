@@ -198,7 +198,8 @@ export default function BrowserPanel({
     background: themeColors.surface0,
     borderBottom: `1px solid ${themeColors.surface1}`,
     flexShrink: 0,
-    overflow: "hidden"
+    overflow: "hidden",
+    pointerEvents: "auto"
   };
 
   const addressInputStyle: React.CSSProperties = {

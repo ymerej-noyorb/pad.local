@@ -2,7 +2,7 @@
 
 # pad.local
 
-[![Node.js v24+](https://img.shields.io/badge/node-v24%2B-brightgreen)](https://nodejs.org)
+[![Node.js 20.19+](https://img.shields.io/badge/node-20.19%2B-brightgreen)](https://nodejs.org)
 [![Electron](https://img.shields.io/badge/built%20with-Electron-47848F)](https://www.electronjs.org)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://github.com/ymerej-noyorb/pad.local)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -38,7 +38,7 @@ All panels live as nodes inside the Excalidraw canvas — drag them anywhere, re
 
 ### Prerequisites
 
-**Node.js v24 LTS** (v24.14.1 or later) and at least one of **VS Code**, **Cursor**, **Windsurf**, or **VSCodium** installed and available in your `PATH`.
+**Node.js 20.19+** (22 LTS or 24 LTS recommended — minimum imposed by Vite 7) and at least one of **VS Code**, **Cursor**, **Windsurf**, or **VSCodium** installed and available in your `PATH`.
 
 Supported platforms: macOS, Windows, Linux. **WSL is not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 
