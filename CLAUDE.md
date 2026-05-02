@@ -11,7 +11,7 @@ It runs entirely on the developer's machine — no server, no auth, no database,
 
 The goal: any developer clones it, `npm install && npm run dev`, done.
 
-**Prerequisites:** Node.js v24 LTS and at least one of VS Code, Cursor, Windsurf, or VSCodium installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
+**Prerequisites:** Node.js 20.19+ or 22.12+ (minimum imposed by Vite 7; Node.js 24 LTS recommended) and at least one of VS Code, Cursor, Windsurf, or VSCodium installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
 
 ---
 
