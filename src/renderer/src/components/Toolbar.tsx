@@ -9,8 +9,8 @@ import {
   IconBrandGithubCopilot,
   IconCode,
   IconTerminal,
-  IconRobot,
-  IconBrowser,
+  IconSparkles,
+  IconWorld,
   IconInfoCircle
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../lib/createEmbeddable";
@@ -238,13 +238,13 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         />
         <ToolButton
           buttonRef={aiButtonRef}
-          icon={<IconRobot size={ICON_PX} stroke={TABLER_STROKE} />}
+          icon={<IconSparkles size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addAi}
           onClick={() => setActivePicker(activePicker === "ai" ? null : "ai")}
         />
         <ToolButton
           buttonRef={browserButtonRef}
-          icon={<IconBrowser size={ICON_PX} stroke={TABLER_STROKE} />}
+          icon={<IconWorld size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addBrowser}
           onClick={() => setActivePicker(activePicker === "browser" ? null : "browser")}
         />
