@@ -13,13 +13,13 @@ import {
   IconWorld,
   IconInfoCircle
 } from "@tabler/icons-react";
-import { createEmbeddableElement } from "../lib/createEmbeddable";
-import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../shared/types";
-import { AI_PROVIDERS } from "../../../shared/aiProviders";
-import Icon from "./Icon";
+import { createEmbeddableElement } from "../../lib/createEmbeddable";
+import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../../shared/types";
+import { AI_PROVIDERS } from "../../../../shared/aiProviders";
+import Icon from "../Icon";
 import Picker, { type PickerOption } from "./Picker";
-import AboutPanel from "./About/AboutPanel";
-import BrowserUrlInput from "./Browser/BrowserUrlInput";
+import AboutPanel from "../About/AboutPanel";
+import BrowserUrlInput from "../Browser/BrowserUrlInput";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;

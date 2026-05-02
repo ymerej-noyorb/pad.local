@@ -9,7 +9,7 @@ import AiPanel from "./components/AI/AiPanel";
 import BrowserPanel from "./components/Browser/BrowserPanel";
 import Icon from "./components/Icon";
 import LoadingOverlay from "./components/LoadingOverlay";
-import Toolbar from "./components/Toolbar";
+import Toolbar from "./components/Toolbar/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors } from "./theme";
