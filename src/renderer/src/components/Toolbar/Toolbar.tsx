@@ -11,18 +11,27 @@ import {
   IconTerminal,
   IconSparkles,
   IconWorld,
-  IconInfoCircle
+  IconInfoCircle,
+  IconFolders
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../../lib/createEmbeddable";
-import type { AiProvider, EditorType, EditorInfo, ShellInfo } from "../../../../shared/types";
+import type { AiProvider, EditorType, EditorInfo, ShellInfo, Workspace } from "../../../../shared/types";
 import { AI_PROVIDERS } from "../../../../shared/aiProviders";
 import Icon from "../Icon";
 import Picker, { type PickerOption } from "./Picker";
 import AboutPanel from "../About/AboutPanel";
 import BrowserUrlInput from "../Browser/BrowserUrlInput";
+import WorkspacePanel from "../WorkspaceSwitcher/WorkspacePanel";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
+  workspaces: Workspace[];
+  activeWorkspaceId: string;
+  isSwitching: boolean;
+  onSwitchWorkspace: (id: string) => void;
+  onRenameWorkspace: (id: string, name: string) => void;
+  onCreateWorkspace: () => void;
+  onDeleteWorkspace: (id: string) => void;
 }
 
 const ICON_PX = 20;
@@ -32,6 +41,7 @@ const ISLAND_GAP = "0.125rem";
 const ISLAND_PADDING = "0.375rem";
 
 const TEXT = {
+  workspaces: "Workspaces",
   addEditor: "New editor",
   addTerminal: "New terminal",
   addAi: "New AI",
@@ -114,14 +124,24 @@ function ToolButton({
   );
 }
 
-export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
+export default function Toolbar({
+  excalidrawAPI,
+  workspaces,
+  activeWorkspaceId,
+  isSwitching,
+  onSwitchWorkspace,
+  onRenameWorkspace,
+  onCreateWorkspace,
+  onDeleteWorkspace
+}: Props): React.JSX.Element {
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
   const [activePicker, setActivePicker] = useState<
-    "editor" | "terminal" | "ai" | "browser" | "about" | null
+    "workspace" | "editor" | "terminal" | "ai" | "browser" | "about" | null
   >(null);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const workspaceButtonRef = useRef<HTMLButtonElement>(null);
   const editorButtonRef = useRef<HTMLButtonElement>(null);
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
@@ -225,6 +245,12 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
         }}
       >
         <ToolButton
+          buttonRef={workspaceButtonRef}
+          icon={<IconFolders size={ICON_PX} stroke={TABLER_STROKE} />}
+          title={TEXT.workspaces}
+          onClick={() => setActivePicker(activePicker === "workspace" ? null : "workspace")}
+        />
+        <ToolButton
           buttonRef={editorButtonRef}
           icon={<IconCode size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.addEditor}
@@ -255,6 +281,21 @@ export default function Toolbar({ excalidrawAPI }: Props): React.JSX.Element {
           onClick={() => setActivePicker(activePicker === "about" ? null : "about")}
         />
       </div>
+
+      {activePicker === "workspace" && (
+        <WorkspacePanel
+          anchorRef={workspaceButtonRef}
+          positionRef={toolbarRef}
+          onClose={() => setActivePicker(null)}
+          workspaces={workspaces}
+          activeId={activeWorkspaceId}
+          isSwitching={isSwitching}
+          onSwitch={onSwitchWorkspace}
+          onRename={onRenameWorkspace}
+          onCreate={onCreateWorkspace}
+          onDelete={onDeleteWorkspace}
+        />
+      )}
 
       {activePicker === "editor" && editorOptions.length > 0 && (
         <Picker

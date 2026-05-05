@@ -18,3 +18,13 @@ export interface AiProviderInfo {
   label: string;
   url: string;
 }
+
+export interface Workspace {
+  id: string;
+  name: string;
+}
+
+export interface WorkspacesState {
+  workspaces: Workspace[];
+  activeId: string;
+}

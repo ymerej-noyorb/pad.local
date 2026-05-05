@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import "@excalidraw/excalidraw/index.css";
@@ -13,7 +13,7 @@ import Toolbar from "./components/Toolbar/Toolbar";
 import { useScene } from "./hooks/useScene";
 import { createScrollLock } from "./lib/lockEmbeddables";
 import { colors } from "./theme";
-import type { AiProvider, EditorType } from "../../shared/types";
+import type { AiProvider, EditorType, Workspace } from "../../shared/types";
 
 const EMBEDDABLE_TYPE_EDITOR = "editor";
 const EMBEDDABLE_TYPE_TERMINAL = "terminal";
@@ -32,9 +32,55 @@ const CANVAS_ACTIONS = {
 export default function App(): React.JSX.Element {
   const [excalidrawAPI, setExcalidrawAPI] = useState<ExcalidrawImperativeAPI | null>(null);
   const [scrollLocked, setScrollLocked] = useState(false);
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string>("");
+  const [isSwitching, setIsSwitching] = useState(false);
 
-  const { initialData, ready, handleChange } = useScene();
+  const { initialData, ready, handleChange, forceSave } = useScene(activeWorkspaceId);
   const handleScrollChange = useMemo(() => createScrollLock(setScrollLocked), []);
+
+  useEffect(() => {
+    window.api.listWorkspaces().then((state) => {
+      setWorkspaces(state.workspaces);
+      setActiveWorkspaceId(state.activeId);
+    });
+  }, []);
+
+  // Reset API reference when Excalidraw unmounts during workspace transitions
+  useEffect(() => {
+    if (!ready) setExcalidrawAPI(null);
+  }, [ready]);
+
+  async function handleSwitchWorkspace(id: string): Promise<void> {
+    setIsSwitching(true);
+    await forceSave();
+    const updated = await window.api.switchWorkspace(id);
+    setWorkspaces(updated.workspaces);
+    setActiveWorkspaceId(updated.activeId);
+    setIsSwitching(false);
+  }
+
+  async function handleCreateWorkspace(): Promise<void> {
+    await forceSave();
+    const updated = await window.api.createWorkspace("New workspace");
+    setWorkspaces(updated.workspaces);
+    setActiveWorkspaceId(updated.activeId);
+  }
+
+  async function handleRenameWorkspace(id: string, name: string): Promise<void> {
+    const updated = await window.api.renameWorkspace(id, name);
+    setWorkspaces(updated.workspaces);
+  }
+
+  async function handleDeleteWorkspace(id: string): Promise<void> {
+    const isActive = id === activeWorkspaceId;
+    if (isActive) await forceSave();
+    const updated = await window.api.deleteWorkspace(id);
+    setWorkspaces(updated.workspaces);
+    if (updated.activeId !== activeWorkspaceId) {
+      setActiveWorkspaceId(updated.activeId);
+    }
+  }
 
   const renderEmbeddable = useCallback<
     NonNullable<React.ComponentProps<typeof Excalidraw>["renderEmbeddable"]>
@@ -148,7 +194,16 @@ export default function App(): React.JSX.Element {
                 }}
               >
                 <div style={{ pointerEvents: "auto" }}>
-                  <Toolbar excalidrawAPI={excalidrawAPI} />
+                  <Toolbar
+                    excalidrawAPI={excalidrawAPI}
+                    workspaces={workspaces}
+                    activeWorkspaceId={activeWorkspaceId}
+                    isSwitching={isSwitching}
+                    onSwitchWorkspace={handleSwitchWorkspace}
+                    onRenameWorkspace={handleRenameWorkspace}
+                    onCreateWorkspace={handleCreateWorkspace}
+                    onDeleteWorkspace={handleDeleteWorkspace}
+                  />
                 </div>
               </div>
             ) : null

@@ -5,9 +5,24 @@ import { loadEditorUrl, saveEditorUrl } from "./editor/state";
 import { detectEditors } from "./editor/detect";
 import { detectShells } from "./terminal/detect";
 import { spawnTerminal, writeTerminal, resizeTerminal } from "./terminal";
+import {
+  getWorkspacesState,
+  createWorkspace,
+  renameWorkspace,
+  deleteWorkspace,
+  switchWorkspace
+} from "./workspaces";
 import type { EditorType } from "../shared/types";
 
 export function registerIpcHandlers(): void {
+  ipcMain.handle("workspace:list", () => getWorkspacesState());
+  ipcMain.handle("workspace:create", (_event, name: string) => createWorkspace(name));
+  ipcMain.handle("workspace:rename", (_event, id: string, name: string) =>
+    renameWorkspace(id, name)
+  );
+  ipcMain.handle("workspace:delete", (_event, id: string) => deleteWorkspace(id));
+  ipcMain.handle("workspace:switch", (_event, id: string) => switchWorkspace(id));
+
   ipcMain.handle("scene:load", loadScene);
   ipcMain.handle("scene:save", (_event, json: string) => saveScene(json));
 
