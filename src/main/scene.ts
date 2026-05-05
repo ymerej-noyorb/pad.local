@@ -2,9 +2,10 @@ import { app } from "electron";
 import { join } from "path";
 import { existsSync, readFileSync } from "fs";
 import { writeFile } from "fs/promises";
+import { getActiveWorkspaceId } from "./workspaces";
 
 function sceneFilePath(): string {
-  return join(app.getPath("userData"), "scene.json");
+  return join(app.getPath("userData"), `scene-${getActiveWorkspaceId()}.json`);
 }
 
 export function loadScene(): string | null {
