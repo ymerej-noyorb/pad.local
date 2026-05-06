@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-const MIN_WIDTH = 200;
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
 const PADDING = 6;
@@ -26,7 +25,7 @@ export default function BrowserUrlInput({
 }): React.JSX.Element | null {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
   const [url, setUrl] = useState("");
 
   useEffect(() => {
@@ -35,7 +34,8 @@ export default function BrowserUrlInput({
     const rect = ref.current.getBoundingClientRect();
     setPosition({
       bottom: window.innerHeight - rect.top + MENU_GAP,
-      left: rect.left + rect.width / 2
+      left: rect.left + rect.width / 2,
+      width: rect.width
     });
   }, [anchorRef, positionRef]);
 
@@ -81,7 +81,7 @@ export default function BrowserUrlInput({
         bottom: position.bottom,
         left: position.left,
         transform: "translateX(-50%)",
-        minWidth: MIN_WIDTH,
+        width: position.width,
         background: "var(--island-bg-color)",
         borderRadius: BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",

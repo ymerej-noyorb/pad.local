@@ -3,7 +3,6 @@ import { IconPencil, IconTrash, IconPlus, IconCheck } from "@tabler/icons-react"
 import type { Workspace } from "../../../../shared/types";
 
 const MENU_GAP = 8;
-const MIN_WIDTH = 220;
 const Z_INDEX = 9999;
 const BORDER_RADIUS_MENU = 8;
 const BORDER_RADIUS_ROW = 6;
@@ -46,7 +45,7 @@ export default function WorkspacePanel({
   onDelete: (id: string) => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -57,7 +56,8 @@ export default function WorkspacePanel({
     const rect = ref.current.getBoundingClientRect();
     setPosition({
       bottom: window.innerHeight - rect.top + MENU_GAP,
-      left: rect.left + rect.width / 2
+      left: rect.left + rect.width / 2,
+      width: rect.width
     });
   }, [anchorRef, positionRef]);
 
@@ -115,7 +115,7 @@ export default function WorkspacePanel({
         bottom: position.bottom,
         left: position.left,
         transform: "translateX(-50%)",
-        minWidth: MIN_WIDTH,
+        width: position.width,
         background: "var(--island-bg-color)",
         borderRadius: BORDER_RADIUS_MENU,
         boxShadow: "var(--shadow-island)",
