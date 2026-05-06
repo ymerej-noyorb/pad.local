@@ -25,7 +25,9 @@ export default function BrowserUrlInput({
 }): React.JSX.Element | null {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
+    null
+  );
   const [url, setUrl] = useState("");
 
   useEffect(() => {

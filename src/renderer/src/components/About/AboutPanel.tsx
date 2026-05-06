@@ -55,7 +55,9 @@ export default function AboutPanel({
   onClose: () => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
+    null
+  );
   const [githubHovered, setGithubHovered] = useState(false);
 
   useEffect(() => {

@@ -35,7 +35,9 @@ export default function Picker({
   positionRef
 }: PickerProps): React.JSX.Element | null {
   const pickerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
+    null
+  );
 
   useEffect(() => {
     const ref = positionRef ?? anchorRef;

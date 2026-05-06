@@ -22,17 +22,23 @@ export function useScene(workspaceId: string): {
   handleChange: ExcalidrawChangeHandler;
   forceSave: () => Promise<void>;
 } {
-  const [initialData, setInitialData] = useState<SavedScene | null>(null);
-  const [ready, setReady] = useState(false);
+  // Keyed by workspaceId so that initialData is null (ready=false) whenever the
+  // loaded workspace does not yet match the requested one — no synchronous setState needed.
+  const [sceneData, setSceneData] = useState<{ workspaceId: string; data: SavedScene } | null>(
+    null
+  );
   const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const currentScene = useRef<CurrentScene | null>(null);
+
+  const initialData = sceneData?.workspaceId === workspaceId ? sceneData.data : null;
+  const ready = initialData !== null;
 
   useEffect(() => {
     if (!workspaceId) return;
     clearTimeout(saveTimer.current);
     currentScene.current = null;
-    setReady(false);
     window.api.loadScene().then((json: string | null) => {
+      let data: SavedScene;
       if (json) {
         try {
           const parsed = JSON.parse(json) as SavedScene;
@@ -43,14 +49,14 @@ export function useScene(workspaceId: string): {
               zoom: { value: parsed.appState.zoom.value as NormalizedZoomValue }
             };
           }
-          setInitialData(parsed);
+          data = parsed;
         } catch {
-          setInitialData(DEFAULT_SCENE);
+          data = DEFAULT_SCENE;
         }
       } else {
-        setInitialData(DEFAULT_SCENE);
+        data = DEFAULT_SCENE;
       }
-      setReady(true);
+      setSceneData({ workspaceId, data });
     });
   }, [workspaceId]);
 
