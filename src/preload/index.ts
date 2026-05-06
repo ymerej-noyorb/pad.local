@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, shell } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import { join } from "path";
-import type { EditorType, EditorInfo, ShellInfo, WorkspacesState } from "../shared/types";
+import type { EditorType, EditorInfo, ShellInfo, WorkspacesState, DataFile } from "../shared/types";
 
 const api = {
   listWorkspaces: (): Promise<WorkspacesState> => ipcRenderer.invoke("workspace:list"),
@@ -79,7 +79,13 @@ const api = {
 
   openExternal: (url: string): void => {
     shell.openExternal(url);
-  }
+  },
+
+  getStoragePath: (): Promise<string> => ipcRenderer.invoke("storage:path"),
+  listDataFiles: (): Promise<DataFile[]> => ipcRenderer.invoke("storage:list"),
+  readDataFile: (name: string): Promise<string> => ipcRenderer.invoke("storage:read", name),
+  deleteDataFile: (name: string): Promise<void> => ipcRenderer.invoke("storage:delete", name),
+  openStorageFolder: (): Promise<void> => ipcRenderer.invoke("storage:openFolder")
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);

@@ -28,3 +28,11 @@ export interface WorkspacesState {
   workspaces: Workspace[];
   activeId: string;
 }
+
+export interface DataFile {
+  name: string;
+  sizeBytes: number;
+  lastModified: number;
+  description: string;
+  isCritical: boolean;
+}

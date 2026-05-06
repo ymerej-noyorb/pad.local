@@ -1,5 +1,5 @@
 import { ElectronAPI } from "@electron-toolkit/preload";
-import type { EditorType, EditorInfo, ShellInfo, WorkspacesState } from "../shared/types";
+import type { EditorType, EditorInfo, ShellInfo, WorkspacesState, DataFile } from "../shared/types";
 
 declare global {
   interface Window {
@@ -38,6 +38,12 @@ declare global {
 
       versions: { electron: string; node: string; chrome: string };
       openExternal: (url: string) => void;
+
+      getStoragePath: () => Promise<string>;
+      listDataFiles: () => Promise<DataFile[]>;
+      readDataFile: (name: string) => Promise<string>;
+      deleteDataFile: (name: string) => Promise<void>;
+      openStorageFolder: () => Promise<void>;
     };
   }
 }

@@ -12,7 +12,8 @@ import {
   IconSparkles,
   IconWorld,
   IconInfoCircle,
-  IconFolders
+  IconFolders,
+  IconDatabase
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../../lib/createEmbeddable";
 import type {
@@ -28,6 +29,7 @@ import Picker, { type PickerOption } from "./Picker";
 import AboutPanel from "../About/AboutPanel";
 import BrowserUrlInput from "../Browser/BrowserUrlInput";
 import WorkspacePanel from "../WorkspaceSwitcher/WorkspacePanel";
+import StoragePanel from "../Storage/StoragePanel";
 
 interface Props {
   excalidrawAPI: ExcalidrawImperativeAPI;
@@ -52,6 +54,7 @@ const TEXT = {
   addTerminal: "New terminal",
   addAi: "New AI",
   addBrowser: "New browser",
+  storage: "Local storage",
   about: "About"
 } as const;
 
@@ -143,7 +146,7 @@ export default function Toolbar({
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
   const [activePicker, setActivePicker] = useState<
-    "workspace" | "editor" | "terminal" | "ai" | "browser" | "about" | null
+    "workspace" | "editor" | "terminal" | "ai" | "browser" | "storage" | "about" | null
   >(null);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -152,6 +155,7 @@ export default function Toolbar({
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
   const browserButtonRef = useRef<HTMLButtonElement>(null);
+  const storageButtonRef = useRef<HTMLButtonElement>(null);
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -281,6 +285,12 @@ export default function Toolbar({
           onClick={() => setActivePicker(activePicker === "browser" ? null : "browser")}
         />
         <ToolButton
+          buttonRef={storageButtonRef}
+          icon={<IconDatabase size={ICON_PX} stroke={TABLER_STROKE} />}
+          title={TEXT.storage}
+          onClick={() => setActivePicker(activePicker === "storage" ? null : "storage")}
+        />
+        <ToolButton
           buttonRef={aboutButtonRef}
           icon={<IconInfoCircle size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.about}
@@ -338,6 +348,14 @@ export default function Toolbar({
           anchorRef={browserButtonRef}
           positionRef={toolbarRef}
           onSubmit={handleBrowserAdd}
+          onClose={() => setActivePicker(null)}
+        />
+      )}
+
+      {activePicker === "storage" && (
+        <StoragePanel
+          anchorRef={storageButtonRef}
+          positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}
         />
       )}
