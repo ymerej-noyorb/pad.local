@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-const MIN_WIDTH = 200;
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
 const PADDING = 6;
@@ -56,7 +55,7 @@ export default function AboutPanel({
   onClose: () => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
   const [githubHovered, setGithubHovered] = useState(false);
 
   useEffect(() => {
@@ -65,7 +64,8 @@ export default function AboutPanel({
     const rect = ref.current.getBoundingClientRect();
     setPosition({
       bottom: window.innerHeight - rect.top + MENU_GAP,
-      left: rect.left + rect.width / 2
+      left: rect.left + rect.width / 2,
+      width: rect.width
     });
   }, [anchorRef, positionRef]);
 
@@ -93,7 +93,7 @@ export default function AboutPanel({
         bottom: position.bottom,
         left: position.left,
         transform: "translateX(-50%)",
-        minWidth: MIN_WIDTH,
+        width: position.width,
         background: "var(--island-bg-color)",
         borderRadius: BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",

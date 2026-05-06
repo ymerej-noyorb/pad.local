@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-const PICKER_MIN_WIDTH = 200;
 const PICKER_Z_INDEX = 9999;
 const PICKER_BORDER_RADIUS = 8;
 const PICKER_PADDING = 6;
@@ -36,7 +35,7 @@ export default function Picker({
   positionRef
 }: PickerProps): React.JSX.Element | null {
   const pickerRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
 
   useEffect(() => {
     const ref = positionRef ?? anchorRef;
@@ -44,7 +43,8 @@ export default function Picker({
     const rect = ref.current.getBoundingClientRect();
     setPosition({
       bottom: window.innerHeight - rect.top + MENU_GAP,
-      left: rect.left + rect.width / 2
+      left: rect.left + rect.width / 2,
+      width: rect.width
     });
   }, [anchorRef, positionRef]);
 
@@ -73,7 +73,7 @@ export default function Picker({
         bottom: position.bottom,
         left: position.left,
         transform: "translateX(-50%)",
-        minWidth: PICKER_MIN_WIDTH,
+        width: position.width,
         background: "var(--island-bg-color)",
         borderRadius: PICKER_BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",
