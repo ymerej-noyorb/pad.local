@@ -3,8 +3,6 @@ import { join } from "path";
 import { existsSync, readFileSync, renameSync } from "fs";
 import { writeFile } from "fs/promises";
 import type { Workspace, WorkspacesState } from "../shared/types";
-import { stopAllEditors } from "./editor";
-import { killAllTerminals } from "./terminal";
 
 const DEFAULT_WORKSPACE_ID = "default";
 
@@ -55,8 +53,6 @@ export async function createWorkspace(name: string): Promise<WorkspacesState> {
   const id = crypto.randomUUID();
   state.workspaces.push({ id, name });
   state.activeId = id;
-  stopAllEditors();
-  killAllTerminals();
   await persistWorkspaces();
   return state;
 }
@@ -76,8 +72,6 @@ export async function deleteWorkspace(id: string): Promise<WorkspacesState> {
   state.workspaces = state.workspaces.filter((workspace: Workspace) => workspace.id !== id);
   if (isActive) {
     state.activeId = state.workspaces[0].id;
-    stopAllEditors();
-    killAllTerminals();
   }
   await persistWorkspaces();
   return state;
@@ -87,8 +81,6 @@ export async function switchWorkspace(id: string): Promise<WorkspacesState> {
   const exists = state.workspaces.find((workspace: Workspace) => workspace.id === id);
   if (!exists || id === state.activeId) return state;
   state.activeId = id;
-  stopAllEditors();
-  killAllTerminals();
   await persistWorkspaces();
   return state;
 }
