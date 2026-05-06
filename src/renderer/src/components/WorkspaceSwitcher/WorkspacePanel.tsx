@@ -45,7 +45,9 @@ export default function WorkspacePanel({
   onDelete: (id: string) => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
+    null
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -154,9 +156,7 @@ export default function WorkspacePanel({
 
       <button
         onClick={handleCreate}
-        onMouseEnter={(event) =>
-          (event.currentTarget.style.background = "var(--button-hover-bg)")
-        }
+        onMouseEnter={(event) => (event.currentTarget.style.background = "var(--button-hover-bg)")}
         onMouseLeave={(event) => (event.currentTarget.style.background = "transparent")}
         style={{
           display: "flex",

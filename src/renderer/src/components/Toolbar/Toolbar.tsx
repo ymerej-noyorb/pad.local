@@ -15,7 +15,13 @@ import {
   IconFolders
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../../lib/createEmbeddable";
-import type { AiProvider, EditorType, EditorInfo, ShellInfo, Workspace } from "../../../../shared/types";
+import type {
+  AiProvider,
+  EditorType,
+  EditorInfo,
+  ShellInfo,
+  Workspace
+} from "../../../../shared/types";
 import { AI_PROVIDERS } from "../../../../shared/aiProviders";
 import Icon from "../Icon";
 import Picker, { type PickerOption } from "./Picker";

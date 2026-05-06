@@ -38,6 +38,8 @@ export default function App(): React.JSX.Element {
 
   const { initialData, ready, handleChange, forceSave } = useScene(activeWorkspaceId);
   const handleScrollChange = useMemo(() => createScrollLock(setScrollLocked), []);
+  // Null-out the API reference while Excalidraw is unmounted so stale callbacks are never called.
+  const activeExcalidrawAPI = ready ? excalidrawAPI : null;
 
   useEffect(() => {
     window.api.listWorkspaces().then((state) => {
@@ -45,11 +47,6 @@ export default function App(): React.JSX.Element {
       setActiveWorkspaceId(state.activeId);
     });
   }, []);
-
-  // Reset API reference when Excalidraw unmounts during workspace transitions
-  useEffect(() => {
-    if (!ready) setExcalidrawAPI(null);
-  }, [ready]);
 
   async function handleSwitchWorkspace(id: string): Promise<void> {
     setIsSwitching(true);
@@ -121,15 +118,15 @@ export default function App(): React.JSX.Element {
             theme={theme}
             scrollLocked={scrollLocked}
             onResize={(width, height) => {
-              excalidrawAPI?.updateScene({
-                elements: excalidrawAPI
+              activeExcalidrawAPI?.updateScene({
+                elements: activeExcalidrawAPI
                   .getSceneElements()
                   .map((el) => (el.id === element.id ? { ...el, width, height } : el))
               });
             }}
             onUrlChange={(newUrl) => {
-              excalidrawAPI?.updateScene({
-                elements: excalidrawAPI
+              activeExcalidrawAPI?.updateScene({
+                elements: activeExcalidrawAPI
                   .getSceneElements()
                   .map((el) =>
                     el.id === element.id
@@ -139,8 +136,8 @@ export default function App(): React.JSX.Element {
               });
             }}
             onTouchStateChange={(newTouchCapable, newTouchEnabled) => {
-              excalidrawAPI?.updateScene({
-                elements: excalidrawAPI.getSceneElements().map((el) =>
+              activeExcalidrawAPI?.updateScene({
+                elements: activeExcalidrawAPI.getSceneElements().map((el) =>
                   el.id === element.id
                     ? {
                         ...el,
@@ -160,7 +157,7 @@ export default function App(): React.JSX.Element {
 
       return null;
     },
-    [scrollLocked, excalidrawAPI]
+    [scrollLocked, activeExcalidrawAPI]
   );
 
   return (
@@ -180,7 +177,7 @@ export default function App(): React.JSX.Element {
           onChange={handleChange}
           onScrollChange={handleScrollChange}
           renderTopRightUI={() =>
-            excalidrawAPI ? (
+            activeExcalidrawAPI ? (
               <div
                 style={{
                   position: "fixed",
@@ -195,7 +192,7 @@ export default function App(): React.JSX.Element {
               >
                 <div style={{ pointerEvents: "auto" }}>
                   <Toolbar
-                    excalidrawAPI={excalidrawAPI}
+                    excalidrawAPI={activeExcalidrawAPI}
                     workspaces={workspaces}
                     activeWorkspaceId={activeWorkspaceId}
                     isSwitching={isSwitching}
@@ -215,7 +212,7 @@ export default function App(): React.JSX.Element {
         icon={<Icon name="excalidraw" size={48} />}
         color={colors.overlay0}
         background={colors.base}
-        loaded={ready && excalidrawAPI !== null}
+        loaded={activeExcalidrawAPI !== null}
       />
     </div>
   );
