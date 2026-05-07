@@ -115,6 +115,8 @@ export default function StoragePanel({
   useEffect(() => {
     window.api.getStoragePath().then(setStoragePath);
     window.api.listDataFiles().then(setFiles);
+    const interval = setInterval(() => window.api.listDataFiles().then(setFiles), 2000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
