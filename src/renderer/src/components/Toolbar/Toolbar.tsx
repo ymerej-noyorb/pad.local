@@ -42,6 +42,7 @@ interface Props {
 }
 
 const ICON_PX = 20;
+const SI_ICON_PX = 16;
 const BUTTON_SIZE = "2.25rem";
 const TABLER_STROKE = 1.5;
 const ISLAND_GAP = "0.125rem";
@@ -64,12 +65,12 @@ const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
 };
 
 const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
-  claude: <Icon name="claude" size={ICON_PX} />,
+  claude: <Icon name="claude" size={SI_ICON_PX} />,
   chatgpt: <IconBrandOpenai size={ICON_PX} stroke={TABLER_STROKE} />,
-  gemini: <Icon name="gemini" size={ICON_PX} />,
+  gemini: <Icon name="gemini" size={SI_ICON_PX} />,
   copilot: <IconBrandGithubCopilot size={ICON_PX} stroke={TABLER_STROKE} />,
-  perplexity: <Icon name="perplexity" size={ICON_PX} />,
-  mistral: <Icon name="mistral" size={ICON_PX} />
+  perplexity: <Icon name="perplexity" size={SI_ICON_PX} />,
+  mistral: <Icon name="mistral" size={SI_ICON_PX} />
 };
 
 const AI_OPTIONS: PickerOption[] = AI_PROVIDERS.map((provider) => ({
