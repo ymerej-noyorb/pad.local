@@ -28,7 +28,7 @@ const JSON_MAX_HEIGHT = 220;
 const PATH_FONT_SIZE = "0.75rem";
 
 const TEXT = {
-  title: "Local storage",
+  title: "App data",
   openFolder: "Open in explorer",
   refresh: "Refresh",
   loading: "Loading…",

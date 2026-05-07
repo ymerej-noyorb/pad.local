@@ -12,8 +12,7 @@ import {
   IconSparkles,
   IconWorld,
   IconInfoCircle,
-  IconFolders,
-  IconDatabase
+  IconFolders
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../../lib/createEmbeddable";
 import type {
@@ -54,7 +53,6 @@ const TEXT = {
   addTerminal: "New terminal",
   addAi: "New AI",
   addBrowser: "New browser",
-  storage: "Local storage",
   about: "About"
 } as const;
 
@@ -146,7 +144,7 @@ export default function Toolbar({
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
   const [activePicker, setActivePicker] = useState<
-    "workspace" | "editor" | "terminal" | "ai" | "browser" | "storage" | "about" | null
+    "workspace" | "editor" | "terminal" | "ai" | "browser" | "about" | "storage" | null
   >(null);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -155,7 +153,6 @@ export default function Toolbar({
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
   const browserButtonRef = useRef<HTMLButtonElement>(null);
-  const storageButtonRef = useRef<HTMLButtonElement>(null);
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -285,12 +282,6 @@ export default function Toolbar({
           onClick={() => setActivePicker(activePicker === "browser" ? null : "browser")}
         />
         <ToolButton
-          buttonRef={storageButtonRef}
-          icon={<IconDatabase size={ICON_PX} stroke={TABLER_STROKE} />}
-          title={TEXT.storage}
-          onClick={() => setActivePicker(activePicker === "storage" ? null : "storage")}
-        />
-        <ToolButton
           buttonRef={aboutButtonRef}
           icon={<IconInfoCircle size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.about}
@@ -352,16 +343,17 @@ export default function Toolbar({
         />
       )}
 
-      {activePicker === "storage" && (
-        <StoragePanel
-          anchorRef={storageButtonRef}
+      {activePicker === "about" && (
+        <AboutPanel
+          anchorRef={aboutButtonRef}
           positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}
+          onOpenStorage={() => setActivePicker("storage")}
         />
       )}
 
-      {activePicker === "about" && (
-        <AboutPanel
+      {activePicker === "storage" && (
+        <StoragePanel
           anchorRef={aboutButtonRef}
           positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}

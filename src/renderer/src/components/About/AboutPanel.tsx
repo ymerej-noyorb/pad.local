@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { IconDatabase } from "@tabler/icons-react";
 
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
@@ -13,8 +14,15 @@ const DIVIDER_STYLE = {
   margin: `${PADDING}px 0`
 };
 
+const ICON_SIZE = 16;
+const TABLER_STROKE = 1.5;
 const APP_NAME = "pad.local";
 const GITHUB_URL = "https://github.com/ymerej-noyorb/pad.local";
+
+const TEXT = {
+  storage: "App data",
+  github: "GitHub"
+} as const;
 
 const RUNTIME_ROWS: { label: string; key: keyof typeof window.api.versions }[] = [
   { label: "Electron", key: "electron" },
@@ -48,16 +56,19 @@ const MENU_GAP = 8;
 export default function AboutPanel({
   anchorRef,
   positionRef,
-  onClose
+  onClose,
+  onOpenStorage
 }: {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   positionRef?: React.RefObject<HTMLElement | null>;
   onClose: () => void;
+  onOpenStorage: () => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
     null
   );
+  const [storageHovered, setStorageHovered] = useState(false);
   const [githubHovered, setGithubHovered] = useState(false);
 
   useEffect(() => {
@@ -114,6 +125,38 @@ export default function AboutPanel({
       <div style={DIVIDER_STYLE} />
 
       <button
+        onClick={() => {
+          onClose();
+          onOpenStorage();
+        }}
+        onMouseEnter={() => setStorageHovered(true)}
+        onMouseLeave={() => setStorageHovered(false)}
+        type="button"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          width: "100%",
+          height: ROW_HEIGHT,
+          padding: ROW_PADDING,
+          borderRadius: ROW_BORDER_RADIUS,
+          border: 0,
+          background: storageHovered ? "var(--button-hover-bg)" : "transparent",
+          color: "var(--text-primary-color)",
+          fontSize: ROW_FONT_SIZE,
+          fontFamily: "var(--ui-font)",
+          cursor: "pointer"
+        }}
+      >
+        <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+          <IconDatabase size={ICON_SIZE} stroke={TABLER_STROKE} />
+        </span>
+        {TEXT.storage}
+      </button>
+
+      <div style={DIVIDER_STYLE} />
+
+      <button
         onClick={() => window.api.openExternal(GITHUB_URL)}
         onMouseEnter={() => setGithubHovered(true)}
         onMouseLeave={() => setGithubHovered(false)}
@@ -134,7 +177,7 @@ export default function AboutPanel({
           opacity: 0.6
         }}
       >
-        GitHub
+        {TEXT.github}
       </button>
     </div>
   );
