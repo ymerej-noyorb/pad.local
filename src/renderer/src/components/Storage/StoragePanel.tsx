@@ -87,7 +87,9 @@ export default function StoragePanel({
   onClose: () => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
+    null
+  );
   const [storagePath, setStoragePath] = useState<string>("");
   const [files, setFiles] = useState<DataFile[] | null>(null);
   const [expandedFile, setExpandedFile] = useState<string | null>(null);
