@@ -205,8 +205,7 @@ export default function AboutPanel({
           color: "var(--text-primary-color)",
           fontSize: ROW_FONT_SIZE,
           fontFamily: "var(--ui-font)",
-          cursor: "pointer",
-          opacity: 0.6
+          cursor: "pointer"
         }}
       >
         <IconWrap>
