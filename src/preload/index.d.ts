@@ -1,10 +1,16 @@
 import { ElectronAPI } from "@electron-toolkit/preload";
-import type { EditorType, EditorInfo, ShellInfo } from "../shared/types";
+import type { EditorType, EditorInfo, ShellInfo, WorkspacesState } from "../shared/types";
 
 declare global {
   interface Window {
     electron: ElectronAPI;
     api: {
+      listWorkspaces: () => Promise<WorkspacesState>;
+      createWorkspace: (name: string) => Promise<WorkspacesState>;
+      renameWorkspace: (id: string, name: string) => Promise<WorkspacesState>;
+      deleteWorkspace: (id: string) => Promise<WorkspacesState>;
+      switchWorkspace: (id: string) => Promise<WorkspacesState>;
+
       saveScene: (json: string) => Promise<void>;
       loadScene: () => Promise<string | null>;
 

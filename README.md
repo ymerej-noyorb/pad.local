@@ -28,6 +28,8 @@ Open source. No cloud. No auth. No database.
 
 All panels live as nodes inside the Excalidraw canvas — drag them anywhere, resize them, draw around them. Any panel can go fullscreen with F11 (Windows / Linux) or Ctrl+Cmd+F (macOS) — Escape to exit.
 
+You can organize your work across multiple **workspaces** — independent canvases, each with its own layout of panels. Switch, create, rename, or delete workspaces from the toolbar.
+
 ![pad.local banner](docs/banner.png)
 
 ![pad.local screenshot](docs/screenshot.png)
@@ -145,6 +147,7 @@ chmod +x dist/pad.local.AppImage
 
 When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 
+- **Workspaces** → the folders icon in the toolbar opens the workspace switcher; each workspace is an independent canvas with its own layout of panels; create, rename, delete, or switch workspaces instantly — terminal sessions and editor servers survive the switch
 - **New editor** → a picker lists the VS Code forks detected on your machine (VS Code, Cursor, Windsurf, VSCodium) → selecting one spawns its `serve-web` server on demand and embeds it as a canvas node
 - **New terminal** → a picker lists the shells detected on your OS → selecting one spawns a PTY and embeds it as a canvas node
 - **New AI** → a picker lists all supported AI providers → selecting one opens the provider's web interface in a webview node, authenticated via your own session (no API key needed)
@@ -158,7 +161,8 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Persistence
 
-- Excalidraw scene (elements, positions, zoom level) → saved as a local JSON file
+- Workspace list and active workspace → `workspaces.json` in Electron's userData folder
+- Each workspace canvas (elements, positions, zoom level) → `scene-{workspaceId}.json` — one file per workspace
 - Terminal working directory → restored on next launch (zsh and fish only via OSC 7)
 - Editor last opened folder/workspace → restored on next launch
 - AI sessions → persistent per provider (you stay logged in across restarts)
