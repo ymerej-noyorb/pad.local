@@ -17,7 +17,7 @@ const ROW_HEIGHT = "2.25rem";
 const ROW_PADDING = "0 0.625rem";
 const ROW_FONT_SIZE = "0.9375rem";
 const ROW_BORDER_RADIUS = 6;
-const ICON_SIZE = 16;
+const ICON_SIZE = 20;
 const ICON_GAP = "0.75rem";
 const TABLER_STROKE = 1.5;
 const DIVIDER_STYLE = {
@@ -43,7 +43,7 @@ const RUNTIME_ROWS: { label: string; key: keyof typeof window.api.versions; icon
 function IconWrap({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <span
-      style={{ display: "flex", alignItems: "center", flexShrink: 0, width: ICON_SIZE, height: ICON_SIZE }}
+      style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: ICON_SIZE, height: ICON_SIZE }}
     >
       {children}
     </span>
