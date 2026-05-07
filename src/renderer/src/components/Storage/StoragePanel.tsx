@@ -12,7 +12,6 @@ import type { PrismTheme } from "prism-react-renderer";
 import type { DataFile } from "../../../../shared/types";
 import { colorsByTheme } from "../../theme";
 
-const PANEL_WIDTH = 400;
 const MENU_GAP = 8;
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
@@ -88,7 +87,7 @@ export default function StoragePanel({
   onClose: () => void;
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<{ bottom: number; left: number } | null>(null);
+  const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(null);
   const [storagePath, setStoragePath] = useState<string>("");
   const [files, setFiles] = useState<DataFile[] | null>(null);
   const [expandedFile, setExpandedFile] = useState<string | null>(null);
@@ -101,10 +100,8 @@ export default function StoragePanel({
     const rect = ref.current.getBoundingClientRect();
     setPosition({
       bottom: window.innerHeight - rect.top + MENU_GAP,
-      left: Math.min(
-        Math.max(rect.left + rect.width / 2, PANEL_WIDTH / 2 + PADDING),
-        window.innerWidth - PANEL_WIDTH / 2 - PADDING
-      )
+      left: rect.left + rect.width / 2,
+      width: rect.width
     });
   }, [anchorRef, positionRef]);
 
@@ -167,7 +164,7 @@ export default function StoragePanel({
         bottom: position.bottom,
         left: position.left,
         transform: "translateX(-50%)",
-        width: PANEL_WIDTH,
+        width: position.width,
         background: "var(--island-bg-color)",
         borderRadius: BORDER_RADIUS,
         boxShadow: "var(--shadow-island)",
