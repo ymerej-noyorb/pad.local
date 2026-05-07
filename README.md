@@ -179,6 +179,7 @@ Everything runs locally. Nothing leaves your machine.
 
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
+- **VS Code 1.119.0 breaks serve-web** — A regression in VS Code 1.119.0 ([issue #315003](https://github.com/microsoft/vscode/issues/315003)) prevents the extension host from connecting, causing an endless "Time limit reached" error. Stay on **VS Code ≤ 1.118.x** until a patch is released. Disable auto-updates (`File > Preferences > Settings` → search `update mode` → set to `manual`). To roll back: download the [1.118.0 installer](https://update.code.visualstudio.com/1.118.0/win32-x64-user/stable) and reinstall over the existing installation — your extensions and settings are preserved.
 - **Security warnings on first launch** — The distributed binaries are not code-signed. On Windows, SmartScreen will warn you ("Windows protected your PC") — click _More info → Run anyway_ to proceed. On macOS, Gatekeeper will block the app on first open — go to _System Settings → Privacy & Security_ and click _Open Anyway_. This is expected for an unsigned open-source app.
 
 ---
