@@ -206,7 +206,15 @@ export function stopEditor(type: EditorType): void {
   const session = sessions.get(type);
   if (!session) return;
   stopPoll(session);
-  session.process.kill();
+  if (process.platform === "win32" && session.process.pid) {
+    try {
+      execSync(`taskkill /T /F /PID ${session.process.pid}`, { stdio: "ignore" });
+    } catch {
+      // Process already gone.
+    }
+  } else {
+    session.process.kill();
+  }
   sessions.delete(type);
 }
 
