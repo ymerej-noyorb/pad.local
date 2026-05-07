@@ -4,6 +4,7 @@ import { createWindow } from "./window";
 import { registerIpcHandlers } from "./ipc";
 import { stopAllEditors } from "./editor";
 import { killAllTerminals } from "./terminal";
+import { loadWorkspaces } from "./workspaces";
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId("com.electron");
@@ -12,6 +13,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(browserWindow);
   });
 
+  loadWorkspaces();
   registerIpcHandlers();
   createWindow();
 

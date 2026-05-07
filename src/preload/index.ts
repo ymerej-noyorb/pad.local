@@ -1,9 +1,19 @@
 import { contextBridge, ipcRenderer, shell } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import { join } from "path";
-import type { EditorType, EditorInfo, ShellInfo } from "../shared/types";
+import type { EditorType, EditorInfo, ShellInfo, WorkspacesState } from "../shared/types";
 
 const api = {
+  listWorkspaces: (): Promise<WorkspacesState> => ipcRenderer.invoke("workspace:list"),
+  createWorkspace: (name: string): Promise<WorkspacesState> =>
+    ipcRenderer.invoke("workspace:create", name),
+  renameWorkspace: (id: string, name: string): Promise<WorkspacesState> =>
+    ipcRenderer.invoke("workspace:rename", id, name),
+  deleteWorkspace: (id: string): Promise<WorkspacesState> =>
+    ipcRenderer.invoke("workspace:delete", id),
+  switchWorkspace: (id: string): Promise<WorkspacesState> =>
+    ipcRenderer.invoke("workspace:switch", id),
+
   saveScene: (json: string): Promise<void> => ipcRenderer.invoke("scene:save", json),
   loadScene: (): Promise<string | null> => ipcRenderer.invoke("scene:load"),
 
