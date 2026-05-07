@@ -1,6 +1,6 @@
 {
   "name": "padlocal",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "A local-first desktop dev workspace — Excalidraw canvas with embedded VS Code editor and terminal",
   "main": "./out/main/index.js",
   "author": "ymerej-noyorb",
@@ -28,6 +28,7 @@
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^6.0.0",
     "node-pty": "^1.1.0",
+    "prism-react-renderer": "^2.4.1",
     "simple-icons": "^16.17.0"
   },
   "overrides": {

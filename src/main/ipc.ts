@@ -12,6 +12,13 @@ import {
   deleteWorkspace,
   switchWorkspace
 } from "./workspaces";
+import {
+  listDataFiles,
+  readDataFile,
+  deleteDataFile,
+  openStorageFolder,
+  getStoragePath
+} from "./storage";
 import type { EditorType } from "../shared/types";
 
 export function registerIpcHandlers(): void {
@@ -54,6 +61,12 @@ export function registerIpcHandlers(): void {
     const contentBounds = win?.getContentBounds() ?? { x: 0, y: 0 };
     return { x: cursorPos.x - contentBounds.x, y: cursorPos.y - contentBounds.y };
   });
+
+  ipcMain.handle("storage:path", () => getStoragePath());
+  ipcMain.handle("storage:list", () => listDataFiles());
+  ipcMain.handle("storage:read", (_event, name: string) => readDataFile(name));
+  ipcMain.handle("storage:delete", (_event, name: string) => deleteDataFile(name));
+  ipcMain.handle("storage:openFolder", () => openStorageFolder());
 
   ipcMain.handle(
     "browser:setTouchEmulation",
