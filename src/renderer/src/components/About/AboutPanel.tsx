@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IconDatabase } from "@tabler/icons-react";
+import { IconDatabase, IconApps, IconBrandChrome, IconBrandNodejs, IconBrandGithub, IconAtom2 } from "@tabler/icons-react";
 
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
@@ -8,14 +8,15 @@ const ROW_HEIGHT = "2.25rem";
 const ROW_PADDING = "0 0.625rem";
 const ROW_FONT_SIZE = "0.9375rem";
 const ROW_BORDER_RADIUS = 6;
+const ICON_SIZE = 16;
+const ICON_GAP = "0.75rem";
+const TABLER_STROKE = 1.5;
 const DIVIDER_STYLE = {
   height: "1px",
   background: "var(--default-border-color, rgba(255,255,255,0.08))",
   margin: `${PADDING}px 0`
 };
 
-const ICON_SIZE = 16;
-const TABLER_STROKE = 1.5;
 const APP_NAME = "pad.local";
 const GITHUB_URL = "https://github.com/ymerej-noyorb/pad.local";
 
@@ -24,13 +25,31 @@ const TEXT = {
   github: "GitHub"
 } as const;
 
-const RUNTIME_ROWS: { label: string; key: keyof typeof window.api.versions }[] = [
-  { label: "Electron", key: "electron" },
-  { label: "Node", key: "node" },
-  { label: "Chrome", key: "chrome" }
+const RUNTIME_ROWS: { label: string; key: keyof typeof window.api.versions; icon: React.ReactNode }[] = [
+  { label: "Electron", key: "electron", icon: <IconAtom2 size={ICON_SIZE} stroke={TABLER_STROKE} /> },
+  { label: "Node", key: "node", icon: <IconBrandNodejs size={ICON_SIZE} stroke={TABLER_STROKE} /> },
+  { label: "Chrome", key: "chrome", icon: <IconBrandChrome size={ICON_SIZE} stroke={TABLER_STROKE} /> }
 ];
 
-function AboutRow({ left, right }: { left: string; right: string }): React.JSX.Element {
+function IconWrap({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return (
+    <span
+      style={{ display: "flex", alignItems: "center", flexShrink: 0, width: ICON_SIZE, height: ICON_SIZE }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function AboutRow({
+  left,
+  right,
+  icon
+}: {
+  left: string;
+  right: string;
+  icon: React.ReactNode;
+}): React.JSX.Element {
   return (
     <div
       style={{
@@ -45,7 +64,10 @@ function AboutRow({ left, right }: { left: string; right: string }): React.JSX.E
         fontFamily: "var(--ui-font)"
       }}
     >
-      <span>{left}</span>
+      <span style={{ display: "flex", alignItems: "center", gap: ICON_GAP }}>
+        <IconWrap>{icon}</IconWrap>
+        {left}
+      </span>
       <span style={{ opacity: 0.5, fontFamily: "monospace", fontSize: "0.75rem" }}>{right}</span>
     </div>
   );
@@ -114,12 +136,21 @@ export default function AboutPanel({
         zIndex: Z_INDEX
       }}
     >
-      <AboutRow left={APP_NAME} right={`v${__APP_VERSION__}`} />
+      <AboutRow
+        left={APP_NAME}
+        right={`v${__APP_VERSION__}`}
+        icon={<IconApps size={ICON_SIZE} stroke={TABLER_STROKE} />}
+      />
 
       <div style={DIVIDER_STYLE} />
 
-      {RUNTIME_ROWS.map(({ label, key }) => (
-        <AboutRow key={key} left={label} right={window.api.versions[key]} />
+      {RUNTIME_ROWS.map(({ label, key, icon }) => (
+        <AboutRow
+          key={key}
+          left={label}
+          right={window.api.versions[key]}
+          icon={icon}
+        />
       ))}
 
       <div style={DIVIDER_STYLE} />
@@ -135,7 +166,7 @@ export default function AboutPanel({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "0.75rem",
+          gap: ICON_GAP,
           width: "100%",
           height: ROW_HEIGHT,
           padding: ROW_PADDING,
@@ -148,9 +179,9 @@ export default function AboutPanel({
           cursor: "pointer"
         }}
       >
-        <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+        <IconWrap>
           <IconDatabase size={ICON_SIZE} stroke={TABLER_STROKE} />
-        </span>
+        </IconWrap>
         {TEXT.storage}
       </button>
 
@@ -164,6 +195,7 @@ export default function AboutPanel({
         style={{
           display: "flex",
           alignItems: "center",
+          gap: ICON_GAP,
           width: "100%",
           height: ROW_HEIGHT,
           padding: ROW_PADDING,
@@ -177,6 +209,9 @@ export default function AboutPanel({
           opacity: 0.6
         }}
       >
+        <IconWrap>
+          <IconBrandGithub size={ICON_SIZE} stroke={TABLER_STROKE} />
+        </IconWrap>
         {TEXT.github}
       </button>
     </div>
