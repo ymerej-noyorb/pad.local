@@ -142,6 +142,7 @@ export default function Toolbar({
   onDeleteWorkspace
 }: Props): React.JSX.Element {
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
+  const [detectedEditors, setDetectedEditors] = useState<EditorInfo[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
   const [activePicker, setActivePicker] = useState<
     "workspace" | "editor" | "terminal" | "ai" | "browser" | "about" | "storage" | null
@@ -157,6 +158,7 @@ export default function Toolbar({
 
   useEffect(() => {
     window.api.detectEditors().then((editors: EditorInfo[]) => {
+      setDetectedEditors(editors);
       setEditorOptions(
         editors.map((editor) => ({
           value: editor.type,
@@ -349,6 +351,7 @@ export default function Toolbar({
           positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}
           onOpenStorage={() => setActivePicker("storage")}
+          editors={detectedEditors}
         />
       )}
 

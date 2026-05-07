@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { IconDatabase, IconApps, IconBrandChrome, IconBrandNodejs, IconBrandGithub, IconAtom2 } from "@tabler/icons-react";
+import {
+  IconDatabase,
+  IconApps,
+  IconBrandChrome,
+  IconBrandNodejs,
+  IconBrandGithub,
+  IconBrandVscode,
+  IconAtom2
+} from "@tabler/icons-react";
+import type { EditorInfo } from "../../../../shared/types";
 
 const Z_INDEX = 9999;
 const BORDER_RADIUS = 8;
@@ -79,12 +88,14 @@ export default function AboutPanel({
   anchorRef,
   positionRef,
   onClose,
-  onOpenStorage
+  onOpenStorage,
+  editors
 }: {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   positionRef?: React.RefObject<HTMLElement | null>;
   onClose: () => void;
   onOpenStorage: () => void;
+  editors: EditorInfo[];
 }): React.JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ bottom: number; left: number; width: number } | null>(
@@ -142,14 +153,16 @@ export default function AboutPanel({
         icon={<IconApps size={ICON_SIZE} stroke={TABLER_STROKE} />}
       />
 
-      <div style={DIVIDER_STYLE} />
-
       {RUNTIME_ROWS.map(({ label, key, icon }) => (
+        <AboutRow key={key} left={label} right={window.api.versions[key]} icon={icon} />
+      ))}
+
+      {editors.map((editor) => (
         <AboutRow
-          key={key}
-          left={label}
-          right={window.api.versions[key]}
-          icon={icon}
+          key={editor.type}
+          left={editor.label}
+          right={editor.version ?? ""}
+          icon={<IconBrandVscode size={ICON_SIZE} stroke={TABLER_STROKE} />}
         />
       ))}
 
@@ -184,8 +197,6 @@ export default function AboutPanel({
         </IconWrap>
         {TEXT.storage}
       </button>
-
-      <div style={DIVIDER_STYLE} />
 
       <button
         onClick={() => window.api.openExternal(GITHUB_URL)}
