@@ -4,6 +4,7 @@ export interface EditorInfo {
   type: EditorType;
   label: string;
   binary: string;
+  version?: string;
 }
 
 export interface ShellInfo {

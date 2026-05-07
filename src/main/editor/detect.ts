@@ -126,11 +126,22 @@ function findBinary(definition: EditorDefinition): string | null {
   return findBinaryLinux(definition);
 }
 
+function getEditorVersion(binary: string): string | undefined {
+  try {
+    const output = execSync(`"${binary}" --version`, { encoding: "utf-8", timeout: 3000 });
+    return output.split("\n")[0].trim();
+  } catch {
+    return undefined;
+  }
+}
+
 export function detectEditors(): EditorInfo[] {
   return EDITOR_DEFINITIONS.flatMap((definition) => {
     const binary = findBinary(definition);
     if (!binary) return [];
-    return [{ type: definition.type, label: definition.label, binary }];
+    return [
+      { type: definition.type, label: definition.label, binary, version: getEditorVersion(binary) }
+    ];
   });
 }
 

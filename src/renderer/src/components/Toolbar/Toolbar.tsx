@@ -12,8 +12,7 @@ import {
   IconSparkles,
   IconWorld,
   IconInfoCircle,
-  IconFolders,
-  IconDatabase
+  IconFolders
 } from "@tabler/icons-react";
 import { createEmbeddableElement } from "../../lib/createEmbeddable";
 import type {
@@ -43,6 +42,7 @@ interface Props {
 }
 
 const ICON_PX = 20;
+const SI_ICON_PX = 16;
 const BUTTON_SIZE = "2.25rem";
 const TABLER_STROKE = 1.5;
 const ISLAND_GAP = "0.125rem";
@@ -54,7 +54,6 @@ const TEXT = {
   addTerminal: "New terminal",
   addAi: "New AI",
   addBrowser: "New browser",
-  storage: "Local storage",
   about: "About"
 } as const;
 
@@ -66,12 +65,12 @@ const EDITOR_ICONS: Record<EditorType, React.JSX.Element> = {
 };
 
 const AI_ICONS: Record<AiProvider, React.JSX.Element> = {
-  claude: <Icon name="claude" size={ICON_PX} />,
+  claude: <Icon name="claude" size={SI_ICON_PX} />,
   chatgpt: <IconBrandOpenai size={ICON_PX} stroke={TABLER_STROKE} />,
-  gemini: <Icon name="gemini" size={ICON_PX} />,
+  gemini: <Icon name="gemini" size={SI_ICON_PX} />,
   copilot: <IconBrandGithubCopilot size={ICON_PX} stroke={TABLER_STROKE} />,
-  perplexity: <Icon name="perplexity" size={ICON_PX} />,
-  mistral: <Icon name="mistral" size={ICON_PX} />
+  perplexity: <Icon name="perplexity" size={SI_ICON_PX} />,
+  mistral: <Icon name="mistral" size={SI_ICON_PX} />
 };
 
 const AI_OPTIONS: PickerOption[] = AI_PROVIDERS.map((provider) => ({
@@ -144,9 +143,10 @@ export default function Toolbar({
   onDeleteWorkspace
 }: Props): React.JSX.Element {
   const [editorOptions, setEditorOptions] = useState<PickerOption[]>([]);
+  const [detectedEditors, setDetectedEditors] = useState<EditorInfo[]>([]);
   const [shellOptions, setShellOptions] = useState<PickerOption[]>([]);
   const [activePicker, setActivePicker] = useState<
-    "workspace" | "editor" | "terminal" | "ai" | "browser" | "storage" | "about" | null
+    "workspace" | "editor" | "terminal" | "ai" | "browser" | "about" | "storage" | null
   >(null);
 
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -155,11 +155,11 @@ export default function Toolbar({
   const terminalButtonRef = useRef<HTMLButtonElement>(null);
   const aiButtonRef = useRef<HTMLButtonElement>(null);
   const browserButtonRef = useRef<HTMLButtonElement>(null);
-  const storageButtonRef = useRef<HTMLButtonElement>(null);
   const aboutButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     window.api.detectEditors().then((editors: EditorInfo[]) => {
+      setDetectedEditors(editors);
       setEditorOptions(
         editors.map((editor) => ({
           value: editor.type,
@@ -285,12 +285,6 @@ export default function Toolbar({
           onClick={() => setActivePicker(activePicker === "browser" ? null : "browser")}
         />
         <ToolButton
-          buttonRef={storageButtonRef}
-          icon={<IconDatabase size={ICON_PX} stroke={TABLER_STROKE} />}
-          title={TEXT.storage}
-          onClick={() => setActivePicker(activePicker === "storage" ? null : "storage")}
-        />
-        <ToolButton
           buttonRef={aboutButtonRef}
           icon={<IconInfoCircle size={ICON_PX} stroke={TABLER_STROKE} />}
           title={TEXT.about}
@@ -352,16 +346,18 @@ export default function Toolbar({
         />
       )}
 
-      {activePicker === "storage" && (
-        <StoragePanel
-          anchorRef={storageButtonRef}
+      {activePicker === "about" && (
+        <AboutPanel
+          anchorRef={aboutButtonRef}
           positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}
+          onOpenStorage={() => setActivePicker("storage")}
+          editors={detectedEditors}
         />
       )}
 
-      {activePicker === "about" && (
-        <AboutPanel
+      {activePicker === "storage" && (
+        <StoragePanel
           anchorRef={aboutButtonRef}
           positionRef={toolbarRef}
           onClose={() => setActivePicker(null)}
