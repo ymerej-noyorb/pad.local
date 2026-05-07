@@ -34,16 +34,35 @@ const TEXT = {
   github: "GitHub"
 } as const;
 
-const RUNTIME_ROWS: { label: string; key: keyof typeof window.api.versions; icon: React.ReactNode }[] = [
-  { label: "Electron", key: "electron", icon: <IconAtom2 size={ICON_SIZE} stroke={TABLER_STROKE} /> },
+const RUNTIME_ROWS: {
+  label: string;
+  key: keyof typeof window.api.versions;
+  icon: React.ReactNode;
+}[] = [
+  {
+    label: "Electron",
+    key: "electron",
+    icon: <IconAtom2 size={ICON_SIZE} stroke={TABLER_STROKE} />
+  },
   { label: "Node", key: "node", icon: <IconBrandNodejs size={ICON_SIZE} stroke={TABLER_STROKE} /> },
-  { label: "Chrome", key: "chrome", icon: <IconBrandChrome size={ICON_SIZE} stroke={TABLER_STROKE} /> }
+  {
+    label: "Chrome",
+    key: "chrome",
+    icon: <IconBrandChrome size={ICON_SIZE} stroke={TABLER_STROKE} />
+  }
 ];
 
 function IconWrap({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
     <span
-      style={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: ICON_SIZE, height: ICON_SIZE }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        width: ICON_SIZE,
+        height: ICON_SIZE
+      }}
     >
       {children}
     </span>

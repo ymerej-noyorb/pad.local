@@ -139,7 +139,9 @@ export function detectEditors(): EditorInfo[] {
   return EDITOR_DEFINITIONS.flatMap((definition) => {
     const binary = findBinary(definition);
     if (!binary) return [];
-    return [{ type: definition.type, label: definition.label, binary, version: getEditorVersion(binary) }];
+    return [
+      { type: definition.type, label: definition.label, binary, version: getEditorVersion(binary) }
+    ];
   });
 }
 
