@@ -5,7 +5,9 @@ import {
   IconChevronRight,
   IconChevronDown,
   IconAlertTriangle,
-  IconRefresh
+  IconRefresh,
+  IconUpload,
+  IconDownload
 } from "@tabler/icons-react";
 import { Highlight } from "prism-react-renderer";
 import type { PrismTheme } from "prism-react-renderer";
@@ -31,12 +33,16 @@ const TEXT = {
   title: "App data",
   openFolder: "Open in explorer",
   refresh: "Refresh",
+  exportData: "Export all data",
+  importData: "Import data",
   loading: "Loading…",
   empty: "No files found.",
   deleteLabel: "Delete",
   deleteCancelLabel: "Cancel",
   deleteConfirmLabel: "Delete permanently",
-  criticalWarning: "Deleting this file will reset its data on next launch."
+  criticalWarning: "Deleting this file will reset its data on next launch.",
+  importSuccess: "Data imported — restart the app to apply changes.",
+  importError: "Import failed: file may be invalid or corrupted."
 } as const;
 
 function formatSize(bytes: number): string {
@@ -95,6 +101,7 @@ export default function StoragePanel({
   const [expandedFile, setExpandedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<Record<string, string>>({});
   const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
+  const [importNotice, setImportNotice] = useState<"success" | "error" | null>(null);
 
   useEffect(() => {
     const ref = positionRef ?? anchorRef;
@@ -144,6 +151,17 @@ export default function StoragePanel({
     }
   }
 
+  async function handleImport(): Promise<void> {
+    try {
+      const result = await window.api.importData();
+      if (!result.success) return;
+      setImportNotice("success");
+      loadFiles();
+    } catch {
+      setImportNotice("error");
+    }
+  }
+
   async function handleDelete(name: string): Promise<void> {
     await window.api.deleteDataFile(name);
     setFiles((previous) => previous?.filter((file) => file.name !== name) ?? null);
@@ -181,6 +199,8 @@ export default function StoragePanel({
         storagePath={storagePath}
         onOpenFolder={() => window.api.openStorageFolder()}
         onRefresh={loadFiles}
+        onExport={() => window.api.exportData()}
+        onImport={handleImport}
       />
 
       <div
@@ -190,6 +210,26 @@ export default function StoragePanel({
           margin: `${PADDING}px 0`
         }}
       />
+
+      {importNotice && (
+        <div
+          style={{
+            margin: `0 0 ${PADDING}px`,
+            padding: "0.375rem 0.625rem",
+            borderRadius: ROW_BORDER_RADIUS,
+            fontSize: "0.75rem",
+            fontFamily: "var(--ui-font)",
+            background:
+              importNotice === "success" ? "rgba(166,227,161,0.12)" : "rgba(243,139,168,0.12)",
+            color:
+              importNotice === "success"
+                ? "var(--color-success, #a6e3a1)"
+                : "var(--color-danger, #f38ba8)"
+          }}
+        >
+          {importNotice === "success" ? TEXT.importSuccess : TEXT.importError}
+        </div>
+      )}
 
       <div
         style={{
@@ -249,11 +289,15 @@ export default function StoragePanel({
 function Header({
   storagePath,
   onOpenFolder,
-  onRefresh
+  onRefresh,
+  onExport,
+  onImport
 }: {
   storagePath: string;
   onOpenFolder: () => void;
   onRefresh: () => void;
+  onExport: () => void;
+  onImport: () => void;
 }): React.JSX.Element {
   return (
     <div
@@ -281,6 +325,12 @@ function Header({
       </span>
       <ActionButton title={TEXT.refresh} onClick={onRefresh}>
         <IconRefresh size={ACTION_ICON_SIZE} stroke={TABLER_STROKE} />
+      </ActionButton>
+      <ActionButton title={TEXT.exportData} onClick={onExport}>
+        <IconDownload size={ACTION_ICON_SIZE} stroke={TABLER_STROKE} />
+      </ActionButton>
+      <ActionButton title={TEXT.importData} onClick={onImport}>
+        <IconUpload size={ACTION_ICON_SIZE} stroke={TABLER_STROKE} />
       </ActionButton>
       <ActionButton title={TEXT.openFolder} onClick={onOpenFolder}>
         <IconFolderOpen size={ACTION_ICON_SIZE} stroke={TABLER_STROKE} />
