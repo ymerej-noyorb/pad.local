@@ -11,17 +11,18 @@ files:
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
 asarUnpack:
   - resources/**
+afterPack: build/afterPack.js
 win:
   executableName: padlocal
   target:
     - nsis
-    - portable
+    - zip
 nsis:
   artifactName: ${name}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-portable:
+zip:
   artifactName: ${name}-portable.${ext}
 mac:
   entitlementsInherit: build/entitlements.mac.plist
