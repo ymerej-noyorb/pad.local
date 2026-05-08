@@ -1,4 +1,4 @@
-import { ipcMain, webContents, screen, BrowserWindow } from "electron";
+import { ipcMain, webContents, screen, BrowserWindow, dialog } from "electron";
 import { loadScene, saveScene } from "./scene";
 import { startEditor, getEditorReady, getEditorError, getEditorPort } from "./editor";
 import { loadEditorUrl, saveEditorUrl } from "./editor/state";
@@ -17,7 +17,9 @@ import {
   readDataFile,
   deleteDataFile,
   openStorageFolder,
-  getStoragePath
+  getStoragePath,
+  exportData,
+  importData
 } from "./storage";
 import type { EditorType } from "../shared/types";
 
@@ -67,6 +69,29 @@ export function registerIpcHandlers(): void {
   ipcMain.handle("storage:read", (_event, name: string) => readDataFile(name));
   ipcMain.handle("storage:delete", (_event, name: string) => deleteDataFile(name));
   ipcMain.handle("storage:openFolder", () => openStorageFolder());
+
+  ipcMain.handle("storage:export", async () => {
+    const date = new Date().toISOString().slice(0, 10);
+    const result = await dialog.showSaveDialog({
+      title: "Export app data",
+      defaultPath: `padlocal-backup-${date}.json`,
+      filters: [{ name: "pad.local backup", extensions: ["json"] }]
+    });
+    if (result.canceled || !result.filePath) return { success: false };
+    exportData(result.filePath);
+    return { success: true };
+  });
+
+  ipcMain.handle("storage:import", async () => {
+    const result = await dialog.showOpenDialog({
+      title: "Import app data",
+      filters: [{ name: "pad.local backup", extensions: ["json"] }],
+      properties: ["openFile"]
+    });
+    if (result.canceled || !result.filePaths[0]) return { success: false };
+    const filesImported = importData(result.filePaths[0]);
+    return { success: true, filesImported };
+  });
 
   ipcMain.handle(
     "browser:setTouchEmulation",

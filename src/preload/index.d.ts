@@ -44,6 +44,8 @@ declare global {
       readDataFile: (name: string) => Promise<string>;
       deleteDataFile: (name: string) => Promise<void>;
       openStorageFolder: () => Promise<void>;
+      exportData: () => Promise<{ success: boolean }>;
+      importData: () => Promise<{ success: boolean; filesImported?: number }>;
     };
   }
 }

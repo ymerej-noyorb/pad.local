@@ -85,7 +85,10 @@ const api = {
   listDataFiles: (): Promise<DataFile[]> => ipcRenderer.invoke("storage:list"),
   readDataFile: (name: string): Promise<string> => ipcRenderer.invoke("storage:read", name),
   deleteDataFile: (name: string): Promise<void> => ipcRenderer.invoke("storage:delete", name),
-  openStorageFolder: (): Promise<void> => ipcRenderer.invoke("storage:openFolder")
+  openStorageFolder: (): Promise<void> => ipcRenderer.invoke("storage:openFolder"),
+  exportData: (): Promise<{ success: boolean }> => ipcRenderer.invoke("storage:export"),
+  importData: (): Promise<{ success: boolean; filesImported?: number }> =>
+    ipcRenderer.invoke("storage:import")
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);

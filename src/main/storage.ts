@@ -1,8 +1,10 @@
 import { app, shell } from "electron";
 import { join } from "path";
-import { readdirSync, statSync, readFileSync, unlinkSync } from "fs";
+import { readdirSync, statSync, readFileSync, writeFileSync, unlinkSync } from "fs";
 import { getWorkspacesState } from "./workspaces";
 import type { DataFile } from "../shared/types";
+
+const BACKUP_VERSION = "1";
 
 function getUserDataPath(): string {
   return app.getPath("userData");
@@ -74,4 +76,50 @@ export function openStorageFolder(): Promise<string> {
 
 export function getStoragePath(): string {
   return getUserDataPath();
+}
+
+export function exportData(targetPath: string): void {
+  const userDataPath = getUserDataPath();
+  const names = readdirSync(userDataPath).filter((name) => name.endsWith(".json"));
+  const files: Record<string, string> = {};
+  for (const name of names) {
+    files[name] = readFileSync(join(userDataPath, name), "utf-8");
+  }
+  const archive = JSON.stringify(
+    { version: BACKUP_VERSION, exportedAt: new Date().toISOString(), files },
+    null,
+    2
+  );
+  writeFileSync(targetPath, archive, "utf-8");
+}
+
+const SCENE_ID_PATTERN = /^(default|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+
+function isAllowedFileName(name: string): boolean {
+  if (name === "workspaces.json") return true;
+  if (name === "editor-urls.json") return true;
+  if (name === "terminal-cwds.json") return true;
+  if (name.startsWith("scene-") && name.endsWith(".json")) {
+    const id = name.slice("scene-".length, -".json".length);
+    return SCENE_ID_PATTERN.test(id);
+  }
+  return false;
+}
+
+export function importData(sourcePath: string): number {
+  const userDataPath = getUserDataPath();
+  const raw = readFileSync(sourcePath, "utf-8");
+  const archive = JSON.parse(raw) as { version?: string; files?: unknown };
+  if (!archive.files || typeof archive.files !== "object" || Array.isArray(archive.files)) {
+    throw new Error("Invalid backup file: missing 'files' field");
+  }
+  let count = 0;
+  for (const [name, content] of Object.entries(archive.files as Record<string, unknown>)) {
+    if (!isAllowedFileName(name)) continue;
+    if (typeof content !== "string") continue;
+    JSON.parse(content); // throws if content is not valid JSON
+    writeFileSync(join(userDataPath, name), content, "utf-8");
+    count++;
+  }
+  return count;
 }
