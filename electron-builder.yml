@@ -14,6 +14,7 @@ asarUnpack:
 afterPack: build/afterPack.js
 win:
   executableName: padlocal
+  artifactName: ${name}-portable.${ext}
   target:
     - nsis
     - zip
@@ -22,8 +23,6 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-zip:
-  artifactName: ${name}-portable.${ext}
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
