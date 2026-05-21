@@ -13,7 +13,7 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 **Prerequisites:** Node.js 20.19+ or 22.12+ (minimum imposed by Vite 7; Node.js 24 LTS recommended) and at least one of VS Code, Cursor, Windsurf, or VSCodium installed (macOS, Windows, Linux). WSL is not supported — VS Code's CLI in WSL is a remote wrapper that does not expose a web server.
 
-**VS Code version constraint:** VS Code 1.119.0 introduced a regression ([issue #315003](https://github.com/microsoft/vscode/issues/315003)) that breaks `serve-web` on localhost — the extension host WebSocket upgrade fails, causing an endless "Time limit reached" error in the Editor panel. The fix is to stay on **VS Code ≤ 1.118.x** and disable auto-updates until a patch is released (1.119.1 or 1.120). This affects serve-web regardless of whether it is launched from pad.local or directly from the terminal, and also reproduces in regular browsers — it is not an Electron/pad.local bug.
+**VS Code version constraint:** VS Code 1.119.0 introduced a regression ([issue #315003](https://github.com/microsoft/vscode/issues/315003)) that breaks `serve-web` on localhost — the extension host WebSocket upgrade fails, causing an endless "Time limit reached" error in the Editor panel. Fixed in 1.121.0 ([PR #315802](https://github.com/microsoft/vscode/pull/315802)). Use **VS Code ≤ 1.118.x or ≥ 1.121.0**. This affects serve-web regardless of whether it is launched from pad.local or directly from the terminal, and also reproduces in regular browsers — it is not an Electron/pad.local bug.
 
 ---
 
