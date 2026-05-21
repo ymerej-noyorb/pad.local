@@ -4,12 +4,12 @@ Thanks for taking the time to contribute!
 
 ---
 
-## Prerequisites
+## 🔧 Prerequisites
 
 - Node.js 20.19+ (24 LTS recommended)
 - At least one of: VS Code, Cursor, Windsurf, or VSCodium
 
-## Setup
+## ⚡ Setup
 
 ```bash
 git clone https://github.com/ymerej-noyorb/pad.local
@@ -20,7 +20,7 @@ npm run dev
 
 ---
 
-## Before submitting a PR
+## ✅ Before submitting a PR
 
 Make sure these pass locally:
 
@@ -34,7 +34,7 @@ Auto-fix formatting with `npm run format`.
 
 ---
 
-## Code conventions
+## 📐 Code conventions
 
 These are enforced — PRs that don't follow them won't be merged.
 
@@ -47,13 +47,13 @@ These are enforced — PRs that don't follow them won't be merged.
 
 ---
 
-## Commit messages
+## 💬 Commit messages
 
 This project uses [Gitmoji](https://gitmoji.dev) for commit messages. Pick the emoji that best matches your change — e.g. `✨ Add browser touch simulation`, `🐛 Fix terminal CWD not restoring`, `📝 Update README`.
 
 ---
 
-## Submitting a PR
+## 🚀 Submitting a PR
 
 1. Fork the repo and create a branch from `main` (`feature/...`, `fix/...`, `docs/...`, etc.)
 2. Make your changes
@@ -62,6 +62,6 @@ This project uses [Gitmoji](https://gitmoji.dev) for commit messages. Pick the e
 
 ---
 
-## Reporting a bug or requesting a feature
+## 🐛 Reporting a bug or requesting a feature
 
 Use the [GitHub Issues](https://github.com/ymerej-noyorb/pad.local/issues) tab and pick the appropriate template.
