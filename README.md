@@ -120,7 +120,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ## 🤝 Contributing
 
-PRs are welcome. For significant changes, [open an issue](https://github.com/ymerej-noyorb/pad.local/issues) first to discuss what you'd like to change.
+PRs are welcome. For significant changes, [open an issue](https://github.com/ymerej-noyorb/pad.local/issues) first to discuss what you'd like to change. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 
