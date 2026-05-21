@@ -17,7 +17,7 @@ Open source. No cloud. No auth. No database.
 
 ---
 
-## What's inside
+## 🧩 What's inside
 
 | Panel          | Tech                                                                                                            |
 | -------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -35,13 +35,13 @@ You can organize your work across multiple **workspaces** — independent canvas
 
 ---
 
-## Download
+## 📦 Download
 
 Pre-built binaries for macOS, Windows, and Linux are available on the [releases page](https://github.com/ymerej-noyorb/pad.local/releases/latest).
 
 ---
 
-## Getting started
+## 🚀 Getting started
 
 ### Prerequisites
 
@@ -62,7 +62,7 @@ npm run dev
 
 ---
 
-## Stack
+## 🛠️ Stack
 
 - **[Electron](https://www.electronjs.org/)** — Desktop shell
 - **[React](https://react.dev/) + TypeScript** — UI
@@ -73,7 +73,7 @@ npm run dev
 
 ---
 
-## How it works
+## ⚙️ How it works
 
 When you launch pad.local, Electron loads Excalidraw fullscreen. From there:
 
@@ -89,7 +89,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ---
 
-## Persistence
+## 💾 Persistence
 
 - Workspace list and active workspace → `workspaces.json` in Electron's userData folder
 - Each workspace canvas (elements, positions, zoom level) → `scene-{workspaceId}.json` — one file per workspace
@@ -101,7 +101,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ---
 
-## Design principles
+## 🎯 Design principles
 
 - **Local first** — works offline, always
 - **Zero infra** — no server, no database, no auth
@@ -109,7 +109,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ---
 
-## Known limitations
+## ⚠️ Known limitations
 
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
@@ -118,13 +118,13 @@ Everything runs locally. Nothing leaves your machine.
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 PRs are welcome. For significant changes, [open an issue](https://github.com/ymerej-noyorb/pad.local/issues) first to discuss what you'd like to change.
 
 ---
 
-## Inspired by
+## 💡 Inspired by
 
 [pad.ws](https://github.com/coderamp-labs/pad.ws) — the original inspiration. pad.local is a local-only reimagining with an added AI panel.
 
@@ -132,6 +132,6 @@ PRs are welcome. For significant changes, [open an issue](https://github.com/yme
 
 ---
 
-## License
+## 📄 License
 
 [MIT](LICENSE)
