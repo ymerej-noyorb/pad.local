@@ -5,6 +5,7 @@
 [![Node.js 20.19+](https://img.shields.io/badge/node-20.19%2B-brightgreen)](https://nodejs.org)
 [![Electron](https://img.shields.io/badge/built%20with-Electron-47848F)](https://www.electronjs.org)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)](https://github.com/ymerej-noyorb/pad.local)
+[![CI](https://github.com/ymerej-noyorb/pad.local/actions/workflows/ci.yml/badge.svg)](https://github.com/ymerej-noyorb/pad.local/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Website](https://img.shields.io/badge/website-padlocal.vercel.app-blueviolet)](https://padlocal.vercel.app)
 
@@ -34,57 +35,21 @@ You can organize your work across multiple **workspaces** — independent canvas
 
 ---
 
+## Download
+
+Pre-built binaries for macOS, Windows, and Linux are available on the [releases page](https://github.com/ymerej-noyorb/pad.local/releases/latest).
+
+---
+
 ## Getting started
 
 ### Prerequisites
 
-**Node.js 20.19+** (22 LTS or 24 LTS recommended — minimum imposed by Vite 7) and at least one of **VS Code**, **Cursor**, **Windsurf**, or **VSCodium** installed and available in your `PATH`.
+**Node.js 20.19+** (24 LTS recommended) and at least one of **VS Code**, **Cursor**, **Windsurf**, or **VSCodium** in your `PATH`.
 
-Supported platforms: macOS, Windows, Linux. **WSL is not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
+Install Node.js via [nvm](https://github.com/nvm-sh/nvm) (macOS/Linux) or [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (Windows), or download from [nodejs.org](https://nodejs.org).
 
-#### Install Node.js — macOS
-
-Using [nvm](https://github.com/nvm-sh/nvm) (recommended):
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-# restart your terminal, then:
-nvm install 24
-nvm use 24
-```
-
-Or using Homebrew: `brew install node@24`
-
-#### Install Node.js — Windows
-
-Using [nvm-windows](https://github.com/coreybutler/nvm-windows/releases) (recommended) — download the installer, then:
-
-```powershell
-nvm install 24
-nvm use 24
-```
-
-Or download the official **v24 LTS** installer from [nodejs.org](https://nodejs.org).
-
-> Install Node.js in native Windows, not inside WSL.
-
-#### Install Node.js — Linux
-
-Using [nvm](https://github.com/nvm-sh/nvm) (recommended):
-
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-# restart your terminal, then:
-nvm install 24
-nvm use 24
-```
-
-Or via NodeSource (Ubuntu / Debian):
-
-```bash
-curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt-get install -y nodejs
-```
+> **Windows:** install Node.js in native Windows, not inside WSL. WSL is not supported.
 
 ### Run
 
@@ -93,39 +58,6 @@ git clone https://github.com/ymerej-noyorb/pad.local
 cd pad.local
 npm install
 npm run dev
-```
-
----
-
-## Building for distribution
-
-### macOS — produces a `.dmg`
-
-```bash
-npm run build:mac
-```
-
-Output: `dist/pad.local.dmg`.
-
-### Windows — produces a `.exe` installer
-
-```bash
-npm run build:win
-```
-
-Output: `dist/pad.local-setup.exe` (NSIS installer). No administrator rights required.
-
-### Linux — produces an `.AppImage` and a `.deb`
-
-```bash
-npm run build:linux
-```
-
-Outputs: `dist/pad.local.AppImage` and a `.deb` package. To run the AppImage directly — no installation needed:
-
-```bash
-chmod +x dist/pad.local.AppImage
-./dist/pad.local.AppImage
 ```
 
 ---
@@ -181,14 +113,20 @@ Everything runs locally. Nothing leaves your machine.
 
 - **WSL not supported** — VS Code's CLI in WSL is a remote wrapper that does not expose `serve-web`.
 - **Supported editors: VS Code forks only** — The Editor panel works by embedding a local HTTP server (`serve-web`) in a webview. Only VS Code, Cursor, Windsurf, and VSCodium support this. JetBrains IDEs and Zed have no equivalent; terminal-based editors (Neovim, Vim, Helix…) work via the Terminal panel instead.
-- **VS Code 1.119.x and 1.120.x break serve-web** — A regression introduced in 1.119.0 ([issue #315003](https://github.com/microsoft/vscode/issues/315003), fixed by [PR #315802](https://github.com/microsoft/vscode/pull/315802) in 1.121.0) prevents the extension host from connecting, causing an endless "Time limit reached" error. Use **VS Code ≤ 1.118.x or ≥ 1.121.0**. To roll back to 1.118.0: download the [installer](https://update.code.visualstudio.com/1.118.0/win32-x64-user/stable) and reinstall — your extensions and settings are preserved.
+- **VS Code 1.119.x and 1.120.x break serve-web** — A regression in those versions prevents the extension host from connecting, causing an endless "Time limit reached" error. Use **VS Code ≤ 1.118.x or ≥ 1.121.0**.
 - **Security warnings on first launch** — The distributed binaries are not code-signed. On Windows, SmartScreen will warn you ("Windows protected your PC") — click _More info → Run anyway_ to proceed. On macOS, Gatekeeper will block the app on first open — go to _System Settings → Privacy & Security_ and click _Open Anyway_. This is expected for an unsigned open-source app.
+
+---
+
+## Contributing
+
+PRs are welcome. For significant changes, [open an issue](https://github.com/ymerej-noyorb/pad.local/issues) first to discuss what you'd like to change.
 
 ---
 
 ## Inspired by
 
-[pad.ws](https://github.com/coderamp-labs/pad.ws) — great concept, now abandoned (last commit Aug 2025, site down). pad.local is the "just run it" version — and adds an AI panel that pad.ws never had.
+[pad.ws](https://github.com/coderamp-labs/pad.ws) — the original inspiration. pad.local is a local-only reimagining with an added AI panel.
 
 [ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.
 
