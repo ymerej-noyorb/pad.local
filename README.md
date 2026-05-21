@@ -30,8 +30,6 @@ All panels live as nodes inside the Excalidraw canvas — drag them anywhere, re
 
 You can organize your work across multiple **workspaces** — independent canvases, each with its own layout of panels. Switch, create, rename, or delete workspaces from the toolbar.
 
-![pad.local banner](docs/banner.png)
-
 ![pad.local screenshot](docs/screenshot.png)
 
 ---
