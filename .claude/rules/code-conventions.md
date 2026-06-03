@@ -6,3 +6,5 @@
 - No magic numbers inline — extract numeric values into named constants (`SCREAMING_SNAKE_CASE`).
 - Constants used in a single file are declared at the top of that file. Only create a shared external file when a constant is used across multiple files.
 - Code must be KISS and readable. Prefer explicit names over abbreviations: `element` not `el`, `index` not `i`, `error` not `err`, etc.
+- Avoid `any` — use a proper type or `unknown`. The TypeScript config has `noImplicitAny: false` so implicit `any` passes without error; it must still be avoided.
+- File naming: `PascalCase` for React components and their files (`BrowserPanel.tsx`), `camelCase` for hooks (`useScene.ts`), utilities (`createEmbeddable.ts`), and all main-process files.

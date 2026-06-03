@@ -2,12 +2,12 @@
   "permissions": {
     "deny": ["WebFetch", "WebSearch"],
     "allow": [
-      "Bash(npm run dev:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm run lint:*)",
-      "Bash(npm run typecheck:*)",
-      "Bash(npm run format:*)",
-      "Bash(npm install:*)",
+      "Bash(npm run dev*)",
+      "Bash(npm run build*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run typecheck*)",
+      "Bash(npm run format*)",
+      "Bash(npm install*)",
       "Bash(npx electron-vite:*)",
       "Bash(node:*)",
       "Bash(git status:*)",
