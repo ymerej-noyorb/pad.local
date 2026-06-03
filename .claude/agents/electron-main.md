@@ -23,11 +23,16 @@ You do not touch renderer React components. If a change requires renderer work, 
 - Main → renderer push: `BrowserWindow.getAllWindows().forEach(w => w.webContents.send("channel", payload))`
 - Every listener exposed through contextBridge must return an unsubscribe function: `ipcRenderer.on(...)` + return `() => ipcRenderer.removeListener(...)`
 
+**Workspace switch lifecycle:**
+- On switch: the renderer sets `ready=false` (Excalidraw + all panels unmount), loads the new scene, then sets `ready=true` to remount everything
+- PTY sessions and `serve-web` processes intentionally survive workspace switches — they are reused if the same element is present when returning to a workspace
+- Only `killAllTerminals()` and `stopAllEditors()` on `before-quit` clean them up — never kill them on switch
+
 **Terminal (`src/main/terminal/`):**
 - PTY sessions are managed via `node-pty` and stored in a `Map<string, IPty>`
-- Sessions are intentionally NOT killed on workspace switch — only `killAllTerminals()` on `before-quit` cleans them up
+- Sessions are intentionally NOT killed when the Terminal React component unmounts (Excalidraw re-renders, workspace switches) — only `killAllTerminals()` on `before-quit` cleans them up
 - On Windows, killing a ConPTY propagates `STATUS_CONTROL_C_EXIT` to PTYs spawned shortly after in the same console group — never kill PTYs reactively
-- OSC 7 escape sequences are parsed in `src/main/terminal/state.ts` to track and persist CWD per terminal ID
+- OSC 7 escape sequences are parsed in `src/main/terminal/state.ts` to track and persist CWD per terminal ID; bash, PowerShell, and cmd do not emit OSC 7 and always start from `$HOME`
 - Shell detection is in `src/main/terminal/detect.ts`
 
 **Editor (`src/main/editor/`):**
@@ -45,14 +50,6 @@ You do not touch renderer React components. If a change requires renderer work, 
 - All main-process APIs are exposed via a single `contextBridge.exposeInMainWorld("api", { ... })` call
 - Type definitions live in `src/preload/index.d.ts` as `Window["api"]`
 - Never expose `ipcRenderer` directly — always wrap in typed functions
-
-## Code conventions
-
-- Semicolons on every statement
-- No magic numbers inline — named constants in SCREAMING_SNAKE_CASE
-- Explicit names: `element` not `el`, `error` not `err`, `index` not `i`, etc.
-- No inline user-visible strings — but main process has very few of those; apply judgment
-- KISS: no premature abstractions, no error handling for impossible cases, no backwards-compat shims
 
 ## When adding a new IPC feature
 

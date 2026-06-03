@@ -1,21 +1,5 @@
 # Architecture decisions
 
-## IDE support scope
-
-The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This requires the IDE to expose a local HTTP server serving a full web UI — a capability specific to VS Code and its forks.
-
-**Supported (or trivially supportable):**
-
-- VS Code — the default, uses `code serve-web`
-- Cursor — VS Code fork, inherits `serve-web`; only binary detection differs
-- Windsurf — VS Code fork, same as Cursor
-- VSCodium — VS Code fork, same as Cursor
-
-**Not supported:**
-
-- Terminal-based editors (Neovim, Vim, Helix, Emacs…) — already usable via the Terminal panel; no dedicated Editor node needed
-- JetBrains IDEs, Zed, and any other desktop IDE without a `serve-web` equivalent — see ruled out below
-
 ## What we explicitly ruled out
 
 - ❌ Test suite (unit, integration, e2e) — no test infrastructure exists and none is planned; do not suggest adding tests or test frameworks
