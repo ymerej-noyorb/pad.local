@@ -128,7 +128,7 @@ PRs are welcome. For significant changes, [open an issue](https://github.com/yme
 
 [pad.ws](https://github.com/coderamp-labs/pad.ws) — the original inspiration. pad.local is a local-only reimagining with an added AI panel.
 
-[ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.
+[ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the isolated per-provider session approach for the AI panel.
 
 ---
 
