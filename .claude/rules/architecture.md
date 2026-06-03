@@ -18,6 +18,8 @@ The Editor panel embeds an IDE via `<webview src="http://localhost:PORT">`. This
 
 ## What we explicitly ruled out
 
+- ❌ Test suite (unit, integration, e2e) — no test infrastructure exists and none is planned; do not suggest adding tests or test frameworks
+
 - ❌ Authentication (Keycloak or anything else) — single user, local machine
 - ❌ Database (PostgreSQL or anything else) — JSON files for persistence
 - ❌ Cloud / remote server — zero infra cost is a hard requirement
