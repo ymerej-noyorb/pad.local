@@ -43,8 +43,20 @@ The goal: any developer clones it, `npm install && npm run dev`, done.
 
 ---
 
+## Dev workflow
+
+| Command                | Purpose                                                      |
+| ---------------------- | ------------------------------------------------------------ |
+| `npm run dev`          | Start the app in development mode (HMR enabled)              |
+| `npm run typecheck`    | Type-check both `tsconfig.node.json` and `tsconfig.web.json` |
+| `npm run lint`         | ESLint                                                       |
+| `npm run format:check` | Prettier check (no write)                                    |
+| `npm run format`       | Prettier write                                               |
+
+CI runs `format:check` → `lint` → `typecheck` then builds on Linux, Windows, and macOS — all blocking on every PR targeting `main`.
+
+---
+
 ## Inspiration
 
 [pad.ws](https://github.com/coderamp-labs/pad.ws) — the original inspiration. pad.local is a simpler, local-only reimagining of the same idea.
-
-[ai-assistant-electron](https://github.com/Andaroth/ai-assistant-electron) — inspired the `partition="persist:ai-<providerId>"` pattern for isolated per-provider cookie stores in the AI panel.
