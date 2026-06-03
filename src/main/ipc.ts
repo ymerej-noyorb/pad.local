@@ -49,8 +49,11 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     "terminal:spawn",
-    (_event, id: string, shell: string, cols: number, rows: number) =>
-      spawnTerminal(id, shell, cols, rows)
+    (_event, id: string, shell: string, cols: number, rows: number) => {
+      const allowedPaths = detectShells().map((shellInfo) => shellInfo.path);
+      if (!allowedPaths.includes(shell)) return;
+      spawnTerminal(id, shell, cols, rows);
+    }
   );
   ipcMain.handle("terminal:write", (_event, id: string, data: string) => writeTerminal(id, data));
   ipcMain.handle("terminal:resize", (_event, id: string, cols: number, rows: number) =>
