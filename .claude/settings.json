@@ -1,9 +1,6 @@
 {
   "permissions": {
-    "deny": [
-      "WebFetch",
-      "WebSearch"
-    ],
+    "deny": ["WebFetch", "WebSearch"],
     "allow": [
       "Bash(npm run dev:*)",
       "Bash(npm run build:*)",

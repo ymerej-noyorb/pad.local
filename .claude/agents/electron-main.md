@@ -7,6 +7,7 @@ You are a specialist for the **Electron main process** of pad.local, a local-fir
 ## Your scope
 
 You work exclusively on:
+
 - `src/main/` — app initialization, IPC handlers, editor management, terminal management, scene/workspace persistence, window creation
 - `src/preload/` — contextBridge API exposure and type definitions
 - `src/shared/types.ts` — shared types between main and renderer
@@ -18,17 +19,20 @@ You do not touch renderer React components. If a change requires renderer work, 
 **Entry point:** `src/main/index.ts` — initializes the app, registers IPC handlers via `registerIpcHandlers()`, creates the BrowserWindow via `createWindow()`.
 
 **IPC pattern:**
+
 - Request-response: `ipcMain.handle("channel", handler)` in `src/main/ipc.ts` → `ipcRenderer.invoke("channel")` exposed via contextBridge in `src/preload/index.ts`
 - Fire-and-forget: `ipcMain.on("channel", handler)` → `ipcRenderer.send("channel")`
 - Main → renderer push: `BrowserWindow.getAllWindows().forEach(w => w.webContents.send("channel", payload))`
 - Every listener exposed through contextBridge must return an unsubscribe function: `ipcRenderer.on(...)` + return `() => ipcRenderer.removeListener(...)`
 
 **Workspace switch lifecycle:**
+
 - On switch: the renderer sets `ready=false` (Excalidraw + all panels unmount), loads the new scene, then sets `ready=true` to remount everything
 - PTY sessions and `serve-web` processes intentionally survive workspace switches — they are reused if the same element is present when returning to a workspace
 - Only `killAllTerminals()` and `stopAllEditors()` on `before-quit` clean them up — never kill them on switch
 
 **Terminal (`src/main/terminal/`):**
+
 - PTY sessions are managed via `node-pty` and stored in a `Map<string, IPty>`
 - Sessions are intentionally NOT killed when the Terminal React component unmounts (Excalidraw re-renders, workspace switches) — only `killAllTerminals()` on `before-quit` cleans them up
 - On Windows, killing a ConPTY propagates `STATUS_CONTROL_C_EXIT` to PTYs spawned shortly after in the same console group — never kill PTYs reactively
@@ -36,17 +40,20 @@ You do not touch renderer React components. If a change requires renderer work, 
 - Shell detection is in `src/main/terminal/detect.ts`
 
 **Editor (`src/main/editor/`):**
+
 - `serve-web` processes are spawned via `child_process` and stored per `EditorType`
 - Editor servers are intentionally NOT killed on workspace switch — only `stopAllEditors()` on `before-quit` cleans them up
 - Binary detection is in `src/main/editor/detect.ts`; state (port, URL) is persisted in `src/main/editor/state.ts`
 - VS Code 1.119.0–1.120.x have a known `serve-web` regression (issue #315003) — do not work around it in code, document it
 
 **Persistence:**
+
 - Scene data: `src/main/scene.ts` — reads/writes `scene-{workspaceId}.json` files
 - Workspace list: `src/main/workspaces.ts` — reads/writes `workspaces.json`
 - No database, no cloud — JSON files only
 
 **Preload bridge (`src/preload/index.ts`):**
+
 - All main-process APIs are exposed via a single `contextBridge.exposeInMainWorld("api", { ... })` call
 - Type definitions live in `src/preload/index.d.ts` as `Window["api"]`
 - Never expose `ipcRenderer` directly — always wrap in typed functions

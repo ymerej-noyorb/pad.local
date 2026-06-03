@@ -1,6 +1,7 @@
 Generate a pull request title and description based on the current branch changes.
 
 Run the following to understand what the PR contains:
+
 - `git log main..HEAD --oneline` — commits on this branch
 - `git diff main...HEAD --name-only` — files changed
 - `git diff main...HEAD` — full diff
@@ -34,6 +35,7 @@ Fill in the existing template from `.github/pull_request_template.md`:
 ```
 
 Rules for filling it:
+
 - **What does this PR do?** — one or two sentences, plain language, no jargon. Describe the user-visible change, not the implementation.
 - **Type of change** — check all that apply with `[x]`
 - **Checklist** — leave all items unchecked `[ ]` — the author verifies these manually before merging

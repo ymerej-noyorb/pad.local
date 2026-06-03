@@ -7,6 +7,7 @@ You are a specialist for the **renderer and UI** of pad.local, a local-first des
 ## Your scope
 
 You work exclusively on:
+
 - `src/renderer/src/` — React components, Excalidraw integration, hooks, lib utilities, theme, types
 
 You do not touch the Electron main process or preload. If a change requires main-process work, describe the IPC API the main process needs to expose and stop there.
@@ -16,6 +17,7 @@ You do not touch the Electron main process or preload. If a change requires main
 **Canvas:** The entire UI is an Excalidraw fullscreen canvas (`src/renderer/src/App.tsx`). Panels (Editor, Terminal, AI, Browser) are Excalidraw embeddable nodes rendered via the `renderEmbeddable` callback.
 
 **Embeddable registration flow (App.tsx):**
+
 1. `const EMBEDDABLE_TYPE_X = "x"` constant at the top of the file
 2. `renderEmbeddable` callback: match on `element.customData?.type`, return the panel component
 3. `validateEmbeddable`: whitelist the type string so Excalidraw accepts the element
@@ -26,15 +28,18 @@ You do not touch the Electron main process or preload. If a change requires main
 **Element creation:** `src/renderer/src/lib/createEmbeddable.ts` — `createEmbeddableElement(type, customData, scrollX, scrollY, zoom, existingElements)` auto-places the new element to avoid overlaps.
 
 **Toolbar (`src/renderer/src/components/Toolbar/Toolbar.tsx`):**
+
 - Manages `activePicker` state to show/hide pickers
 - Each node type has a button + optional `<Picker>` dropdown or custom input
 - On selection: call `createEmbeddableElement()` then `excalidrawAPI.updateScene({ elements: [...existing, newElement] })`
 
 **Webview panels — required lifecycle pattern:**
+
 ```
 dom-ready → patchWebviewIframeHeight(webview) + executeJavaScript(FULLSCREEN_INJECT_SCRIPT)
            → registerFullscreenListeners(webview, setIsFullscreen)
 ```
+
 - `patchWebviewIframeHeight` from `src/renderer/src/lib/patchWebview.ts`
 - `FULLSCREEN_INJECT_SCRIPT` and `registerFullscreenListeners` from `src/renderer/src/lib/webviewFullscreen.ts`
 - Container style must branch on `isFullscreen`: `position: fixed; inset: 0; z-index: FULLSCREEN_Z_INDEX` vs relative
@@ -42,6 +47,7 @@ dom-ready → patchWebviewIframeHeight(webview) + executeJavaScript(FULLSCREEN_I
 **Scroll lock:** During canvas pan/scroll, `scrollLocked` is `true`. Pass it as a prop to every panel and apply `pointerEvents: scrollLocked ? "none" : "auto"` on the panel's root element.
 
 **Session isolation:** Webview `partition` values:
+
 - Browser panel: `"persist:browser"` (shared across all Browser nodes)
 - AI panel: `` `persist:ai-${providerId}` `` (one session per provider)
 - Editor panel: no partition (uses default)

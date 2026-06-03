@@ -11,6 +11,7 @@ Adding a provider touches exactly 2 files. Apply all code conventions throughout
 ## Step 1 — Clarify before writing any code
 
 Ask the user:
+
 1. What is the provider's unique ID? (lowercase, no spaces — becomes the `AiProvider` union member and the session `partition` key)
 2. What is the display label shown in the picker?
 3. What is the URL to embed? (the chat/app URL, not the marketing page)
@@ -28,6 +29,7 @@ Add the new provider ID to the `AiProvider` union type.
 ## Step 3 — `src/shared/aiProviders.ts`
 
 Add a new entry to the `AI_PROVIDERS` array:
+
 ```ts
 { id: "<id>", label: "<Label>", url: "<url>" }
 ```

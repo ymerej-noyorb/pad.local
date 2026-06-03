@@ -11,6 +11,7 @@ Follow these steps exactly, in order. Apply all code conventions from `.claude/r
 ## Step 1 — Clarify before writing any code
 
 Ask the user:
+
 1. Does this node need to communicate with the Electron main process (IPC)? If yes, what operations?
 2. Is it a `<webview>` embedding an external URL, or a pure React UI rendered directly in the canvas?
 3. What custom data should be stored in `element.customData` (e.g., a URL, a provider ID, a shell path)?
@@ -33,11 +34,13 @@ Add the new type (lowercase kebab-case) to the `EmbeddableType` union.
 **File:** `src/renderer/src/components/<Name>/<Name>Panel.tsx`
 
 Create the component following the pattern of the simplest existing panel that matches the node type:
+
 - Webview-based → use `AiPanel` (`src/renderer/src/components/AI/AiPanel.tsx`) as reference
 - Webview with UI controls → use `BrowserPanel` (`src/renderer/src/components/Browser/BrowserPanel.tsx`) as reference
 - Pure React UI → create a plain component
 
 Required in every panel component:
+
 - `TEXT` constant at the top grouping all user-visible strings
 - Colors imported from `src/renderer/src/theme.ts` via `colorsByTheme[theme]`, never hardcoded
 - Named constants in SCREAMING_SNAKE_CASE for every numeric value
@@ -84,6 +87,7 @@ Expose methods via `contextBridge.exposeInMainWorld("api", { ... })`. For event 
 ## Step 7 — Verify
 
 After writing all files:
+
 - Confirm there are no hardcoded color values (all from `theme.ts`)
 - Confirm there are no inline user-visible strings (all in `TEXT`)
 - Confirm there are no magic numbers (all in named constants)
