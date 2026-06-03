@@ -38,7 +38,7 @@ Rules for filling it:
 
 - **What does this PR do?** — one or two sentences, plain language, no jargon. Describe the user-visible change, not the implementation.
 - **Type of change** — check all that apply with `[x]`
-- **Checklist** — leave all items unchecked `[ ]` — the author verifies these manually before merging
+- **Checklist** — leave all items unchecked `[ ]` — the author verifies these manually before merging. Note: CI runs `format:check`, `lint`, and `typecheck` in that order, then if all pass it builds the app on Linux, Windows, and macOS — all are blocking on every PR targeting `main`.
 
 ---
 
